@@ -1,0 +1,644 @@
+<!-- meta: title - Stateless Packet Filtering Profile -->
+<!-- meta: package - http://oasis-open.org/openc2/oc2slpf/v1.1 -->
+<!-- meta: version - 0-wd01 -->
+<!-- meta: description - Data definitions for Stateless Packet Filtering (SLPF) functions -->
+<!-- meta: exports - ["OpenC2-Command", "OpenC2-Response"] -->
+
+<grammar xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <start>
+    <choice>
+      <element name="message">
+        <ref name="OpenC2-Command"/>
+      </element>
+      <element name="message">
+        <ref name="IPv4-Connection"/>
+      </element>
+      <element name="message">
+        <ref name="IPv6-Connection"/>
+      </element>
+    </choice>
+  </start>
+  <define name="OpenC2-Command">
+    <!--  -->
+    <interleave>
+      <element name="action">
+        <!--  -->
+        <ref name="Action"/>
+      </element>
+      <element name="target">
+        <!--  -->
+        <ref name="Target"/>
+      </element>
+      <optional>
+        <element name="args">
+          <!--  -->
+          <ref name="Args"/>
+        </element>
+      </optional>
+      <optional>
+        <element name="actuator">
+          <!--  -->
+          <ref name="Actuator"/>
+        </element>
+      </optional>
+      <optional>
+        <element name="command_id">
+          <!--  -->
+          <ref name="Command-ID"/>
+        </element>
+      </optional>
+    </interleave>
+  </define>
+  <define name="OpenC2-Response">
+    <!--  -->
+    <interleave>
+      <element name="status">
+        <!--  -->
+        <ref name="Status-Code"/>
+      </element>
+      <optional>
+        <element name="status_text">
+          <!--  -->
+          <data type="string"/>
+        </element>
+      </optional>
+      <optional>
+        <element name="results">
+          <!--  -->
+          <ref name="Results"/>
+        </element>
+      </optional>
+    </interleave>
+  </define>
+  <define name="Action">
+    <!--  -->
+    <choice>
+      <value>query<!--  --></value>
+      <value>deny<!--  --></value>
+      <value>allow<!--  --></value>
+      <value>update<!--  --></value>
+      <value>delete<!--  --></value>
+    </choice>
+  </define>
+  <define name="Target">
+    <!--  -->
+    <choice>
+      <element name="features">
+        <!--  -->
+        <ref name="Features"/>
+      </element>
+      <element name="file">
+        <!--  -->
+        <ref name="File"/>
+      </element>
+      <element name="ipv4_net">
+        <!--  -->
+        <ref name="IPv4-Net"/>
+      </element>
+      <element name="ipv6_net">
+        <!--  -->
+        <ref name="IPv6-Net"/>
+      </element>
+      <element name="ipv4_connection">
+        <!--  -->
+        <ref name="IPv4-Connection"/>
+      </element>
+      <element name="ipv6_connection">
+        <!--  -->
+        <ref name="IPv6-Connection"/>
+      </element>
+      <element name="slpf">
+        <!--  -->
+        <ref name="AP-Target"/>
+      </element>
+    </choice>
+  </define>
+  <define name="Actuator">
+    <!--  -->
+    <interleave>
+      <optional>
+        <element name="slpf">
+          <!--  -->
+          <ref name="AP-Specifiers"/>
+        </element>
+      </optional>
+    </interleave>
+  </define>
+  <define name="Args">
+    <!--  -->
+    <interleave>
+      <optional>
+        <element name="start_time">
+          <!--  -->
+          <ref name="Date-Time"/>
+        </element>
+      </optional>
+      <optional>
+        <element name="stop_time">
+          <!--  -->
+          <ref name="Date-Time"/>
+        </element>
+      </optional>
+      <optional>
+        <element name="duration">
+          <!--  -->
+          <ref name="Duration"/>
+        </element>
+      </optional>
+      <optional>
+        <element name="response_requested">
+          <!--  -->
+          <ref name="Response-Type"/>
+        </element>
+      </optional>
+      <optional>
+        <element name="slpf">
+          <!--  -->
+          <ref name="AP-Args"/>
+        </element>
+      </optional>
+    </interleave>
+  </define>
+  <define name="Results">
+    <!--  -->
+    <interleave>
+      <optional>
+        <element name="versions">
+          <!--  -->
+          <ref name="Results$Versions"/>
+        </element>
+      </optional>
+      <optional>
+        <element name="profiles">
+          <!--  -->
+          <ref name="Results$Profiles"/>
+        </element>
+      </optional>
+      <optional>
+        <element name="pairs">
+          <!--  -->
+          <ref name="Action-Targets"/>
+        </element>
+      </optional>
+      <optional>
+        <element name="rate_limit">
+          <!--  -->
+          <ref name="Results$rate-limit"/>
+        </element>
+      </optional>
+      <optional>
+        <element name="args">
+          <!--  -->
+          <ref name="Results$Args"/>
+        </element>
+      </optional>
+      <optional>
+        <element name="slpf">
+          <!--  -->
+          <ref name="AP-Results"/>
+        </element>
+      </optional>
+    </interleave>
+  </define>
+  <define name="Action-Targets">
+    <!--  -->
+    <interleave>
+      <element name="query">
+        <!--  -->
+        <ref name="Action-targets$Query"/>
+      </element>
+      <element name="deny">
+        <!--  -->
+        <ref name="Action-targets$Deny"/>
+      </element>
+      <element name="allow">
+        <!--  -->
+        <ref name="Action-targets$Allow"/>
+      </element>
+      <element name="update">
+        <!--  -->
+        <ref name="Action-targets$Update"/>
+      </element>
+      <element name="delete">
+        <!--  -->
+        <ref name="Action-targets$Delete"/>
+      </element>
+    </interleave>
+  </define>
+  <define name="Query-Targets">
+    <!--  -->
+    <choice>
+      <value>features<!--  --></value>
+    </choice>
+  </define>
+  <define name="Allow-Deny-Targets">
+    <!--  -->
+    <choice>
+      <value>ipv4_net<!--  --></value>
+      <value>ipv6_net<!--  --></value>
+      <value>ipv4_connection<!--  --></value>
+      <value>ipv6_connection<!--  --></value>
+    </choice>
+  </define>
+  <define name="Update-Targets">
+    <!--  -->
+    <choice>
+      <value>file<!--  --></value>
+    </choice>
+  </define>
+  <define name="Delete-Targets">
+    <!--  -->
+    <choice>
+      <value>slpf/rule_number<!--  --></value>
+    </choice>
+  </define>
+  <define name="AP-Target">
+    <!--  -->
+    <choice>
+      <element name="rule_number">
+        <!--  -->
+        <ref name="Rule-ID"/>
+      </element>
+    </choice>
+  </define>
+  <define name="AP-Specifiers">
+    <!--  -->
+    <interleave>
+      <optional>
+        <element name="hostname">
+          <!--  -->
+          <data type="string"/>
+        </element>
+      </optional>
+      <optional>
+        <element name="named_group">
+          <!--  -->
+          <data type="string"/>
+        </element>
+      </optional>
+      <optional>
+        <element name="asset_id">
+          <!--  -->
+          <data type="string"/>
+        </element>
+      </optional>
+      <optional>
+        <element name="asset_tuple">
+          <!--  -->
+          <ref name="Ap-specifiers$Asset_tuple"/>
+        </element>
+      </optional>
+    </interleave>
+  </define>
+  <define name="AP-Args">
+    <!--  -->
+    <interleave>
+      <optional>
+        <element name="drop_process">
+          <!--  -->
+          <ref name="Drop-Process"/>
+        </element>
+      </optional>
+      <optional>
+        <element name="persistent">
+          <!--  -->
+          <data type="boolean"/>
+        </element>
+      </optional>
+      <optional>
+        <element name="direction">
+          <!--  -->
+          <ref name="Direction"/>
+        </element>
+      </optional>
+      <optional>
+        <element name="insert_rule">
+          <!--  -->
+          <ref name="Rule-ID"/>
+        </element>
+      </optional>
+    </interleave>
+  </define>
+  <define name="AP-Results">
+    <!--  -->
+    <interleave>
+      <optional>
+        <element name="rule_number">
+          <!--  -->
+          <ref name="Rule-ID"/>
+        </element>
+      </optional>
+    </interleave>
+  </define>
+  <define name="Drop-Process">
+    <!--  -->
+    <choice>
+      <value>none<!--  --></value>
+      <value>reject<!--  --></value>
+      <value>false_ack<!--  --></value>
+    </choice>
+  </define>
+  <define name="Direction">
+    <!--  -->
+    <choice>
+      <value>both<!--  --></value>
+      <value>ingress<!--  --></value>
+      <value>egress<!--  --></value>
+    </choice>
+  </define>
+  <define name="Rule-ID">
+    <!-- Access rule identifier -->
+    <data type="integer"/>
+  </define>
+  <define name="Status-Code">
+    <!--  -->
+    <choice>
+      <value>Processing<!--  --></value>
+      <value>OK<!--  --></value>
+      <value>Created<!--  --></value>
+      <value>Bad_Request<!--  --></value>
+      <value>Unauthorized<!--  --></value>
+      <value>Forbidden<!--  --></value>
+      <value>Not_Found<!--  --></value>
+      <value>Internal_Error<!--  --></value>
+      <value>Not_Implemented<!--  --></value>
+      <value>Service_Unavailable<!--  --></value>
+    </choice>
+  </define>
+  <define name="Features">
+    <!--  -->
+    <oneOrMore>
+      <text/>
+    </oneOrMore>
+  </define>
+  <define name="File">
+    <!--  -->
+    <interleave>
+      <optional>
+        <element name="name">
+          <!--  -->
+          <data type="string"/>
+        </element>
+      </optional>
+      <optional>
+        <element name="path">
+          <!--  -->
+          <data type="string"/>
+        </element>
+      </optional>
+      <optional>
+        <element name="hashes">
+          <!--  -->
+          <ref name="Hashes"/>
+        </element>
+      </optional>
+    </interleave>
+  </define>
+  <define name="IPv4-Net">
+    <!--  -->
+    <interleave>
+      <element name="ipv4_addr">
+        <!--  -->
+        <ref name="IPv4-Addr"/>
+      </element>
+      <optional>
+        <element name="prefix_length">
+          <!--  -->
+          <data type="integer"/>
+        </element>
+      </optional>
+    </interleave>
+  </define>
+  <define name="IPv4-Connection">
+    <!--  -->
+    <interleave>
+      <optional>
+        <element name="src_addr">
+          <!--  -->
+          <ref name="IPv4-Net"/>
+        </element>
+      </optional>
+      <optional>
+        <element name="src_port">
+          <!--  -->
+          <ref name="Port"/>
+        </element>
+      </optional>
+      <optional>
+        <element name="dst_addr">
+          <!--  -->
+          <ref name="IPv4-Net"/>
+        </element>
+      </optional>
+      <optional>
+        <element name="dst_port">
+          <!--  -->
+          <ref name="Port"/>
+        </element>
+      </optional>
+      <optional>
+        <element name="protocol">
+          <!--  -->
+          <ref name="L4-Protocol"/>
+        </element>
+      </optional>
+    </interleave>
+  </define>
+  <define name="IPv6-Net">
+    <!--  -->
+    <interleave>
+      <element name="ipv6_addr">
+        <!--  -->
+        <ref name="IPv6-Addr"/>
+      </element>
+      <optional>
+        <element name="prefix_length">
+          <!--  -->
+          <data type="integer"/>
+        </element>
+      </optional>
+    </interleave>
+  </define>
+  <define name="IPv6-Connection">
+    <!--  -->
+    <interleave>
+      <optional>
+        <element name="src_addr">
+          <!--  -->
+          <ref name="IPv6-Net"/>
+        </element>
+      </optional>
+      <optional>
+        <element name="src_port">
+          <!--  -->
+          <ref name="Port"/>
+        </element>
+      </optional>
+      <optional>
+        <element name="dst_addr">
+          <!--  -->
+          <ref name="IPv6-Net"/>
+        </element>
+      </optional>
+      <optional>
+        <element name="dst_port">
+          <!--  -->
+          <ref name="Port"/>
+        </element>
+      </optional>
+      <optional>
+        <element name="protocol">
+          <!--  -->
+          <ref name="L4-Protocol"/>
+        </element>
+      </optional>
+    </interleave>
+  </define>
+  <define name="Date-Time">
+    <!-- Date and Time #jadn_opts:{"options": {"minv": 0}} -->
+    <data type="integer"/>
+  </define>
+  <define name="Duration">
+    <!-- A length of time #jadn_opts:{"options": {"minv": 0}} -->
+    <data type="integer"/>
+  </define>
+  <define name="Feature">
+    <!--  -->
+    <choice>
+      <value>versions<!--  --></value>
+      <value>profiles<!--  --></value>
+      <value>pairs<!--  --></value>
+      <value>rate_limit<!--  --></value>
+      <value>args<!--  --></value>
+    </choice>
+  </define>
+  <define name="Hashes">
+    <!--  -->
+    <interleave>
+      <element name="md5">
+        <!--  -->
+        <ref name="Hashes$md5"/>
+      </element>
+      <element name="sha1">
+        <!--  -->
+        <ref name="Hashes$sha1"/>
+      </element>
+      <element name="sha256">
+        <!--  -->
+        <ref name="Hashes$sha256"/>
+      </element>
+    </interleave>
+  </define>
+  <define name="IPv4-Addr">
+    <!-- 32 bit IPv4 address as defined in [RFC0791] #jadn_opts:{"options": {"format": "ipv4-addr"}} -->
+    <data type="base64Binary"/>
+  </define>
+  <define name="IPv6-Addr">
+    <!-- 128 bit IPv6 address as defined in [RFC8200] #jadn_opts:{"options": {"format": "ipv6-addr"}} -->
+    <data type="base64Binary"/>
+  </define>
+  <define name="L4-Protocol">
+    <!--  -->
+    <choice>
+      <value>icmp<!--  --></value>
+      <value>tcp<!--  --></value>
+      <value>udp<!--  --></value>
+      <value>sctp<!--  --></value>
+    </choice>
+  </define>
+  <define name="Port">
+    <!-- Transport Protocol Port Number, [RFC6335] #jadn_opts:{"options": {"minv": 0, "maxv": 65535}} -->
+    <data type="integer"/>
+  </define>
+  <define name="Response-Type">
+    <!--  -->
+    <choice>
+      <value>none<!--  --></value>
+      <value>ack<!--  --></value>
+      <value>status<!--  --></value>
+      <value>complete<!--  --></value>
+    </choice>
+  </define>
+  <define name="Version">
+    <!-- Major.Minor version number -->
+    <data type="string"/>
+  </define>
+  <define name="Namespace">
+    <!-- Unique name of an Actuator Profile #jadn_opts:{"options": {"format": "uri"}} -->
+    <data type="string"/>
+  </define>
+  <define name="Command-ID">
+    <!-- Command Identifier #jadn_opts:{"options": {"pattern": "^\\S{0,36}$"}} -->
+    <data type="string"/>
+  </define>
+  <define name="Results$Versions">
+    <!--  -->
+    <oneOrMore>
+      <text/>
+    </oneOrMore>
+  </define>
+  <define name="Results$Profiles">
+    <!--  -->
+    <oneOrMore>
+      <text/>
+    </oneOrMore>
+  </define>
+  <define name="Results$Args">
+    <!--  -->
+    <oneOrMore>
+      <text/>
+    </oneOrMore>
+  </define>
+  <define name="Action-targets$Query">
+    <!--  -->
+    <oneOrMore>
+      <text/>
+    </oneOrMore>
+  </define>
+  <define name="Action-targets$Deny">
+    <!--  -->
+    <oneOrMore>
+      <text/>
+    </oneOrMore>
+  </define>
+  <define name="Action-targets$Allow">
+    <!--  -->
+    <oneOrMore>
+      <text/>
+    </oneOrMore>
+  </define>
+  <define name="Action-targets$Update">
+    <!--  -->
+    <oneOrMore>
+      <text/>
+    </oneOrMore>
+  </define>
+  <define name="Action-targets$Delete">
+    <!--  -->
+    <oneOrMore>
+      <text/>
+    </oneOrMore>
+  </define>
+  <define name="Ap-specifiers$Asset_tuple">
+    <!--  -->
+    <oneOrMore>
+      <text/>
+    </oneOrMore>
+  </define>
+  <define name="Results$rate-limit">
+    <!-- Maximum number of requests per minute supported by design or policy #jadn_opts:{"options": {"minf": 0.0}} -->
+    <data type="float"/>
+  </define>
+  <define name="Hashes$md5">
+    <!-- MD5 hash as defined in [RFC1321] #jadn_opts:{"options": {"format": "x", "minv": 16, "maxv": 16}} -->
+    <data type="base64Binary"/>
+  </define>
+  <define name="Hashes$sha1">
+    <!-- SHA1 hash as defined in [RFC6234] #jadn_opts:{"options": {"format": "x", "minv": 20, "maxv": 20}} -->
+    <data type="base64Binary"/>
+  </define>
+  <define name="Hashes$sha256">
+    <!-- SHA256 hash as defined in [RFC6234] #jadn_opts:{"options": {"format": "x", "minv": 32, "maxv": 32}} -->
+    <data type="base64Binary"/>
+  </define>
+</grammar>

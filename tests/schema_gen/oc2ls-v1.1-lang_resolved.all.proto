@@ -1,0 +1,325 @@
+syntax = "proto3";
+//        title: "OpenC2 Language Profile"
+package org.oasis-open.openc2.oc2ls.v1-1;
+//  description: "Language Profile from the OpenC2 Language Specification version 1.1"
+//      exports: ["OpenC2-Command", "OpenC2-Response"]
+
+
+// The Command defines an Action to be performed on a Target
+message OpenC2-Command {  // $Record {}
+  Action      action =      1;  // The task or activity to be performed (i.e., the 'verb'). #jadn_opts:{"type": "Action"}                                             
+  Target      target =      2;  // The object of the Action. The Action is performed on the Target. #jadn_opts:{"type": "Target"}                                     
+  Args        args =        3;  // Additional information that applies to the Command. #jadn_opts:{"type": "Args", "options": {"minc": 0}}                            
+  Actuator    actuator =    4;  // The subject of the Action. The Actuator executes the Action on the Target. #jadn_opts:{"type": "Actuator", "options": {"minc": 0}} 
+  Command-ID  command_id =  5;  // An identifier of this Command. #jadn_opts:{"type": "Command-ID", "options": {"minc": 0}}                                           
+}
+
+message OpenC2-Response {  // $Record {}
+  Status-Code  status =       1;  // An integer status code. #jadn_opts:{"type": "Status-Code"}                                                                                   
+  string       status_text =  2;  // A free-form human-readable description of the Response status. #jadn_opts:{"type": "String", "options": {"minc": 0}}                         
+  Results      results =      3;  // Map of key:value pairs that contain additional results based on the invoking Command. #jadn_opts:{"type": "Results", "options": {"minc": 0}} 
+}
+
+enum Action {  // $Enumerated {}
+  Unknown_Action =  0;   // required starting enum number for protobuf3                                                                                             
+  scan =            1;   // Systematic examination of some aspect of the entity or its environment.                                                                 
+  locate =          2;   // Find an object physically, logically, functionally, or by organization.                                                                 
+  query =           3;   // Initiate a request for information.                                                                                                     
+  deny =            6;   // Prevent a certain event or action from completion, such as preventing a flow from reaching a destination or preventing access.          
+  contain =         7;   // Isolate a file, process, or entity so that it cannot modify or access assets or processes.                                              
+  allow =           8;   // Permit access to or execution of a Target.                                                                                              
+  start =           9;   // Initiate a process, application, system, or activity.                                                                                   
+  stop =            10;  // Halt a system or end an activity.                                                                                                       
+  restart =         11;  // Stop then start a system or an activity.                                                                                                
+  cancel =          14;  // Invalidate a previously issued Action.                                                                                                  
+  set =             15;  // Change a value, configuration, or state of a managed entity.                                                                            
+  update =          16;  // Instruct a component to retrieve, install, process, and operate in accordance with a software update, reconfiguration, or other update. 
+  redirect =        18;  // Change the flow of traffic to a destination other than its original destination.                                                        
+  create =          19;  // Add a new entity of a known type (e.g., data, files, directories).                                                                      
+  delete =          20;  // Remove an entity (e.g., data, files, flows).                                                                                            
+  detonate =        22;  // Execute and observe the behavior of a Target (e.g., file, hyperlink) in an isolated environment.                                        
+  restore =         23;  // Return a system to a previously known state.                                                                                            
+  copy =            28;  // Duplicate an object, file, data flow, or artifact.                                                                                      
+  investigate =     30;  // Task the recipient to aggregate and report information as it pertains to a security event or incident.                                  
+  remediate =       32;  // Task the recipient to eliminate a vulnerability or attack point.                                                                        
+}
+
+message Target {
+  oneof Target {  // $Choice {}
+    Artifact         artifact =         1;   // An array of bytes representing a file-like object or a link to that object. #jadn_opts:{"type": "Artifact"}                                 
+    Command-ID       command =          2;   // A reference to a previously issued Command. #jadn_opts:{"type": "Command-ID"}                                                               
+    Device           device =           3;   // The properties of a hardware device. #jadn_opts:{"type": "Device"}                                                                          
+    Domain-Name      domain_name =      7;   // A network domain name. #jadn_opts:{"type": "Domain-Name"}                                                                                   
+    Email-Addr       email_addr =       8;   // A single email address. #jadn_opts:{"type": "Email-Addr"}                                                                                   
+    Features         features =         9;   // A set of items used with the query Action to determine an Actuator's capabilities. #jadn_opts:{"type": "Features"}                          
+    File             file =             10;  // Properties of a file. #jadn_opts:{"type": "File"}                                                                                           
+    IDN-Domain-Name  idn_domain_name =  11;  // An internationalized domain name. #jadn_opts:{"type": "IDN-Domain-Name"}                                                                    
+    IDN-Email-Addr   idn_email_addr =   12;  // A single internationalized email address. #jadn_opts:{"type": "IDN-Email-Addr"}                                                             
+    IPv4-Net         ipv4_net =         13;  // An IPv4 address range including CIDR prefix length. #jadn_opts:{"type": "IPv4-Net"}                                                         
+    IPv6-Net         ipv6_net =         14;  // An IPv6 address range including prefix length. #jadn_opts:{"type": "IPv6-Net"}                                                              
+    IPv4-Connection  ipv4_connection =  15;  // A 5-tuple of source and destination IPv4 address ranges, source and destination ports, and protocol. #jadn_opts:{"type": "IPv4-Connection"} 
+    IPv6-Connection  ipv6_connection =  16;  // A 5-tuple of source and destination IPv6 address ranges, source and destination ports, and protocol. #jadn_opts:{"type": "IPv6-Connection"} 
+    IRI              iri =              20;  // An internationalized resource identifier (IRI). #jadn_opts:{"type": "IRI"}                                                                  
+    MAC-Addr         mac_addr =         17;  // A Media Access Control (MAC) address - EUI-48 or EUI-64 as defined in [EUI]. #jadn_opts:{"type": "MAC-Addr"}                                
+    Process          process =          18;  // Common properties of an instance of a computer program as executed on an operating system. #jadn_opts:{"type": "Process"}                   
+    Properties       properties =       25;  // Data attribute associated with an Actuator. #jadn_opts:{"type": "Properties"}                                                               
+    URI              uri =              19;  // A uniform resource identifier (URI). #jadn_opts:{"type": "URI"}                                                                             
+}
+
+
+message Actuator {
+  oneof Actuator {  // $Choice {}
+  
+}
+
+
+message Args {  // $Map {'minv': 1}
+  Date-Time      start_time =          1;  // The specific date/time to initiate the Command #jadn_opts:{"type": "Date-Time", "options": {"minc": 0}}                                 
+  Date-Time      stop_time =           2;  // The specific date/time to terminate the Command #jadn_opts:{"type": "Date-Time", "options": {"minc": 0}}                                
+  Duration       duration =            3;  // The length of time for an Command to be in effect #jadn_opts:{"type": "Duration", "options": {"minc": 0}}                               
+  Response-Type  response_requested =  4;  // The type of Response required for the Command: none, ack, status, complete #jadn_opts:{"type": "Response-Type", "options": {"minc": 0}} 
+}
+
+enum Status-Code {  // $Enumerated {'id': True}
+  Unknown_Status_Code =  0;    // required starting enum number for protobuf3                                                                                                        
+  Processing =           102;  // an interim Response used to inform the Producer that the Consumer has accepted the Command but has not yet completed it                            
+  OK =                   200;  // the Command has succeeded                                                                                                                          
+  Created =              201;  // the Command has succeeded and a new resource has been created as a result of it                                                                    
+  Bad_Request =          400;  // the Consumer cannot process the Command due to something that is perceived to be a Producer error (e.g., malformed Command syntax)                 
+  Unauthorized =         401;  // the Command Message lacks valid authentication credentials for the target resource or authorization has been refused for the submitted credentials 
+  Forbidden =            403;  // the Consumer understood the Command but refuses to authorize it                                                                                    
+  Not_Found =            404;  // the Consumer has not found anything matching the Command                                                                                           
+  Internal_Error =       500;  // the Consumer encountered an unexpected condition that prevented it from performing the Command                                                     
+  Not_Implemented =      501;  // the Consumer does not support the functionality required to perform the Command                                                                    
+  Service_Unavailable =  503;  // the Consumer is currently unable to perform the Command due to a temporary overloading or maintenance of the Consumer                              
+}
+
+// Response Results
+message Results {  // $Map {'minv': 1}
+  Results$Versions    versions =    1;  // List of OpenC2 language versions supported by this Actuator #jadn_opts:{"type": "Results$Versions", "options": {"minc": 0}}           
+  Results$Profiles    profiles =    2;  // List of profiles supported by this Actuator #jadn_opts:{"type": "Results$Profiles", "options": {"minc": 0}}                           
+  Action-Targets      pairs =       3;  // List of targets applicable to each supported Action #jadn_opts:{"type": "Action-Targets", "options": {"minc": 0}}                     
+  Results$rate-limit  rate_limit =  4;  // Maximum number of requests per minute supported by design or policy #jadn_opts:{"type": "Results$rate-limit", "options": {"minc": 0}} 
+  Results$Args        args =        5;  // List of supported Command Arguments #jadn_opts:{"type": "Results$Args", "options": {"minc": 0}}                                       
+}
+
+message Artifact {  // $Record {'minv': 1}
+  string   mime_type =  1;  // Permitted values specified in the IANA Media Types registry, [RFC6838] #jadn_opts:{"type": "String", "options": {"minc": 0}} 
+  Payload  payload =    2;  // Choice of literal content or URL #jadn_opts:{"type": "Payload", "options": {"minc": 0}}                                      
+  Hashes   hashes =     3;  // Hashes of the payload content #jadn_opts:{"type": "Hashes", "options": {"minc": 0}}                                          
+}
+
+message Device {  // $Map {'minv': 1}
+  Hostname      hostname =      1;  // A hostname that can be used to connect to this device over a network #jadn_opts:{"type": "Hostname", "options": {"minc": 0}}                        
+  IDN-Hostname  idn_hostname =  2;  // An internationalized hostname that can be used to connect to this device over a network #jadn_opts:{"type": "IDN-Hostname", "options": {"minc": 0}} 
+  string        device_id =     3;  // An identifier that refers to this device within an inventory or management system #jadn_opts:{"type": "String", "options": {"minc": 0}}             
+}
+
+// [RFC1034], Section 3.5
+// $Domain-Name(String) {'format': 'hostname'}
+
+// Email address - [RFC5322], Section 3.4.1
+// $Email-Addr(String) {'format': 'email'}
+
+// An array of zero to ten names used to query an Actuator for its supported capabilities.
+// $Features(ArrayOf) {'vtype': 'Feature', 'maxv': 10, 'unique': True}
+
+message File {  // $Map {'minv': 1}
+  string  name =    1;  // The name of the file as defined in the file system #jadn_opts:{"type": "String", "options": {"minc": 0}}               
+  string  path =    2;  // The absolute path to the location of the file in the file system #jadn_opts:{"type": "String", "options": {"minc": 0}} 
+  Hashes  hashes =  3;  // One or more cryptographic hash codes of the file contents #jadn_opts:{"type": "Hashes", "options": {"minc": 0}}        
+}
+
+// Internationalized Domain Name - [RFC5890], Section 2.3.2.3
+// $IDN-Domain-Name(String) {'format': 'idn-hostname'}
+
+// Internationalized email address - [RFC6531]
+// $IDN-Email-Addr(String) {'format': 'idn-email'}
+
+// IPv4 address and prefix length
+// $IPv4-Net(Array) {'format': 'ipv4-net'}
+
+// 5-tuple that specifies a tcp/ip connection
+message IPv4-Connection {  // $Record {'minv': 1}
+  IPv4-Net     src_addr =  1;  // IPv4 source address range #jadn_opts:{"type": "IPv4-Net", "options": {"minc": 0}}                                 
+  Port         src_port =  2;  // Source service per [RFC6335] #jadn_opts:{"type": "Port", "options": {"minc": 0}}                                  
+  IPv4-Net     dst_addr =  3;  // IPv4 destination address range #jadn_opts:{"type": "IPv4-Net", "options": {"minc": 0}}                            
+  Port         dst_port =  4;  // Destination service per [RFC6335] #jadn_opts:{"type": "Port", "options": {"minc": 0}}                             
+  L4-Protocol  protocol =  5;  // Layer 4 protocol (e.g., TCP) - see L4-Protocol section #jadn_opts:{"type": "L4-Protocol", "options": {"minc": 0}} 
+}
+
+// IPv6 address and prefix length
+// $IPv6-Net(Array) {'format': 'ipv6-net'}
+
+// 5-tuple that specifies a tcp/ip connection
+message IPv6-Connection {  // $Record {'minv': 1}
+  IPv6-Net     src_addr =  1;  // IPv6 source address range #jadn_opts:{"type": "IPv6-Net", "options": {"minc": 0}}                            
+  Port         src_port =  2;  // Source service per [RFC6335] #jadn_opts:{"type": "Port", "options": {"minc": 0}}                             
+  IPv6-Net     dst_addr =  3;  // IPv6 destination address range #jadn_opts:{"type": "IPv6-Net", "options": {"minc": 0}}                       
+  Port         dst_port =  4;  // Destination service per [RFC6335] #jadn_opts:{"type": "Port", "options": {"minc": 0}}                        
+  L4-Protocol  protocol =  5;  // Layer 4 protocol (e.g., TCP) - [Section 3.4.2.10] #jadn_opts:{"type": "L4-Protocol", "options": {"minc": 0}} 
+}
+
+// Internationalized Resource Identifier, [RFC3987]
+// $IRI(String) {'format': 'iri'}
+
+// Media Access Control / Extended Unique Identifier address - EUI-48 or EUI-64 as defined in [EUI]
+// $MAC-Addr(Binary) {'format': 'eui'}
+
+message Process {  // $Map {'minv': 1}
+  Process$pid  pid =           1;  // Process ID of the process #jadn_opts:{"type": "Process$pid", "options": {"minc": 0}}                                                       
+  string       name =          2;  // Name of the process #jadn_opts:{"type": "String", "options": {"minc": 0}}                                                                  
+  string       cwd =           3;  // Current working directory of the process #jadn_opts:{"type": "String", "options": {"minc": 0}}                                             
+  File         executable =    4;  // Executable that was executed to start the process #jadn_opts:{"type": "File", "options": {"minc": 0}}                                      
+  Process      parent =        5;  // Process that spawned this one #jadn_opts:{"type": "Process", "options": {"minc": 0}}                                                       
+  string       command_line =  6;  // The full command line invocation used to start this process, including all arguments #jadn_opts:{"type": "String", "options": {"minc": 0}} 
+}
+
+// A list of names that uniquely identify properties of an Actuator.
+// $Properties(ArrayOf) {'vtype': 'String', 'minv': 1, 'unique': True}
+
+// Uniform Resource Identifier, [RFC3986]
+// $URI(String) {'format': 'uri'}
+
+// Map of each action supported by this actuator to the list of targets applicable to that action
+message Action-Targets {  // $Map {'minv': 1}
+  Targets  scan =         1;   // Systematic examination of some aspect of the entity or its environment. #jadn_opts:{"type": "Targets"}                                                                 
+  Targets  locate =       2;   // Find an object physically, logically, functionally, or by organization. #jadn_opts:{"type": "Targets"}                                                                 
+  Targets  query =        3;   // Initiate a request for information. #jadn_opts:{"type": "Targets"}                                                                                                     
+  Targets  deny =         6;   // Prevent a certain event or action from completion, such as preventing a flow from reaching a destination or preventing access. #jadn_opts:{"type": "Targets"}          
+  Targets  contain =      7;   // Isolate a file, process, or entity so that it cannot modify or access assets or processes. #jadn_opts:{"type": "Targets"}                                              
+  Targets  allow =        8;   // Permit access to or execution of a Target. #jadn_opts:{"type": "Targets"}                                                                                              
+  Targets  start =        9;   // Initiate a process, application, system, or activity. #jadn_opts:{"type": "Targets"}                                                                                   
+  Targets  stop =         10;  // Halt a system or end an activity. #jadn_opts:{"type": "Targets"}                                                                                                       
+  Targets  restart =      11;  // Stop then start a system or an activity. #jadn_opts:{"type": "Targets"}                                                                                                
+  Targets  cancel =       14;  // Invalidate a previously issued Action. #jadn_opts:{"type": "Targets"}                                                                                                  
+  Targets  set =          15;  // Change a value, configuration, or state of a managed entity. #jadn_opts:{"type": "Targets"}                                                                            
+  Targets  update =       16;  // Instruct a component to retrieve, install, process, and operate in accordance with a software update, reconfiguration, or other update. #jadn_opts:{"type": "Targets"} 
+  Targets  redirect =     18;  // Change the flow of traffic to a destination other than its original destination. #jadn_opts:{"type": "Targets"}                                                        
+  Targets  create =       19;  // Add a new entity of a known type (e.g., data, files, directories). #jadn_opts:{"type": "Targets"}                                                                      
+  Targets  delete =       20;  // Remove an entity (e.g., data, files, flows). #jadn_opts:{"type": "Targets"}                                                                                            
+  Targets  detonate =     22;  // Execute and observe the behavior of a Target (e.g., file, hyperlink) in an isolated environment. #jadn_opts:{"type": "Targets"}                                        
+  Targets  restore =      23;  // Return a system to a previously known state. #jadn_opts:{"type": "Targets"}                                                                                            
+  Targets  copy =         28;  // Duplicate an object, file, data flow, or artifact. #jadn_opts:{"type": "Targets"}                                                                                      
+  Targets  investigate =  30;  // Task the recipient to aggregate and report information as it pertains to a security event or incident. #jadn_opts:{"type": "Targets"}                                  
+  Targets  remediate =    32;  // Task the recipient to eliminate a vulnerability or attack point. #jadn_opts:{"type": "Targets"}                                                                        
+}
+
+// List of Target types
+// $Targets(ArrayOf) {'vtype': 'Target$Pointer', 'minv': 1, 'maxv': 0, 'unique': True}
+
+// Date and Time
+// $Date-Time(Integer) {'minv': 0}
+
+// A length of time
+// $Duration(Integer) {'minv': 0}
+
+// Specifies the results to be returned from a query features Command
+enum Feature {  // $Enumerated {}
+  Unknown_Feature =  0;  // required starting enum number for protobuf3                         
+  versions =         1;  // List of OpenC2 Language versions supported by this Actuator         
+  profiles =         2;  // List of profiles supported by this Actuator                         
+  pairs =            3;  // List of supported Actions and applicable Targets                    
+  rate_limit =       4;  // Maximum number of Commands per minute supported by design or policy 
+  args =             5;  // List of supported Command Argumemnts                                
+}
+
+// Cryptographic hash values
+message Hashes {  // $Map {'minv': 1}
+  Hashes$md5     md5 =     1;  // MD5 hash as defined in [RFC1321] #jadn_opts:{"type": "Hashes$md5"}       
+  Hashes$sha1    sha1 =    2;  // SHA1 hash as defined in [RFC6234] #jadn_opts:{"type": "Hashes$sha1"}     
+  Hashes$sha256  sha256 =  3;  // SHA256 hash as defined in [RFC6234] #jadn_opts:{"type": "Hashes$sha256"} 
+}
+
+// Internet host name as specified in [RFC1123]
+// $Hostname(String) {'format': 'hostname'}
+
+// Internationalized Internet host name as specified in [RFC5890], Section 2.3.2.3
+// $IDN-Hostname(String) {'format': 'idn-hostname'}
+
+// 32 bit IPv4 address as defined in [RFC0791]
+// $IPv4-Addr(Binary) {'format': 'ipv4-addr'}
+
+// 128 bit IPv6 address as defined in [RFC8200]
+// $IPv6-Addr(Binary) {'format': 'ipv6-addr'}
+
+// Value of the protocol (IPv4) or next header (IPv6) field in an IP packet. Any IANA value, [RFC5237]
+enum L4-Protocol {  // $Enumerated {}
+  Unknown_L4_Protocol =  0;    // required starting enum number for protobuf3      
+  icmp =                 1;    // Internet Control Message Protocol - [RFC0792]    
+  tcp =                  6;    // Transmission Control Protocol - [RFC0793]        
+  udp =                  17;   // User Datagram Protocol - [RFC0768]               
+  sctp =                 132;  // Stream Control Transmission Protocol - [RFC4960] 
+}
+
+message Payload {
+  oneof Payload {  // $Choice {}
+    string  bin =  1;  // Specifies the data contained in the artifact #jadn_opts:{"type": "Binary"}             
+    URI     url =  2;  // MUST be a valid URL that resolves to the un-encoded content #jadn_opts:{"type": "URI"} 
+}
+
+
+// Transport Protocol Port Number, [RFC6335]
+// $Port(Integer) {'minv': 0, 'maxv': 65535}
+
+enum Response-Type {  // $Enumerated {}
+  none =      0;  // No response                                     
+  ack =       1;  // Respond when Command received                   
+  status =    2;  // Respond with progress toward Command completion 
+  complete =  3;  // Respond when all aspects of Command completed   
+}
+
+// Major.Minor version number
+// $Version(String) {}
+
+// Command Identifier
+// $Command-ID(String) {'pattern': '^\\S{0,36}$'}
+
+// Unique name of an Actuator Profile
+// $Namespace(String) {'format': 'uri'}
+
+// List of OpenC2 language versions supported by this Actuator
+// $Results$Versions(ArrayOf) {'vtype': 'Version', 'minv': 1, 'maxv': 10, 'unique': True}
+
+// List of profiles supported by this Actuator
+// $Results$Profiles(ArrayOf) {'vtype': 'Namespace', 'minv': 1, 'unique': True}
+
+// List of supported Command Arguments
+// $Results$Args(ArrayOf) {'vtype': 'Enumerated', 'minv': 1}
+
+// Maximum number of requests per minute supported by design or policy
+// $Results$rate-limit(Number) {'minf': 0.0}
+
+// Process ID of the process
+// $Process$pid(Integer) {'minv': 0}
+
+// MD5 hash as defined in [RFC1321]
+// $Hashes$md5(Binary) {'format': 'x', 'minv': 16, 'maxv': 16}
+
+// SHA1 hash as defined in [RFC6234]
+// $Hashes$sha1(Binary) {'format': 'x', 'minv': 20, 'maxv': 20}
+
+// SHA256 hash as defined in [RFC6234]
+// $Hashes$sha256(Binary) {'format': 'x', 'minv': 32, 'maxv': 32}
+
+enum Target$Pointer {  // $Enumerated {}
+  Unknown_Target$Pointer =  0;   // required starting enum number for protobuf3                                                          
+  artifact =                1;   // An array of bytes representing a file-like object or a link to that object.                          
+  command =                 2;   // A reference to a previously issued Command.                                                          
+  device =                  3;   // The properties of a hardware device.                                                                 
+  domain_name =             4;   // A network domain name.                                                                               
+  email_addr =              5;   // A single email address.                                                                              
+  features =                6;   // A set of items used with the query Action to determine an Actuator's capabilities.                   
+  file =                    7;   // Properties of a file.                                                                                
+  idn_domain_name =         8;   // An internationalized domain name.                                                                    
+  idn_email_addr =          9;   // A single internationalized email address.                                                            
+  ipv4_net =                10;  // An IPv4 address range including CIDR prefix length.                                                  
+  ipv6_net =                11;  // An IPv6 address range including prefix length.                                                       
+  ipv4_connection =         12;  // A 5-tuple of source and destination IPv4 address ranges, source and destination ports, and protocol. 
+  ipv6_connection =         13;  // A 5-tuple of source and destination IPv6 address ranges, source and destination ports, and protocol. 
+  iri =                     14;  // An internationalized resource identifier (IRI).                                                      
+  mac_addr =                15;  // A Media Access Control (MAC) address - EUI-48 or EUI-64 as defined in [EUI].                         
+  process =                 16;  // Common properties of an instance of a computer program as executed on an operating system.           
+  properties =              17;  // Data attribute associated with an Actuator.                                                          
+  uri =                     18;  // A uniform resource identifier (URI).                                                                 
+}

@@ -1,0 +1,231 @@
+; meta: title - Stateless Packet Filtering Profile
+; meta: package - http://oasis-open.org/openc2/oc2slpf/v1.1
+; meta: version - 0-wd01
+; meta: description - Data definitions for Stateless Packet Filtering (SLPF) functions
+; meta: exports - OpenC2-Command, OpenC2-Response
+
+OpenC2-Command = {
+  action:        Action,      
+  target:        Target,      
+  ? args:        Args,        
+  ? actuator:    Actuator,    
+  ? command_id:  Command-ID   
+}
+
+OpenC2-Response = [
+  status:         Status-Code,    
+  ? status_text:  tstr,           
+  ? results:      Results         
+]
+
+; Actions used in this profile
+Action =   "query"    
+Action /=  "deny"     
+Action /=  "allow"    
+Action /=  "update"   
+Action /=  "delete"   
+
+// Targets used in this profile
+Target = (
+  features:         Features //           
+  file:             File //               
+  ipv4_net:         IPv4-Net //           
+  ipv6_net:         IPv6-Net //           
+  ipv4_connection:  IPv4-Connection //    
+  ipv6_connection:  IPv6-Connection //    
+  slpf:             AP-Target             
+)
+
+Actuator = [
+  ? slpf:  AP-Specifiers   
+]
+
+Args = [
+  ? start_time:          Date-Time,        
+  ? stop_time:           Date-Time,        
+  ? duration:            Duration,         
+  ? response_requested:  Response-Type,    
+  ? slpf:                AP-Args           
+]
+
+// Response Results
+Results = [
+  ? versions:    Results$Versions,      
+  ? profiles:    Results$Profiles,      
+  ? pairs:       Action-Targets,        
+  ? rate_limit:  Results$rate-limit,    
+  ? args:        Results$Args,          
+  ? slpf:        AP-Results             
+]
+
+// Targets applicable to each action
+Action-Targets = [
+  query:   Action-targets$Query,     
+  deny:    Action-targets$Deny,      
+  allow:   Action-targets$Allow,     
+  update:  Action-targets$Update,    
+  delete:  Action-targets$Delete     
+]
+
+Query-Targets =  "features"   
+
+Allow-Deny-Targets =   "ipv4_net"          
+Allow-Deny-Targets /=  "ipv6_net"          
+Allow-Deny-Targets /=  "ipv4_connection"   
+Allow-Deny-Targets /=  "ipv6_connection"   
+
+Update-Targets =  "file"   
+
+Delete-Targets =  "slpf/rule_number"   
+
+// SLPF targets
+AP-Target = (
+  rule_number:  Rule-ID   
+)
+
+// SLPF actuator specifiers (may be empty)
+AP-Specifiers = [
+  ? hostname:     tstr,                       
+  ? named_group:  tstr,                       
+  ? asset_id:     tstr,                       
+  ? asset_tuple:  Ap-specifiers$Asset_tuple   
+]
+
+// SLPF command arguments
+AP-Args = [
+  ? drop_process:  Drop-Process,    
+  ? persistent:    bool,            
+  ? direction:     Direction,       
+  ? insert_rule:   Rule-ID          
+]
+
+// SLPF results defined in this profile
+AP-Results = [
+  ? rule_number:  Rule-ID   
+]
+
+Drop-Process =   "none"        
+Drop-Process /=  "reject"      
+Drop-Process /=  "false_ack"   
+
+Direction =   "both"      
+Direction /=  "ingress"   
+Direction /=  "egress"    
+
+; $Rule-ID(Integer) {}
+
+Status-Code =   "Processing"            
+Status-Code /=  "OK"                    
+Status-Code /=  "Created"               
+Status-Code /=  "Bad_Request"           
+Status-Code /=  "Unauthorized"          
+Status-Code /=  "Forbidden"             
+Status-Code /=  "Not_Found"             
+Status-Code /=  "Internal_Error"        
+Status-Code /=  "Not_Implemented"       
+Status-Code /=  "Service_Unavailable"   
+
+Features = [* string] 
+
+File = [
+  ? name:    tstr,    
+  ? path:    tstr,    
+  ? hashes:  Hashes   
+]
+
+// IPv4 address and prefix length
+IPv4-Net = [
+  ipv4_addr:        IPv4-Addr,    
+  ? prefix_length:  int64         
+]
+
+; 5-tuple that specifies a tcp/ip connection
+IPv4-Connection = {
+  ? src_addr:  IPv4-Net,     
+  ? src_port:  Port,         
+  ? dst_addr:  IPv4-Net,     
+  ? dst_port:  Port,         
+  ? protocol:  L4-Protocol   
+}
+
+// IPv6 address and prefix length
+IPv6-Net = [
+  ipv6_addr:        IPv6-Addr,    
+  ? prefix_length:  int64         
+]
+
+; 5-tuple that specifies a tcp/ip connection
+IPv6-Connection = {
+  ? src_addr:  IPv6-Net,     
+  ? src_port:  Port,         
+  ? dst_addr:  IPv6-Net,     
+  ? dst_port:  Port,         
+  ? protocol:  L4-Protocol   
+}
+
+; $Date-Time(Integer) {'minv': 0}
+
+; $Duration(Integer) {'minv': 0}
+
+; Specifies the results to be returned from a query features Command
+Feature =   "versions"     
+Feature /=  "profiles"     
+Feature /=  "pairs"        
+Feature /=  "rate_limit"   
+Feature /=  "args"         
+
+// Cryptographic hash values
+Hashes = [
+  md5:     Hashes$md5,     
+  sha1:    Hashes$sha1,    
+  sha256:  Hashes$sha256   
+]
+
+; $IPv4-Addr(Binary) {'format': 'ipv4-addr'}
+
+; $IPv6-Addr(Binary) {'format': 'ipv6-addr'}
+
+; Value of the protocol (IPv4) or next header (IPv6) field in an IP packet. Any IANA value, [RFC5237]
+L4-Protocol =   "icmp"   
+L4-Protocol /=  "tcp"    
+L4-Protocol /=  "udp"    
+L4-Protocol /=  "sctp"   
+
+; $Port(Integer) {'minv': 0, 'maxv': 65535}
+
+Response-Type =   "none"       
+Response-Type /=  "ack"        
+Response-Type /=  "status"     
+Response-Type /=  "complete"   
+
+; $Version(String) {}
+
+; $Namespace(String) {'format': 'uri'}
+
+; $Command-ID(String) {'pattern': '^\\S{0,36}$'}
+
+Results$Versions = [* string] 
+
+Results$Profiles = [* string] 
+
+Results$Args = [* string] 
+
+Action-targets$Query = [* string] 
+
+Action-targets$Deny = [* string] 
+
+Action-targets$Allow = [* string] 
+
+Action-targets$Update = [* string] 
+
+Action-targets$Delete = [* string] 
+
+Ap-specifiers$Asset_tuple = [* string] 
+
+; $Results$rate-limit(Number) {'minf': 0.0}
+
+; $Hashes$md5(Binary) {'format': 'x', 'minv': 16, 'maxv': 16}
+
+; $Hashes$sha1(Binary) {'format': 'x', 'minv': 20, 'maxv': 20}
+
+; $Hashes$sha256(Binary) {'format': 'x', 'minv': 32, 'maxv': 32}
