@@ -1,3 +1,4 @@
+from pydantic import Extra
 from ..definitionBase import DefinitionBase
 
 
@@ -7,6 +8,9 @@ class Map(DefinitionBase):
     Each key has an id and name or label, and is mapped to a value type
     """
     # __root__: dict
+
+    class Config:
+        extra = Extra.allow
 
     class Options:
         minv = 1

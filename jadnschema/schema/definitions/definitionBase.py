@@ -1,10 +1,10 @@
+from typing import Any, ClassVar, Tuple
 from pydantic.main import ModelMetaclass
-from typing import ClassVar
 from .options import Options
 from .field import getFieldSchema
 from ..consts import SELECTOR_TYPES, STRUCTURED_TYPES
 from ..baseModel import BaseModel
-from ...utils import classproperty
+from ...utils import classproperty, ellipsis_str
 
 
 class DefinitionMeta(ModelMetaclass):
@@ -18,19 +18,19 @@ class DefinitionMeta(ModelMetaclass):
         opts = Options(*base_opts, opts)
         new_namespace = {
             **attrs,
-            "__options__": opts
+            **kwargs,
+            "__options__": opts,
         }
-        cls = super().__new__(mcs, name, bases, new_namespace, **kwargs)
-        count = 1
-        for field, opts in cls.__fields__.items():
+        cls = super().__new__(mcs, name, bases, new_namespace)
+        base_names = [b.__name__ for b in bases]
+        for idx, (field, opts) in enumerate(cls.__fields__.items()):
             if field != "__root__":
                 opts.field_info.extra["parent"] = cls
-                field_opts = opts.field_info.extra.setdefault("options", Options())
+                field_opts = opts.field_info.extra.get("options", Options())
                 field_opts = opts.field_info.extra["options"] = Options(field_opts)
-                opts.field_info.extra.setdefault("id", count)
-                if not opts.required and field_opts.minc != 0:
+                opts.field_info.extra.setdefault("id", idx)
+                if not opts.required and field_opts.minc != 0 and "Choice" not in base_names:
                     field_opts.minc = 0
-                count += 1
         return cls
 
 
@@ -41,6 +41,13 @@ class DefinitionBase(BaseModel, metaclass=DefinitionMeta):
     def name(cls):
         return cls.__options__.name or cls.__name__
 
+    def __str__(self):
+        cls = self.__class__
+        mro = [c for c in cls.__mro__ if not c.__name__ == cls.__name__][0]
+        data = self.json(exclude_none=True)
+        return f"{self.name}({mro.__name__}: {ellipsis_str(data)})"
+
+    # Pydantic overrides
     @classmethod
     def schema(cls) -> list:
         mro = [c for c in cls.__mro__ if not c.__name__ == cls.__name__][0]
@@ -52,6 +59,7 @@ class DefinitionBase(BaseModel, metaclass=DefinitionMeta):
             schema.append(fields)
         return schema
 
+    # Custom Methods
     @classmethod
     def is_enum(cls) -> bool:
         for base in cls.__mro__:
@@ -76,6 +84,15 @@ class DefinitionBase(BaseModel, metaclass=DefinitionMeta):
     @classmethod
     def has_fields(cls) -> bool:
         return cls.is_selector() or cls.is_structure()
+
+    # Dict-like functions
+    def items(self) -> Tuple[Tuple[str, Any], ...]:
+        items = []
+        if self.has_fields():
+            for field in self.__fields__:
+                if val := getattr(self, field, None):
+                    items.append((field, val))
+        return tuple(items)
 
     class Config:
         arbitrary_types_allowed = True

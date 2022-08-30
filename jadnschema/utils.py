@@ -1,3 +1,17 @@
+from typing import Callable
+
+
+def addKey(d: dict, k: str = None) -> Callable:
+    def wrapped(fun: Callable, key: str = k) -> Callable:
+        d[key if key else fun.__name__] = fun
+        return fun
+    return wrapped
+
+
+def ellipsis_str(val: str, cut: int = 100) -> str:
+    if len(val)> cut:
+        return f"{val[:cut]}..."
+    return val
 
 
 class classproperty(property):

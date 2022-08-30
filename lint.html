@@ -114,30 +114,6 @@
             
         </table>
         
-        <h3>Module <code>jadnschema.schema.__init__</code> (<code>jadnschema/schema/__init__.py</code>)</h3>
-        <table>
-            <tr>
-                <th>Line</th>
-                <th>Col.</th>
-                <th>Type</th>
-                <th>Symbol</th>
-                <th>ID</th>
-                <th>Obj</th>
-                <th>Message</th>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>error</td>
-                <td><code>syntax-error</code></td>
-                <td>E0001</td>
-                <td></td>
-                <td><pre>Cannot import &#39;schema&#39; due to syntax error &#39;cannot assign to function call (&lt;unknown&gt;, line 26)&#39;</pre></td>
-            </tr>
-            
-        </table>
-        
         <h3>Module <code>jadnschema.schema.baseModel</code> (<code>jadnschema/schema/baseModel.py</code>)</h3>
         <table>
             <tr>
@@ -162,7 +138,7 @@
             
         </table>
         
-        <h3>Module <code>jadnschema.schema.field</code> (<code>jadnschema/schema/field.py</code>)</h3>
+        <h3>Module <code>jadnschema.schema.definitions</code> (<code>jadnschema/schema/definitions/__init__.py</code>)</h3>
         <table>
             <tr>
                 <th>Line</th>
@@ -175,58 +151,18 @@
             </tr>
             
             <tr>
-                <td>3</td>
+                <td>5</td>
                 <td>0</td>
                 <td>error</td>
                 <td><code>no-name-in-module</code></td>
                 <td>E0611</td>
                 <td></td>
-                <td><pre>No name &#39;NoArgAnyCallable&#39; in module &#39;pydantic.fields&#39;</pre></td>
-            </tr>
-            
-            <tr>
-                <td>3</td>
-                <td>0</td>
-                <td>error</td>
-                <td><code>no-name-in-module</code></td>
-                <td>E0611</td>
-                <td></td>
-                <td><pre>No name &#39;Undefined&#39; in module &#39;pydantic.fields&#39;</pre></td>
-            </tr>
-            
-            <tr>
-                <td>6</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>too-many-locals</code></td>
-                <td>R0914</td>
-                <td>Field</td>
-                <td><pre>Too many local variables (26/20)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>13</td>
-                <td>56</td>
-                <td>warning</td>
-                <td><code>redefined-builtin</code></td>
-                <td>W0622</td>
-                <td>Field</td>
-                <td><pre>Redefining built-in &#39;repr&#39;</pre></td>
-            </tr>
-            
-            <tr>
-                <td>45</td>
-                <td>0</td>
-                <td>convention</td>
-                <td><code>missing-final-newline</code></td>
-                <td>C0304</td>
-                <td></td>
-                <td><pre>Final newline missing</pre></td>
+                <td><pre>No name &#39;create_model&#39; in module &#39;pydantic&#39;</pre></td>
             </tr>
             
         </table>
         
-        <h3>Module <code>jadnschema.schema.info</code> (<code>jadnschema/schema/info.py</code>)</h3>
+        <h3>Module <code>jadnschema.schema.definitions.definitionBase</code> (<code>jadnschema/schema/definitions/definitionBase.py</code>)</h3>
         <table>
             <tr>
                 <th>Line</th>
@@ -245,12 +181,76 @@
                 <td><code>no-name-in-module</code></td>
                 <td>E0611</td>
                 <td></td>
-                <td><pre>No name &#39;BaseModel&#39; in module &#39;pydantic&#39;</pre></td>
+                <td><pre>No name &#39;ModelMetaclass&#39; in module &#39;pydantic.main&#39;</pre></td>
+            </tr>
+            
+            <tr>
+                <td>11</td>
+                <td>4</td>
+                <td>convention</td>
+                <td><code>bad-classmethod-argument</code></td>
+                <td>C0202</td>
+                <td>DefinitionMeta.__new__</td>
+                <td><pre>Class method __new__ should have &#39;cls&#39; as first argument</pre></td>
+            </tr>
+            
+            <tr>
+                <td>37</td>
+                <td>0</td>
+                <td>error</td>
+                <td><code>invalid-metaclass</code></td>
+                <td>E1139</td>
+                <td>DefinitionBase</td>
+                <td><pre>Invalid metaclass &#39;DefinitionMeta&#39; used</pre></td>
+            </tr>
+            
+            <tr>
+                <td>41</td>
+                <td>4</td>
+                <td>error</td>
+                <td><code>no-self-argument</code></td>
+                <td>E0213</td>
+                <td>DefinitionBase.name</td>
+                <td><pre>Method should have &#34;self&#34; as first argument</pre></td>
+            </tr>
+            
+            <tr>
+                <td>57</td>
+                <td>16</td>
+                <td>warning</td>
+                <td><code>unused-variable</code></td>
+                <td>W0612</td>
+                <td>DefinitionBase.schema</td>
+                <td><pre>Unused variable &#39;field&#39;</pre></td>
             </tr>
             
         </table>
         
-        <h3>Module <code>jadnschema.schema.options</code> (<code>jadnschema/schema/options.py</code>)</h3>
+        <h3>Module <code>jadnschema.schema.definitions.field</code> (<code>jadnschema/schema/definitions/field.py</code>)</h3>
+        <table>
+            <tr>
+                <th>Line</th>
+                <th>Col.</th>
+                <th>Type</th>
+                <th>Symbol</th>
+                <th>ID</th>
+                <th>Obj</th>
+                <th>Message</th>
+            </tr>
+            
+            <tr>
+                <td>2</td>
+                <td>0</td>
+                <td>error</td>
+                <td><code>no-name-in-module</code></td>
+                <td>E0611</td>
+                <td></td>
+                <td><pre>No name &#39;ModelField&#39; in module &#39;pydantic.fields&#39;</pre></td>
+            </tr>
+            
+        </table>
+        
+        <h3>Module <code>jadnschema.schema.definitions.options</code> (<code>jadnschema/schema/definitions/options.py</code>)</h3>
         <table>
             <tr>
                 <th>Line</th>
@@ -264,56 +264,234 @@
             
             <tr>
                 <td>4</td>
+                <td>0</td>
+                <td>error</td>
+                <td><code>no-name-in-module</code></td>
+                <td>E0611</td>
+                <td></td>
+                <td><pre>No name &#39;BaseModel&#39; in module &#39;pydantic&#39;</pre></td>
+            </tr>
+            
+        </table>
+        
+        <h3>Module <code>jadnschema.schema.definitions.primitives.binary</code> (<code>jadnschema/schema/definitions/primitives/binary.py</code>)</h3>
+        <table>
+            <tr>
+                <th>Line</th>
+                <th>Col.</th>
+                <th>Type</th>
+                <th>Symbol</th>
+                <th>ID</th>
+                <th>Obj</th>
+                <th>Message</th>
+            </tr>
+            
+            <tr>
+                <td>14</td>
                 <td>4</td>
-                <td>warning</td>
-                <td><code>unnecessary-pass</code></td>
-                <td>W0107</td>
-                <td>Options</td>
-                <td><pre>Unnecessary pass statement</pre></td>
+                <td>error</td>
+                <td><code>no-self-argument</code></td>
+                <td>E0213</td>
+                <td>Binary.validate</td>
+                <td><pre>Method should have &#34;self&#34; as first argument</pre></td>
+            </tr>
+            
+            <tr>
+                <td>20</td>
+                <td>8</td>
+                <td>refactor</td>
+                <td><code>no-else-raise</code></td>
+                <td>R1720</td>
+                <td>Binary.validate</td>
+                <td><pre>Unnecessary &#34;elif&#34; after &#34;raise&#34;, remove the leading &#34;el&#34; from &#34;elif&#34;</pre></td>
+            </tr>
+            
+        </table>
+        
+        <h3>Module <code>jadnschema.schema.definitions.primitives.integer</code> (<code>jadnschema/schema/definitions/primitives/integer.py</code>)</h3>
+        <table>
+            <tr>
+                <th>Line</th>
+                <th>Col.</th>
+                <th>Type</th>
+                <th>Symbol</th>
+                <th>ID</th>
+                <th>Obj</th>
+                <th>Message</th>
+            </tr>
+            
+            <tr>
+                <td>14</td>
+                <td>4</td>
+                <td>error</td>
+                <td><code>no-self-argument</code></td>
+                <td>E0213</td>
+                <td>Integer.validate</td>
+                <td><pre>Method should have &#34;self&#34; as first argument</pre></td>
+            </tr>
+            
+            <tr>
+                <td>20</td>
+                <td>8</td>
+                <td>refactor</td>
+                <td><code>no-else-raise</code></td>
+                <td>R1720</td>
+                <td>Integer.validate</td>
+                <td><pre>Unnecessary &#34;elif&#34; after &#34;raise&#34;, remove the leading &#34;el&#34; from &#34;elif&#34;</pre></td>
+            </tr>
+            
+        </table>
+        
+        <h3>Module <code>jadnschema.schema.definitions.primitives.number</code> (<code>jadnschema/schema/definitions/primitives/number.py</code>)</h3>
+        <table>
+            <tr>
+                <th>Line</th>
+                <th>Col.</th>
+                <th>Type</th>
+                <th>Symbol</th>
+                <th>ID</th>
+                <th>Obj</th>
+                <th>Message</th>
+            </tr>
+            
+            <tr>
+                <td>13</td>
+                <td>4</td>
+                <td>error</td>
+                <td><code>no-self-argument</code></td>
+                <td>E0213</td>
+                <td>Number.validate</td>
+                <td><pre>Method should have &#34;self&#34; as first argument</pre></td>
+            </tr>
+            
+            <tr>
+                <td>17</td>
+                <td>8</td>
+                <td>refactor</td>
+                <td><code>no-else-raise</code></td>
+                <td>R1720</td>
+                <td>Number.validate</td>
+                <td><pre>Unnecessary &#34;elif&#34; after &#34;raise&#34;, remove the leading &#34;el&#34; from &#34;elif&#34;</pre></td>
+            </tr>
+            
+        </table>
+        
+        <h3>Module <code>jadnschema.schema.definitions.primitives.string</code> (<code>jadnschema/schema/definitions/primitives/string.py</code>)</h3>
+        <table>
+            <tr>
+                <th>Line</th>
+                <th>Col.</th>
+                <th>Type</th>
+                <th>Symbol</th>
+                <th>ID</th>
+                <th>Obj</th>
+                <th>Message</th>
+            </tr>
+            
+            <tr>
+                <td>14</td>
+                <td>4</td>
+                <td>error</td>
+                <td><code>no-self-argument</code></td>
+                <td>E0213</td>
+                <td>String.validate</td>
+                <td><pre>Method should have &#34;self&#34; as first argument</pre></td>
+            </tr>
+            
+            <tr>
+                <td>20</td>
+                <td>8</td>
+                <td>refactor</td>
+                <td><code>no-else-raise</code></td>
+                <td>R1720</td>
+                <td>String.validate</td>
+                <td><pre>Unnecessary &#34;elif&#34; after &#34;raise&#34;, remove the leading &#34;el&#34; from &#34;elif&#34;</pre></td>
+            </tr>
+            
+        </table>
+        
+        <h3>Module <code>jadnschema.schema.definitions.primitives.utils</code> (<code>jadnschema/schema/definitions/primitives/utils.py</code>)</h3>
+        <table>
+            <tr>
+                <th>Line</th>
+                <th>Col.</th>
+                <th>Type</th>
+                <th>Symbol</th>
+                <th>ID</th>
+                <th>Obj</th>
+                <th>Message</th>
             </tr>
             
             <tr>
                 <td>5</td>
-                <td>4</td>
+                <td>0</td>
                 <td>warning</td>
-                <td><code>pointless-string-statement</code></td>
-                <td>W0105</td>
-                <td>Options</td>
-                <td><pre>String statement has no effect</pre></td>
+                <td><code>unused-import</code></td>
+                <td>W0611</td>
+                <td></td>
+                <td><pre>Unused ValidationError imported from pydantic</pre></td>
+            </tr>
+            
+        </table>
+        
+        <h3>Module <code>jadnschema.schema.definitions.structures.enumerated</code> (<code>jadnschema/schema/definitions/structures/enumerated.py</code>)</h3>
+        <table>
+            <tr>
+                <th>Line</th>
+                <th>Col.</th>
+                <th>Type</th>
+                <th>Symbol</th>
+                <th>ID</th>
+                <th>Obj</th>
+                <th>Message</th>
             </tr>
             
             <tr>
-                <td>24</td>
+                <td>8</td>
                 <td>4</td>
-                <td>warning</td>
-                <td><code>pointless-string-statement</code></td>
-                <td>W0105</td>
-                <td>Options</td>
-                <td><pre>String statement has no effect</pre></td>
+                <td>convention</td>
+                <td><code>bad-classmethod-argument</code></td>
+                <td>C0202</td>
+                <td>EnumeratedMeta.__new__</td>
+                <td><pre>Class method __new__ should have &#39;cls&#39; as first argument</pre></td>
             </tr>
             
             <tr>
                 <td>28</td>
-                <td>11</td>
-                <td>convention</td>
-                <td><code>trailing-whitespace</code></td>
-                <td>C0303</td>
-                <td></td>
-                <td><pre>Trailing whitespace</pre></td>
+                <td>0</td>
+                <td>error</td>
+                <td><code>invalid-metaclass</code></td>
+                <td>E1139</td>
+                <td>Enumerated</td>
+                <td><pre>Invalid metaclass &#39;EnumeratedMeta&#39; used</pre></td>
             </tr>
             
             <tr>
-                <td>40</td>
+                <td>45</td>
                 <td>4</td>
-                <td>warning</td>
-                <td><code>pointless-string-statement</code></td>
-                <td>W0105</td>
-                <td>Options</td>
-                <td><pre>String statement has no effect</pre></td>
+                <td>error</td>
+                <td><code>no-self-argument</code></td>
+                <td>E0213</td>
+                <td>Enumerated.validate</td>
+                <td><pre>Method should have &#34;self&#34; as first argument</pre></td>
+            </tr>
+            
+        </table>
+        
+        <h3>Module <code>jadnschema.schema.definitions.structures.mapOf</code> (<code>jadnschema/schema/definitions/structures/mapOf.py</code>)</h3>
+        <table>
+            <tr>
+                <th>Line</th>
+                <th>Col.</th>
+                <th>Type</th>
+                <th>Symbol</th>
+                <th>ID</th>
+                <th>Obj</th>
+                <th>Message</th>
             </tr>
             
             <tr>
-                <td>48</td>
+                <td>13</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>missing-final-newline</code></td>
@@ -324,7 +502,7 @@
             
         </table>
         
-        <h3>Module <code>jadnschema.schema.schema</code> (<code>jadnschema/schema/schema.py</code>)</h3>
+        <h3>Module <code>jadnschema.schema.formats.general</code> (<code>jadnschema/schema/formats/general.py</code>)</h3>
         <table>
             <tr>
                 <th>Line</th>
@@ -337,18 +515,140 @@
             </tr>
             
             <tr>
-                <td>26</td>
-                <td>36</td>
-                <td>error</td>
-                <td><code>syntax-error</code></td>
-                <td>E0001</td>
-                <td></td>
-                <td><pre>cannot assign to function call (&lt;unknown&gt;, line 26)</pre></td>
+                <td>34</td>
+                <td>25</td>
+                <td>warning</td>
+                <td><code>f-string-without-interpolation</code></td>
+                <td>W1309</td>
+                <td>email</td>
+                <td><pre>Using an f-string that does not have any interpolated variables</pre></td>
+            </tr>
+            
+            <tr>
+                <td>52</td>
+                <td>25</td>
+                <td>warning</td>
+                <td><code>f-string-without-interpolation</code></td>
+                <td>W1309</td>
+                <td>uri</td>
+                <td><pre>Using an f-string that does not have any interpolated variables</pre></td>
             </tr>
             
         </table>
         
-        <h3>Module <code>jadnschema.schema.schema_types</code> (<code>jadnschema/schema/schema_types.py</code>)</h3>
+        <h3>Module <code>jadnschema.schema.formats.jadn_idna</code> (<code>jadnschema/schema/formats/jadn_idna.py</code>)</h3>
+        <table>
+            <tr>
+                <th>Line</th>
+                <th>Col.</th>
+                <th>Type</th>
+                <th>Symbol</th>
+                <th>ID</th>
+                <th>Obj</th>
+                <th>Message</th>
+            </tr>
+            
+            <tr>
+                <td>5</td>
+                <td>0</td>
+                <td>warning</td>
+                <td><code>unused-import</code></td>
+                <td>W0611</td>
+                <td></td>
+                <td><pre>Unused import idna.codec</pre></td>
+            </tr>
+            
+            <tr>
+                <td>45</td>
+                <td>25</td>
+                <td>warning</td>
+                <td><code>f-string-without-interpolation</code></td>
+                <td>W1309</td>
+                <td>idn_email</td>
+                <td><pre>Using an f-string that does not have any interpolated variables</pre></td>
+            </tr>
+            
+        </table>
+        
+        <h3>Module <code>jadnschema.schema.formats.network</code> (<code>jadnschema/schema/formats/network.py</code>)</h3>
+        <table>
+            <tr>
+                <th>Line</th>
+                <th>Col.</th>
+                <th>Type</th>
+                <th>Symbol</th>
+                <th>ID</th>
+                <th>Obj</th>
+                <th>Message</th>
+            </tr>
+            
+            <tr>
+                <td>36</td>
+                <td>25</td>
+                <td>warning</td>
+                <td><code>f-string-without-interpolation</code></td>
+                <td>W1309</td>
+                <td>hostname</td>
+                <td><pre>Using an f-string that does not have any interpolated variables</pre></td>
+            </tr>
+            
+            <tr>
+                <td>148</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>trailing-newlines</code></td>
+                <td>C0305</td>
+                <td></td>
+                <td><pre>Trailing newlines</pre></td>
+            </tr>
+            
+        </table>
+        
+        <h3>Module <code>jadnschema.schema.formats.rfc_3339</code> (<code>jadnschema/schema/formats/rfc_3339.py</code>)</h3>
+        <table>
+            <tr>
+                <th>Line</th>
+                <th>Col.</th>
+                <th>Type</th>
+                <th>Symbol</th>
+                <th>ID</th>
+                <th>Obj</th>
+                <th>Message</th>
+            </tr>
+            
+            <tr>
+                <td>13</td>
+                <td>0</td>
+                <td>error</td>
+                <td><code>function-redefined</code></td>
+                <td>E0102</td>
+                <td>datetime</td>
+                <td><pre>function already defined line 6</pre></td>
+            </tr>
+            
+            <tr>
+                <td>31</td>
+                <td>0</td>
+                <td>error</td>
+                <td><code>function-redefined</code></td>
+                <td>E0102</td>
+                <td>date</td>
+                <td><pre>function already defined line 6</pre></td>
+            </tr>
+            
+            <tr>
+                <td>48</td>
+                <td>0</td>
+                <td>error</td>
+                <td><code>function-redefined</code></td>
+                <td>E0102</td>
+                <td>time</td>
+                <td><pre>function already defined line 6</pre></td>
+            </tr>
+            
+        </table>
+        
+        <h3>Module <code>jadnschema.schema.schema</code> (<code>jadnschema/schema/schema.py</code>)</h3>
         <table>
             <tr>
                 <th>Line</th>
@@ -367,7 +667,121 @@
                 <td><code>unused-import</code></td>
                 <td>W0611</td>
                 <td></td>
-                <td><pre>Unused BaseModel imported from baseModel</pre></td>
+                <td><pre>Unused List imported from typing</pre></td>
+            </tr>
+            
+            <tr>
+                <td>2</td>
+                <td>0</td>
+                <td>error</td>
+                <td><code>no-name-in-module</code></td>
+                <td>E0611</td>
+                <td></td>
+                <td><pre>No name &#39;ModelMetaclass&#39; in module &#39;pydantic.main&#39;</pre></td>
+            </tr>
+            
+            <tr>
+                <td>5</td>
+                <td>0</td>
+                <td>warning</td>
+                <td><code>wildcard-import</code></td>
+                <td>W0401</td>
+                <td></td>
+                <td><pre>Wildcard import definitions</pre></td>
+            </tr>
+            
+            <tr>
+                <td>5</td>
+                <td>0</td>
+                <td>warning</td>
+                <td><code>unused-wildcard-import</code></td>
+                <td>W0614</td>
+                <td></td>
+                <td><pre>Unused import(s) re, jadn_def, def_field, enum_field, clsName, custom_def, namedtuple, Enum, Union, get_args, Field, create_model, FieldAlias, Options, DefinitionBase, Binary, Boolean, Integer, Number, String, Array, ArrayOf, Choice, Map, Enumerated, MapOf and Record from wildcard import of definitions</pre></td>
+            </tr>
+            
+            <tr>
+                <td>10</td>
+                <td>4</td>
+                <td>convention</td>
+                <td><code>bad-classmethod-argument</code></td>
+                <td>C0202</td>
+                <td>SchemaMeta.__new__</td>
+                <td><pre>Class method __new__ should have &#39;cls&#39; as first argument</pre></td>
+            </tr>
+            
+            <tr>
+                <td>25</td>
+                <td>0</td>
+                <td>error</td>
+                <td><code>invalid-metaclass</code></td>
+                <td>E1139</td>
+                <td>Schema</td>
+                <td><pre>Invalid metaclass &#39;SchemaMeta&#39; used</pre></td>
+            </tr>
+            
+            <tr>
+                <td>58</td>
+                <td>24</td>
+                <td>warning</td>
+                <td><code>f-string-without-interpolation</code></td>
+                <td>W1309</td>
+                <td>Schema.validate</td>
+                <td><pre>Using an f-string that does not have any interpolated variables</pre></td>
+            </tr>
+            
+        </table>
+        
+        <h3>Module <code>jadnschema.utils</code> (<code>jadnschema/utils.py</code>)</h3>
+        <table>
+            <tr>
+                <th>Line</th>
+                <th>Col.</th>
+                <th>Type</th>
+                <th>Symbol</th>
+                <th>ID</th>
+                <th>Obj</th>
+                <th>Message</th>
+            </tr>
+            
+            <tr>
+                <td>19</td>
+                <td>15</td>
+                <td>refactor</td>
+                <td><code>super-with-arguments</code></td>
+                <td>R1725</td>
+                <td>classproperty.__get__</td>
+                <td><pre>Consider using Python 3 style super() without arguments</pre></td>
+            </tr>
+            
+            <tr>
+                <td>22</td>
+                <td>8</td>
+                <td>refactor</td>
+                <td><code>super-with-arguments</code></td>
+                <td>R1725</td>
+                <td>classproperty.__set__</td>
+                <td><pre>Consider using Python 3 style super() without arguments</pre></td>
+            </tr>
+            
+            <tr>
+                <td>25</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>missing-final-newline</code></td>
+                <td>C0304</td>
+                <td></td>
+                <td><pre>Final newline missing</pre></td>
+            </tr>
+            
+            <tr>
+                <td>25</td>
+                <td>8</td>
+                <td>refactor</td>
+                <td><code>super-with-arguments</code></td>
+                <td>R1725</td>
+                <td>classproperty.__delete__</td>
+                <td><pre>Consider using Python 3 style super() without arguments</pre></td>
             </tr>
             
         </table>
@@ -385,22 +799,22 @@
             
             <tr>
                 <td>error</td>
-                <td>7</td>
+                <td>19</td>
             </tr>
             
             <tr>
                 <td>warning</td>
-                <td>9</td>
+                <td>14</td>
             </tr>
             
             <tr>
                 <td>refactor</td>
-                <td>4</td>
+                <td>10</td>
             </tr>
             
             <tr>
                 <td>convention</td>
-                <td>3</td>
+                <td>6</td>
             </tr>
             
         </table>
@@ -429,8 +843,8 @@
             </tr>
             
             <tr>
-                <td>trailing-whitespace</td>
-                <td>1</td>
+                <td>no-name-in-module</td>
+                <td>6</td>
             </tr>
             
             <tr>
@@ -439,38 +853,63 @@
             </tr>
             
             <tr>
-                <td>unnecessary-pass</td>
-                <td>1</td>
-            </tr>
-            
-            <tr>
-                <td>pointless-string-statement</td>
+                <td>super-with-arguments</td>
                 <td>3</td>
             </tr>
             
             <tr>
-                <td>syntax-error</td>
-                <td>2</td>
+                <td>wildcard-import</td>
+                <td>1</td>
             </tr>
             
             <tr>
-                <td>no-name-in-module</td>
-                <td>4</td>
+                <td>bad-classmethod-argument</td>
+                <td>3</td>
+            </tr>
+            
+            <tr>
+                <td>invalid-metaclass</td>
+                <td>3</td>
+            </tr>
+            
+            <tr>
+                <td>f-string-without-interpolation</td>
+                <td>5</td>
             </tr>
             
             <tr>
                 <td>unused-import</td>
+                <td>3</td>
+            </tr>
+            
+            <tr>
+                <td>unused-wildcard-import</td>
                 <td>1</td>
             </tr>
             
             <tr>
-                <td>too-many-locals</td>
+                <td>function-redefined</td>
+                <td>3</td>
+            </tr>
+            
+            <tr>
+                <td>trailing-newlines</td>
                 <td>1</td>
             </tr>
             
             <tr>
-                <td>redefined-builtin</td>
+                <td>no-self-argument</td>
+                <td>6</td>
+            </tr>
+            
+            <tr>
+                <td>unused-variable</td>
                 <td>1</td>
+            </tr>
+            
+            <tr>
+                <td>no-else-raise</td>
+                <td>4</td>
             </tr>
             
         </table>
@@ -489,37 +928,92 @@
             </tr>
             
             <tr>
-                <td>jadnschema.schema.options</td>
-                <td>6</td>
-            </tr>
-            
-            <tr>
-                <td>jadnschema.schema.__init__</td>
-                <td>1</td>
-            </tr>
-            
-            <tr>
                 <td>jadnschema.schema.baseModel</td>
                 <td>1</td>
             </tr>
             
             <tr>
-                <td>jadnschema.schema.schema_types</td>
-                <td>1</td>
+                <td>jadnschema.utils</td>
+                <td>4</td>
             </tr>
             
             <tr>
                 <td>jadnschema.schema.schema</td>
+                <td>7</td>
+            </tr>
+            
+            <tr>
+                <td>jadnschema.schema.formats.rfc_3339</td>
+                <td>3</td>
+            </tr>
+            
+            <tr>
+                <td>jadnschema.schema.formats.jadn_idna</td>
+                <td>2</td>
+            </tr>
+            
+            <tr>
+                <td>jadnschema.schema.definitions.field</td>
                 <td>1</td>
             </tr>
             
             <tr>
-                <td>jadnschema.schema.field</td>
+                <td>jadnschema.schema.formats.general</td>
+                <td>2</td>
+            </tr>
+            
+            <tr>
+                <td>jadnschema.schema.formats.network</td>
+                <td>2</td>
+            </tr>
+            
+            <tr>
+                <td>jadnschema.schema.definitions</td>
+                <td>1</td>
+            </tr>
+            
+            <tr>
+                <td>jadnschema.schema.definitions.definitionBase</td>
                 <td>5</td>
             </tr>
             
             <tr>
-                <td>jadnschema.schema.info</td>
+                <td>jadnschema.schema.definitions.structures.enumerated</td>
+                <td>3</td>
+            </tr>
+            
+            <tr>
+                <td>jadnschema.schema.definitions.structures.mapOf</td>
+                <td>1</td>
+            </tr>
+            
+            <tr>
+                <td>jadnschema.schema.definitions.options</td>
+                <td>1</td>
+            </tr>
+            
+            <tr>
+                <td>jadnschema.schema.definitions.primitives.number</td>
+                <td>2</td>
+            </tr>
+            
+            <tr>
+                <td>jadnschema.schema.definitions.primitives.binary</td>
+                <td>2</td>
+            </tr>
+            
+            <tr>
+                <td>jadnschema.schema.definitions.primitives.integer</td>
+                <td>2</td>
+            </tr>
+            
+            <tr>
+                <td>jadnschema.schema.definitions.primitives.string</td>
+                <td>2</td>
+            </tr>
+            
+            <tr>
+                <td>jadnschema.schema.definitions.primitives.utils</td>
                 <td>1</td>
             </tr>
             
@@ -539,37 +1033,92 @@
             </tr>
             
             <tr>
-                <td>jadnschema/schema/options.py</td>
-                <td>6</td>
-            </tr>
-            
-            <tr>
-                <td>jadnschema/schema/__init__.py</td>
-                <td>1</td>
-            </tr>
-            
-            <tr>
                 <td>jadnschema/schema/baseModel.py</td>
                 <td>1</td>
             </tr>
             
             <tr>
-                <td>jadnschema/schema/schema_types.py</td>
-                <td>1</td>
+                <td>jadnschema/utils.py</td>
+                <td>4</td>
             </tr>
             
             <tr>
                 <td>jadnschema/schema/schema.py</td>
+                <td>7</td>
+            </tr>
+            
+            <tr>
+                <td>jadnschema/schema/formats/rfc_3339.py</td>
+                <td>3</td>
+            </tr>
+            
+            <tr>
+                <td>jadnschema/schema/formats/jadn_idna.py</td>
+                <td>2</td>
+            </tr>
+            
+            <tr>
+                <td>jadnschema/schema/definitions/field.py</td>
                 <td>1</td>
             </tr>
             
             <tr>
-                <td>jadnschema/schema/field.py</td>
+                <td>jadnschema/schema/formats/general.py</td>
+                <td>2</td>
+            </tr>
+            
+            <tr>
+                <td>jadnschema/schema/formats/network.py</td>
+                <td>2</td>
+            </tr>
+            
+            <tr>
+                <td>jadnschema/schema/definitions/__init__.py</td>
+                <td>1</td>
+            </tr>
+            
+            <tr>
+                <td>jadnschema/schema/definitions/definitionBase.py</td>
                 <td>5</td>
             </tr>
             
             <tr>
-                <td>jadnschema/schema/info.py</td>
+                <td>jadnschema/schema/definitions/structures/enumerated.py</td>
+                <td>3</td>
+            </tr>
+            
+            <tr>
+                <td>jadnschema/schema/definitions/structures/mapOf.py</td>
+                <td>1</td>
+            </tr>
+            
+            <tr>
+                <td>jadnschema/schema/definitions/options.py</td>
+                <td>1</td>
+            </tr>
+            
+            <tr>
+                <td>jadnschema/schema/definitions/primitives/number.py</td>
+                <td>2</td>
+            </tr>
+            
+            <tr>
+                <td>jadnschema/schema/definitions/primitives/binary.py</td>
+                <td>2</td>
+            </tr>
+            
+            <tr>
+                <td>jadnschema/schema/definitions/primitives/integer.py</td>
+                <td>2</td>
+            </tr>
+            
+            <tr>
+                <td>jadnschema/schema/definitions/primitives/string.py</td>
+                <td>2</td>
+            </tr>
+            
+            <tr>
+                <td>jadnschema/schema/definitions/primitives/utils.py</td>
                 <td>1</td>
             </tr>
             

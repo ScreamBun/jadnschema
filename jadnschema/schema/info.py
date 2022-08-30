@@ -20,13 +20,13 @@ class Exports(BaseModel):
 
 
 class Config(BaseModel):
-    MaxBinary: int = Field(alias="$MaxBinary", gt=1)
-    MaxString: int = Field(alias="$MaxString", gt=1)
-    MaxElements: int = Field(alias="$MaxElements", gt=1)
-    Sys: str = Field(alias="$Sys", min_length=1, max_length=1)
-    TypeName: str = Field(alias="$TypeName", min_length=1, max_length=127)
-    FieldName: str = Field(alias="$FieldName", min_length=1, max_length=127)
-    NSID: str = Field(alias="$NSID", min_length=1, max_length=127)
+    MaxBinary: Optional[int] = Field(alias="$MaxBinary", gt=1)
+    MaxString: Optional[int] = Field(alias="$MaxString", gt=1)
+    MaxElements: Optional[int] = Field(alias="$MaxElements", gt=1)
+    Sys: Optional[str] = Field(alias="$Sys", min_length=1, max_length=1)
+    TypeName: Optional[str] = Field(alias="$TypeName", min_length=1, max_length=127)
+    FieldName: Optional[str] = Field(alias="$FieldName", min_length=1, max_length=127)
+    NSID: Optional[str] = Field(alias="$NSID", min_length=1, max_length=127)
 
     def schema(self) -> Dict[str, Any]:
         schema = {}

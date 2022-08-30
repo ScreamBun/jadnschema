@@ -1,6 +1,6 @@
 import inspect
 
-from typing import Dict, List, Optional, Union
+from typing import Callable, Dict, List, Optional, Union
 from pydantic import BaseModel, Extra
 from ..consts import OPTIONS, OPTION_ID
 
@@ -8,7 +8,8 @@ from ..consts import OPTIONS, OPTION_ID
 class Options(BaseModel):
     # Custom Options
     name: Optional[str] = ""
-    __custom__ = ["name"]
+    validation: Dict[str, Callable] = {}
+    __custom__ = ["name", "validation"]
     # Type Options
     id: Optional[bool]         # 61 - '=' Items and Fields are denoted by FieldID rather than FieldName (Section 3.2.1.1)
     vtype: Optional[str]       # 42 - '*' Value type for ArrayOf and MapOf (Section 3.2.1.2)

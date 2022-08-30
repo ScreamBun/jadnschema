@@ -1,3 +1,4 @@
+from pydantic import Extra
 from ..definitionBase import DefinitionBase
 
 
@@ -7,3 +8,6 @@ class MapOf(DefinitionBase):
     Each key has key type ktype, and is mapped to value type vtype
     """
     # __root__: dict
+
+    class Config:
+        extra = Extra.allow

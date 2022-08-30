@@ -1,18 +1,27 @@
+from typing import ForwardRef, Union, get_args, get_origin
 from pydantic.fields import ModelField
 
 
 def getFieldSchema(field: ModelField) -> list:
     field_extra = field.field_info.extra
     parent = field_extra.get("parent")
-    name = field.default if parent.is_enum() else field.alias
+    name = field.alias
     schema = [field_extra.get("id"), name]
 
-    if parent.has_fields() and not parent.is_enum():
+    if parent.has_fields():
         opts = field_extra.get("options")
         ref = field.type_
-        ref = getattr(ref, "__forward_arg__", ref)
-        if not isinstance(ref, str):
-            ref = getattr(ref, "name", ref.__name__)
+        if isinstance(ref, ForwardRef):
+            ref = getattr(ref, "__forward_arg__", ref)
+            if not isinstance(ref, str):
+                ref = getattr(ref, "name", ref.__name__)
+        elif get_origin(ref) is Union:
+            args = [r for r in get_args(ref) if not issubclass(r, type(None))]
+            if len(args) > 1:
+                raise TypeError(f"Field {name} is not correctly typed")
+            ref = getattr(args[0], "name", ref)
+        else:
+            ref = getattr(ref, "name", ref)
         schema.append(ref)
         schema.append(opts.schema())
     schema.append(field.field_info.description or "")

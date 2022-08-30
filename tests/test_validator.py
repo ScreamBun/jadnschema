@@ -1,7 +1,8 @@
 import os
 
 from unittest import TestCase, skip
-from jadnschema import jadn
+from pydantic import ValidationError
+from jadnschema import Schema
 
 CMD_TYPE = "OpenC2-Command"
 RSP_TYPE = "OpenC2-Response"
@@ -11,8 +12,9 @@ class CommandValidation(TestCase):
     _test_root = os.path.join(os.path.abspath(os.path.dirname(__file__)))
     _schema = f'{_test_root}/schema/oc2ls-v1.0.1-resolved.jadn'
 
-    def setUp(self) -> None:
-        self._schema_obj = jadn.load(self._schema)
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls._schema_obj = Schema.parse_file(cls._schema)
 
     def test_allow_email_Chinese_Unicode(self):
         self._schema_obj.validate_as(CMD_TYPE, {
@@ -63,7 +65,7 @@ class CommandValidation(TestCase):
         })
 
     def test_allow_ipv4_conn(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValidationError):
             self._schema_obj.validate_as(CMD_TYPE, {
                 "action": "allow",
                 "target": {
@@ -90,8 +92,9 @@ class ResponseValidation(TestCase):
     _test_root = os.path.join(os.path.abspath(os.path.dirname(__file__)))
     _schema = f'{_test_root}/schema/oc2ls-v1.0.1-resolved.jadn'
 
-    def setUp(self) -> None:
-        self._schema_obj = jadn.load(self._schema)
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls._schema_obj = Schema.parse_file(cls._schema)
 
     def test_pairs(self):
         self._schema_obj.validate_as(RSP_TYPE, {
