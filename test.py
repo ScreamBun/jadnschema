@@ -39,6 +39,7 @@ def pretty_jadn(schema: Union[dict, float, int, str, tuple], indent: int = 2, _l
 
 if __name__ == "__main__":
     schema_code = OpenC2LangV11()
+    print(f"Loading code: {OpenC2LangV11.__name__}")
     jadn_obj = schema_code.schema()
     with open("oc2ls-v1.1-lang_resolved.code.jadn", "w") as f:
         f.write(pretty_jadn(jadn_obj))

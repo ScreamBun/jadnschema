@@ -11,7 +11,7 @@ class Binary(DefinitionBase):
 
     # Validation
     @root_validator(pre=True)
-    def validate(cls, val: str):
+    def validate(cls, val: str):  # pylint: disable=no-self-argument
         if fmt := cls.__options__.format:
             validate_format(cls, fmt, val)
         val_len = len(val)
@@ -19,9 +19,12 @@ class Binary(DefinitionBase):
         max_len = cls.__options__.maxv or 255
         if min_len > val_len:
             raise ValidationError(f"{cls.name} is invalid, minimum length of {min_len:,} bytes not met")
-        elif max_len < val_len:
+        if max_len < val_len:
             raise ValidationError(f"{cls.name} is invalid, maximum length of {min_len:,} bytes exceeded")
         return val
 
     class Config:
         arbitrary_types_allowed = True
+
+    class Options:
+        data_type = "Binary"

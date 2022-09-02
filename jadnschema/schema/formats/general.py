@@ -31,7 +31,7 @@ def email(val: str) -> str:
         r":(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])"
     )
     if not re.match(rfc5322_re, val):
-        raise ValueError(f"E-Mail given is not valid")
+        raise ValueError("E-Mail given is not valid")
     return val
 
 
@@ -49,7 +49,7 @@ def uri(val: str) -> str:
 
     result = urlparse(val)
     if not all([result.scheme, result.netloc, result.path]) or url_match:
-        raise ValueError(f"URI given is not expected valid")
+        raise ValueError("URI given is not expected valid")
     return val
 
 

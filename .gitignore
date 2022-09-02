@@ -199,5 +199,4 @@ docs/*
 .idea/
 jadn-v1.0-wd01.md
 lint.html
-tests/schema_gen
-*.*.jadn
+tests/schema_gen/

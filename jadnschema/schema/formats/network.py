@@ -26,14 +26,14 @@ def hostname(val: str) -> str:
     # Copy & strip exactly one dot from the right, if present
     val = val[:-1] if val.endswith(".") else val[:]
     if len(val) < 1:
-        raise ValueError('Hostname is not a valid length, minimum 1 character')
+        raise ValueError("Hostname is not a valid length, minimum 1 character")
 
     if len(val) > HOSTNAME_MAX_LENGTH:
-        raise ValueError(f'Hostname is not a valid length, exceeds {HOSTNAME_MAX_LENGTH} characters')
+        raise ValueError(f"Hostname is not a valid length, exceeds {HOSTNAME_MAX_LENGTH} characters")
 
     allowed = re.compile("(?!-)[A-Z0-9-]{1,63}(?<!-)$", re.IGNORECASE)
     if not all(allowed.match(x) for x in val.split(".")):
-        raise ValueError(f"Hostname given is not valid")
+        raise ValueError("Hostname given is not valid")
     return val
 
 
@@ -145,4 +145,3 @@ def IPv6_Network(val: Union[list, str, tuple]) -> Union[IPv6Address, IPv6Network
 
 
 __all__ = ["NetworkFormats"]
-

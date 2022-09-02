@@ -11,7 +11,7 @@ class Integer(DefinitionBase):
 
     # Validation
     @root_validator(pre=True)
-    def validate(cls, val: int):
+    def validate(cls, val: int):  # pylint: disable=no-self-argument
         if fmt := cls.__options__.format:
             validate_format(cls, fmt, str(val))
         min_val = cls.__options__.minv or 0
@@ -19,9 +19,12 @@ class Integer(DefinitionBase):
 
         if min_val > val:
             raise ValidationError(f"{cls.name} is invalid, minimum of {min_val:,} not met")
-        elif max_val != 0 and max_val < val:
+        if max_val != 0 and max_val < val:
             raise ValidationError(f"{cls.name} is invalid, maximum of {max_val:,} exceeded")
         return val
 
     class Config:
         arbitrary_types_allowed = True
+
+    class Options:
+        data_type = "Integer"

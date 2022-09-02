@@ -7,3 +7,6 @@ class Record(DefinitionBase):
     Each key has a position and name, and is mapped to a value type. Represents a row in a spreadsheet or database table
     """
     # __root__: dict
+
+    class Options:
+        data_type = "Record"

@@ -5,7 +5,7 @@ from ..definitionBase import DefinitionBase, DefinitionMeta
 
 
 class EnumeratedMeta(DefinitionMeta):
-    def __new__(mcs, name, bases, attrs, **kwargs):
+    def __new__(mcs, name, bases, attrs, **kwargs):  # pylint: disable=bad-classmethod-argument
         base_enums = list(filter(None, [
             *[getattr(b, "__enums__", None) for b in reversed(bases) if issubclass(b, DefinitionBase) and b != DefinitionBase],
             attrs.pop("__enums__", None), attrs.pop("Values", None),
@@ -25,7 +25,7 @@ class EnumeratedMeta(DefinitionMeta):
         return super().__new__(mcs, name, bases, new_namespace, **kwargs)
 
 
-class Enumerated(DefinitionBase, metaclass=EnumeratedMeta):
+class Enumerated(DefinitionBase, metaclass=EnumeratedMeta):  # pylint: disable=invalid-metaclass
     """
     A vocabulary of items where each item has an id and a string value
     """
@@ -36,13 +36,12 @@ class Enumerated(DefinitionBase, metaclass=EnumeratedMeta):
     @classmethod
     def schema(cls) -> list:
         mro = [c for c in cls.__mro__ if not c.__name__ == cls.__name__][0]
-        schema = [cls.name, mro.__name__, cls.__options__.schema(), (cls.__doc__ or "").strip()]
-        schema.append([[v.value.extra.get("id"), v.value.default, v.value.description or ""] for v in cls.__enums__])
-        return schema
+        return [cls.name, mro.__name__, cls.__options__.schema(), (cls.__doc__ or "").strip(),
+                [[v.value.extra["id"], v.value.default, v.value.description or ""] for v in cls.__enums__]]
 
     # Validation
     @root_validator(pre=True)
-    def validate(cls, val: Union[int, str]):
+    def validate(cls, val: Union[int, str]):  # pylint: disable=no-self-argument
         if isinstance(val, int):
             for v in cls.__enums__:
                 if val == v.value.extra.get("id", None):
@@ -53,3 +52,6 @@ class Enumerated(DefinitionBase, metaclass=EnumeratedMeta):
                     return val
 
         raise ValidationError(f"Value is not a valid for {cls.name}")
+
+    class Options:
+        data_type = "Enumerated"

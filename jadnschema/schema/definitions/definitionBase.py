@@ -1,4 +1,6 @@
-from typing import Any, ClassVar, Tuple
+from enum import Enum
+from typing import ClassVar
+from pydantic import create_model
 from pydantic.main import ModelMetaclass
 from .options import Options
 from .field import getFieldSchema
@@ -8,7 +10,7 @@ from ...utils import classproperty, ellipsis_str
 
 
 class DefinitionMeta(ModelMetaclass):
-    def __new__(mcs, name, bases, attrs, **kwargs):
+    def __new__(mcs, name, bases, attrs, **kwargs):  # # pylint: disable=bad-classmethod-argument
         opts = Options(
             attrs.pop("__options__", None), attrs.pop("Options", None),
             kwargs.pop("__options__", None), kwargs.pop("Options", None),
@@ -34,12 +36,8 @@ class DefinitionMeta(ModelMetaclass):
         return cls
 
 
-class DefinitionBase(BaseModel, metaclass=DefinitionMeta):
+class DefinitionBase(BaseModel, metaclass=DefinitionMeta):  # pylint: disable=invalid-metaclass
     __options__: ClassVar[Options]
-
-    @classproperty
-    def name(cls):
-        return cls.__options__.name or cls.__name__
 
     def __str__(self):
         cls = self.__class__
@@ -54,7 +52,7 @@ class DefinitionBase(BaseModel, metaclass=DefinitionMeta):
         schema = [cls.name, mro.__name__, cls.__options__.schema(), (cls.__doc__ or "").strip()]
         if cls.__fields__ and "__root__" not in cls.__fields__:
             fields = []
-            for field, opt in cls.__fields__.items():
+            for opt in cls.__fields__.values():
                 fields.append(getFieldSchema(opt))
             schema.append(fields)
         return schema
@@ -85,14 +83,36 @@ class DefinitionBase(BaseModel, metaclass=DefinitionMeta):
     def has_fields(cls) -> bool:
         return cls.is_selector() or cls.is_structure()
 
-    # Dict-like functions
-    def items(self) -> Tuple[Tuple[str, Any], ...]:
-        items = []
-        if self.has_fields():
-            for field in self.__fields__:
-                if val := getattr(self, field, None):
-                    items.append((field, val))
-        return tuple(items)
+    # Helpers
+    @classproperty
+    def name(cls) -> str:  # pylint: disable=no-self-argument
+        return cls.__options__.name or cls.__name__
+
+    @classproperty
+    def description(cls) -> str:  # pylint: disable=no-self-argument
+        return cls.__doc__
+
+    @classproperty
+    def data_type(cls) -> str:  # pylint: disable=no-self-argument
+        return cls.__options__.data_type
+
+    @classproperty
+    def enumerated(cls) -> "Enumerated":
+        if cls.data_type in ("Binary", "Boolean", "Integer", "Number", "Null", "String"):
+            raise TypeError(f"{cls.name} cannot be extended as an enumerated type")
+
+        if cls.data_type == "Enumerated":
+            return cls
+
+        from .structures import Enumerated  # pylint: disable=import-outside-toplevel
+        name = f"Enum-{cls.name}"
+        cls_kwargs = dict(
+            __name__=name,
+            __doc__=f"Derived Enumerated from {cls.name}",
+            __enums__=Enum("__enums__", cls.__fields__),
+            __options__=Options(cls.__options__, name=name)
+        )
+        return create_model(name, __base__=Enumerated, __cls_kwargs__=cls_kwargs)
 
     class Config:
         arbitrary_types_allowed = True

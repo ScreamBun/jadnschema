@@ -2,9 +2,8 @@ import re
 
 from functools import partial
 from typing import Type, Union
-from pydantic import ValidationError
 
-Primitive = Type[Union['Binary', 'Boolean', 'Integer', 'Number', "String"]]
+Primitive = Type[Union["Binary", "Boolean", "Integer", "Number", "String"]]
 
 
 def validate_format(cls: Primitive, fmt: str, val: str) -> str:

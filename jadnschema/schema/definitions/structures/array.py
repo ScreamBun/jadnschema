@@ -7,3 +7,6 @@ class Array(DefinitionBase):
     Each field has a position, label, and type
     """
     # __root__: Union[set, str, tuple]
+
+    class Options:
+        data_type = "Array"

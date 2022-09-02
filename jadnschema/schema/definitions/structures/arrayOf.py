@@ -9,3 +9,6 @@ class ArrayOf(DefinitionBase):
     Ordering and uniqueness are specified by a collection option
     """
     __root__: Union[set, str, tuple]
+
+    class Options:
+        data_type = "ArrayOf"

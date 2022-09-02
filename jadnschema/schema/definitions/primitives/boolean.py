@@ -9,3 +9,6 @@ class Boolean(DefinitionBase):
 
     class Config:
         arbitrary_types_allowed = True
+
+    class Options:
+        data_type = "Boolean"

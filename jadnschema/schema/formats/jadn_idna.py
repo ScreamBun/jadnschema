@@ -2,7 +2,7 @@
 JADN Internationalised Domain Names in Applications (IDNA) Formats
 """
 import re
-import idna.codec
+import idna.codec  # pylint: disable=unused-import
 
 from .general import email
 from .network import hostname
@@ -42,7 +42,7 @@ def idn_email(val: str) -> str:
 
     val = val.split("@")
     if len(val) != 2:
-        raise ValueError(f"IDN Email address invalid")
+        raise ValueError("IDN Email address invalid")
 
     try:
         val = b"@".join([v.encode("idna") for v in val]).decode("utf-8")

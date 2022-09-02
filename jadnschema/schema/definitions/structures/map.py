@@ -13,4 +13,5 @@ class Map(DefinitionBase):
         extra = Extra.allow
 
     class Options:
+        data_type = "Map"
         minv = 1

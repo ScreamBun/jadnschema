@@ -11,3 +11,6 @@ class MapOf(DefinitionBase):
 
     class Config:
         extra = Extra.allow
+
+    class Options:
+        data_type = "MapOf"
