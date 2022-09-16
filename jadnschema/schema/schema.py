@@ -21,7 +21,7 @@ class SchemaMeta(ModelMetaclass):
 
         for def_cls in types.values():
             if def_cls.data_type in ("ArrayOf", "MapOf"):
-                derived = make_derived(def_cls.name, def_cls)
+                derived_types.update(make_derived(def_cls.name, def_cls))
 
         new_namespace = {
             **attrs,
@@ -111,7 +111,6 @@ class Schema(BaseModel, metaclass=SchemaMeta):  # pylint: disable=invalid-metacl
         output = fname if fname.endswith(".jadn") else f"{fname}.jadn"
         with open(output, "w", encoding="UTF-8") as f:
             f.write(self.dumps())
-        pass
 
     def dumps(self, ind: int = 2) -> str:
         return self._dumps(self.schema(), indent=ind)
@@ -127,7 +126,7 @@ class Schema(BaseModel, metaclass=SchemaMeta):  # pylint: disable=invalid-metacl
         exports = getattr(self.info.exports, "value", lambda: [])()
 
         defs = set(deps) | set(imports)
-        refs = {ns(r, imports) for i in deps for r in deps[i]} | set(exports)
+        refs = {ns(r, imports) for d in deps.values() for r in d} | set(exports)
         oids = (OPTION_ID['enum'], OPTION_ID['pointer'])
         refs = {r[1:] if r[0] in oids else r for r in refs}  # Reference base type for derived enums/pointers
         return {

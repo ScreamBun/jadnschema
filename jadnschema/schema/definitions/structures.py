@@ -1,7 +1,43 @@
+"""
+JADN Structure Types
+"""
 from enum import Enum, EnumMeta
 from typing import ClassVar, Union
-from pydantic import ValidationError, root_validator
-from ..definitionBase import DefinitionBase, DefinitionMeta
+from pydantic import Extra, ValidationError, root_validator
+from .definitionBase import DefinitionBase, DefinitionMeta
+
+
+class Array(DefinitionBase):
+    """
+    An ordered list of labeled fields with positionally-defined semantics.
+    Each field has a position, label, and type.
+    """
+    # __root__: Union[set, str, tuple]
+
+    class Options:
+        data_type = "Array"
+
+
+class ArrayOf(DefinitionBase):
+    """
+    A collection of fields with the same semantics.
+    Each field has type vtype.
+    Ordering and uniqueness are specified by a collection option.
+    """
+    __root__: Union[set, str, tuple]
+
+    class Options:
+        data_type = "ArrayOf"
+
+
+class Choice(DefinitionBase):
+    """
+    A discriminated union: one type selected from a set of named or labeled types.
+    """
+    # __root__: dict
+
+    class Options:
+        data_type = "Choice"
 
 
 class EnumeratedMeta(DefinitionMeta):
@@ -27,7 +63,7 @@ class EnumeratedMeta(DefinitionMeta):
 
 class Enumerated(DefinitionBase, metaclass=EnumeratedMeta):  # pylint: disable=invalid-metaclass
     """
-    A vocabulary of items where each item has an id and a string value
+    A vocabulary of items where each item has an id and a string value.
     """
     __root__: Union[int, str]
     __enums__: ClassVar[Enum]
@@ -55,3 +91,54 @@ class Enumerated(DefinitionBase, metaclass=EnumeratedMeta):  # pylint: disable=i
 
     class Options:
         data_type = "Enumerated"
+
+
+class Map(DefinitionBase):
+    """
+    An unordered map from a set of specified keys to values with semantics bound to each key.
+    Each key has an id and name or label, and is mapped to a value type.
+    """
+    # __root__: dict
+
+    class Config:
+        extra = Extra.allow
+
+    class Options:
+        data_type = "Map"
+        minv = 1
+
+
+class MapOf(DefinitionBase):
+    """
+    An unordered map from a set of keys of the same type to values with the same semantics.
+    Each key has key type ktype, and is mapped to value type vtype.
+    """
+    # __root__: dict
+
+    class Config:
+        extra = Extra.allow
+
+    class Options:
+        data_type = "MapOf"
+
+
+class Record(DefinitionBase):
+    """
+    An ordered map from a list of keys with positions to values with positionally-defined semantics.
+    Each key has a position and name, and is mapped to a value type. Represents a row in a spreadsheet or database table.
+    """
+    # __root__: dict
+
+    class Options:
+        data_type = "Record"
+
+
+__all__ = [
+    "Array",
+    "ArrayOf",
+    "Choice",
+    "Enumerated",
+    "Map",
+    "MapOf",
+    "Record"
+]

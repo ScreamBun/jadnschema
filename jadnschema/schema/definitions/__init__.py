@@ -52,7 +52,7 @@ def clsName(name: str) -> str:
     return name
 
 
-def make_derived(name: str, def_info: Union[ArrayOf, MapOf, FieldInfo]) -> Dict[str, Type[Definition]]:
+def make_derived(name: str, def_info: Type[Union[ArrayOf, MapOf, FieldInfo]]) -> Dict[str, Type[Definition]]:
     # TODO: Finish derived def creation
     derived = {}
     if isinstance(def_info, FieldInfo):

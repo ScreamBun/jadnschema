@@ -438,11 +438,10 @@ class JADNtoJSON(WriterBase):
     def _cleanEmpty(self, itm: Any) -> Any:
         if isinstance(itm, dict):
             return {k: self._cleanEmpty(v) for k, v in itm.items() if v not in EmptyValues}
-        elif isinstance(itm, (list, tuple, set)):
+        if isinstance(itm, (list, tuple, set)):
             tmp = [self._cleanEmpty(i) for i in itm]
             return type(itm)(tmp)
-        else:
-            return itm
+        return itm
 
     def _setOrder(self, itm: Any) -> Any:
         if isinstance(itm, dict):

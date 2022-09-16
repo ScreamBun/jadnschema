@@ -97,7 +97,7 @@ class DefinitionBase(BaseModel, metaclass=DefinitionMeta):  # pylint: disable=in
         return cls.__options__.data_type
 
     @classproperty
-    def enumerated(cls) -> "Enumerated":
+    def enumerated(cls) -> "Enumerated":  # pylint: disable=no-self-argument
         if cls.data_type in ("Binary", "Boolean", "Integer", "Number", "Null", "String"):
             raise TypeError(f"{cls.name} cannot be extended as an enumerated type")
 

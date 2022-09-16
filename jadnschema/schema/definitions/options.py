@@ -4,13 +4,14 @@ from typing import Callable, Dict, List, Optional, Tuple, Union
 from pydantic import Extra, root_validator
 from ..baseModel import BaseModel
 from ..consts import ALLOWED_TYPE_OPTIONS, REQUIRED_TYPE_OPTIONS, OPTIONS, OPTION_ID, TYPE_OPTION_KEYS, FIELD_OPTION_KEYS
+from ..formats import ValidationFormats
 
 
 class Options(BaseModel):
     # Custom Options
     data_type: str = ""
     name: Optional[str] = ""
-    validation: Dict[str, Callable] = {}
+    validation: Dict[str, Callable] = ValidationFormats
     __custom__ = ["data_type", "name", "validation"]
     # Type Options
     id: Optional[bool]         # 61 - "=" Items and Fields are denoted by FieldID rather than FieldName (Section 3.2.1.1)
