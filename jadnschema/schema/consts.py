@@ -4,6 +4,7 @@ from ..utils import FrozenDict
 PRIMITIVE_TYPES = ("Binary", "Boolean", "Integer", "Number", "String")
 SELECTOR_TYPES = ("Enumerated", "Choice")
 STRUCTURED_TYPES = ("Array", "ArrayOf", "Map", "MapOf", "Record")
+FIELD_TYPES = ("Enumerated", "Choice", "Array", "Map", "Record")  # Types that have defined fields
 CORE_TYPES = PRIMITIVE_TYPES + SELECTOR_TYPES + STRUCTURED_TYPES
 
 # Option Tags/Keys

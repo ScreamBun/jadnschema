@@ -1,14 +1,21 @@
 """
 Base JADN Schema Writer
 """
+import json
 import re
 
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, NoReturn, Tuple, Union
+from terminaltables import GithubFlavoredMarkdownTable
+from .utils import Alignment, ColumnAlignment, TableFormat, TableStyle
 from ..enums import CommentLevels
+from ...exceptions import FormatError
 from ...schema import Schema
-from ...schema.definitions import Definition
+from ...schema.definitions import (
+    Definition, Array, ArrayOf, Choice, Enumerated, Map, MapOf, Record, Binary, Boolean, Integer, Number, String
+)
+from ...utils import FrozenDict
 
 
 class WriterBase:
@@ -25,6 +32,14 @@ class WriterBase:
     _definition_order: Tuple[str, ...] = ()
     _indent: str = " " * 2
     _title_overrides: Dict[str, str] = {}
+    _table_field_headers: FrozenDict = FrozenDict({
+        "ID": "id",
+        "Name": ("name", "value"),
+        "Value": "value",
+        "Type": "type",
+        "#": "options",
+        "Description": "description"
+    })
 
     def __init__(self, schema: Union[dict, str, Schema], comm: str = CommentLevels.ALL):
         if isinstance(schema, Schema):
@@ -51,29 +66,75 @@ class WriterBase:
         raise NotImplementedError(f"{self.__class__.__name__} does not implement `dumps` as a class function")
 
     # Structure Formats
-    def _typeFormat(self, itm: Definition, **kwargs):
-        print(f"{self.__class__.__name__}: format {itm.name}({itm.data_type}) not converted")
+    def _formatCustom(self, itm: Definition, **kwargs) -> Union[dict, str, NoReturn]:
+        raise FormatError(f"{self.__class__.__name__}: format {itm.name}({itm.data_type}) not converted")
 
     # Structures
-    _formatArray = _typeFormat
-    _formatArrayOf = _typeFormat
-    _formatChoice = _typeFormat
-    _formatEnumerated = _typeFormat
-    _formatMap = _typeFormat
-    _formatMapOf = _typeFormat
-    _formatRecord = _typeFormat
+    def _formatArray(self, itm: Array, **kwargs) -> Union[dict, str, NoReturn]:
+        raise NotImplementedError
+
+    def _formatArrayOf(self, itm: ArrayOf, **kwargs) -> Union[dict, str, NoReturn]:
+        raise NotImplementedError
+
+    def _formatChoice(self, itm: Choice, **kwargs) -> Union[dict, str, NoReturn]:
+        raise NotImplementedError
+
+    def _formatEnumerated(self, itm: Enumerated, **kwargs) -> Union[dict, str, NoReturn]:
+        raise NotImplementedError
+
+    def _formatMap(self, itm: Map, **kwargs) -> Union[dict, str, NoReturn]:
+        raise NotImplementedError
+
+    def _formatMapOf(self, itm: MapOf, **kwargs) -> Union[dict, str, NoReturn]:
+        raise NotImplementedError
+
+    def _formatRecord(self, itm: Record, **kwargs) -> Union[dict, str, NoReturn]:
+        raise NotImplementedError
+
     # Primitives
-    _formatBinary = _typeFormat
-    _formatBoolean = _typeFormat
-    _formatInteger = _typeFormat
-    _formatNumber = _typeFormat
-    _formatString = _typeFormat
+    def _formatBinary(self, itm: Binary, **kwargs) -> Union[dict, str, NoReturn]:
+        return self._formatCustom(itm, **kwargs)
+
+    def _formatBoolean(self, itm: Boolean, **kwargs) -> Union[dict, str, NoReturn]:
+        return self._formatCustom(itm, **kwargs)
+
+    def _formatInteger(self, itm: Integer, **kwargs) -> Union[dict, str, NoReturn]:
+        return self._formatCustom(itm, **kwargs)
+
+    def _formatNumber(self, itm: Number, **kwargs) -> Union[dict, str, NoReturn]:
+        return self._formatCustom(itm, **kwargs)
+
+    def _formatString(self, itm: String, **kwargs) -> Union[dict, str, NoReturn]:
+        return self._formatCustom(itm, **kwargs)
+
+    # Helpers
+    def _formatComment(self, msg="", **kwargs):
+        """
+        Format a comment for the given schema
+        :param msg: comment text
+        :param kwargs: key/value comments
+        :return: formatted comment
+        """
+        if self._comm == CommentLevels.NONE:
+            return ""
+
+        com = self.comment_single
+        if msg not in ["", None, " "]:
+            com += f" {msg}"
+
+        if def_type := kwargs.pop('type', None):
+            com += f" ${def_type}"
+            com += f" {kwargs.pop('jadn_opts')}" if "jadn_opts" in kwargs else ""
+
+        for k, v in kwargs.items():
+            com += f" #{k}:{json.dumps(v)}"
+        return "" if re.match(r"^;\s+$", com) else com
 
     def _makeStructures(self, default: Any = None, **kwargs) -> Dict[str, Union[dict, str]]:
         structs = {}
         for def_name, def_cls in self._schema.types.items():
-            df = getattr(self, f"_format{def_cls.data_type}", self._typeFormat)
-            if conv := df(def_cls, **kwargs):
+            df = getattr(self, f"_format{def_cls.data_type}", self._formatCustom)
+            if conv := df(itm=def_cls, **kwargs):
                 structs[def_name] = conv
             else:
                 structs[def_name] = default
@@ -87,9 +148,24 @@ class WriterBase:
         def_str += '\n'.join(defs.values())
         return def_str
 
-    def formatTitle(self, title: str) -> str:
-        words = [self._title_overrides.get(w, w) for w in title.split("-")]
-        return " ".join(words)
+    def _makeTable(self, rows: List[List[Union[str, int]]], align: ColumnAlignment = None, headers: List[str] = None, table: TableFormat = TableFormat.Ascii, style: TableStyle = None) -> str:
+        inst = table.value(
+            table_data=rows
+        )
+        if not isinstance(inst, GithubFlavoredMarkdownTable) and style:
+            for k, v in style.value.items():
+                setattr(inst, k, v)
+        if headers:
+            inst.table_data.insert(0, headers)
+        else:
+            inst.inner_heading_row_border = False
+
+        alignment = {k: Alignment.ALIGN_LEFT for k in range(10)}
+        if align:
+            align = dict(enumerate(align)) if isinstance(align, list) else align
+            alignment.update({k: v for k, v in align.items() if v})
+        inst.justify_columns = alignment
+        return inst.table
 
     def formatStr(self, s: str) -> str:
         escape_chars = list(filter(None, self.escape_chars))
@@ -98,3 +174,7 @@ class WriterBase:
         if len(escape_chars) > 0:
             return re.compile(rf"[{''.join(escape_chars)}]").sub('_', s)
         return s
+
+    def formatTitle(self, title: str) -> str:
+        words = [self._title_overrides.get(w, w) for w in title.split("-")]
+        return " ".join(words)

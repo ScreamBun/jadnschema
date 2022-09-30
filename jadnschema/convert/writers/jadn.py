@@ -8,7 +8,7 @@ from ...schema import Schema
 
 
 # Conversion Class
-class JADNtoJADN(WriterBase):
+class JADNtoJADN(WriterBase):  # pylint: disable=abstract-method
     format = "jadn"
 
     def dumps(self, **kwargs) -> str:

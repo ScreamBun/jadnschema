@@ -1,3 +1,5 @@
+import sys
+
 from typing import Any, Callable, Type
 
 
@@ -26,6 +28,15 @@ def safe_cast(val: Any, to_type: Type, default: Any = None) -> Any:
         return to_type(val)
     except (ValueError, TypeError):
         return default
+
+
+def toStr(s: Any) -> str:
+    """
+    Convert a given type to a default string
+    :param s: item to convert to a string
+    :return: converted string
+    """
+    return s.decode(sys.getdefaultencoding(), 'backslashreplace') if hasattr(s, 'decode') else str(s)
 
 
 class classproperty(property):

@@ -6,6 +6,9 @@ from ..baseModel import BaseModel
 from ..consts import ALLOWED_TYPE_OPTIONS, REQUIRED_TYPE_OPTIONS, OPTIONS, OPTION_ID, TYPE_OPTION_KEYS, FIELD_OPTION_KEYS
 from ..formats import ValidationFormats
 
+# Consts
+MULTI_CHECK: Callable[[int, int], bool] = lambda x, y: True
+
 
 class Options(BaseModel):
     # Custom Options
@@ -96,6 +99,31 @@ class Options(BaseModel):
 
     def isRequired(self) -> bool:
         return not self.isOptional()
+
+    def multiplicity(self, min_default: int = 0, max_default: int = 0, field: bool = False, check=MULTI_CHECK) -> str:
+        """
+        Determine the multiplicity of the min/max options
+        minc    maxc	Multiplicity	Description	                                Keywords
+        0	    1	    0..1	        No instances or one instance	            optional
+        1	    1	    1	            Exactly one instance	                    required
+        0	    0	    0..*	        Zero or more instances	                    optional, repeated
+        1	    0	    1..*	        At least one instance	                    required, repeated
+        m	    n	    m..n	        At least m but no more than n instances     required, repeated if m > 1
+
+        :param min_default: default value of minc/minv
+        :param max_default: default value of maxc/maxv
+        :param field: if option for field or type
+        :param check: function for ignoring multiplicity - Fun(minimum, maximum) -> bool
+        :return: options multiplicity or empty string
+        """
+        minKey, maxKey = ("minc", "maxc") if field else ("minv", "maxv")
+        minimum = getattr(self, minKey, min_default) or min_default
+        maximum = getattr(self, maxKey, max_default) or max_default
+        if check(minimum, maximum):
+            if minimum == 1 and maximum == 1:
+                return "1"
+            return f"{minimum}..{'*' if maximum == 0 else maximum}"
+        return ""
 
     def split(self) -> Tuple["Options", "Options"]:
         field_opts = Options({f: self[f] for f in self.__fields__ if f in FIELD_OPTION_KEYS and self[f] is not None})

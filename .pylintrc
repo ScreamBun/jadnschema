@@ -42,7 +42,7 @@ fail-under=10.0
 #from-stdin=
 
 # Files or directories to be skipped. They should be base names, not paths.
-ignore=.eggs,build,dist,jsonschema\.egg-info
+ignore=
 
 # Add files or directories matching the regex patterns to the ignore-list. The
 # regex matches against paths and can be in Posix or Windows format.
@@ -295,7 +295,7 @@ init-import=no
 
 # List of qualified module names which can have objects that can redefine
 # builtins.
-redefining-builtins-modules=six.moves,future.builtins
+redefining-builtins-modules=six.moves, future.builtins
 
 
 [FORMAT]
@@ -379,7 +379,7 @@ max-nested-blocks=10
 # inconsistent-return-statements if a never returning function is called then
 # it will be considered as an explicit return statement and no message will be
 # printed.
-never-returning-functions=sys.exit,argparse.parse_error
+never-returning-functions=sys.exit, argparse.parse_error
 
 
 [SIMILARITIES]

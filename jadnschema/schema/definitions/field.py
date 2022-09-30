@@ -1,5 +1,5 @@
 from typing import ForwardRef, Union, get_args, get_origin
-from pydantic.fields import ModelField
+from pydantic.fields import ModelField  # pylint: disable=no-name-in-module
 
 
 def getFieldType(field: ModelField) -> str:

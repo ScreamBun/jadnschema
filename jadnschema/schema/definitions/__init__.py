@@ -2,8 +2,8 @@ import re
 from collections import namedtuple
 from enum import Enum
 from typing import Callable, Dict, Type, Optional, Union, get_args
-from pydantic import Field, create_model
-from pydantic.fields import FieldInfo
+from pydantic import Field, create_model  # pylint: disable=no-name-in-module
+from pydantic.fields import FieldInfo  # pylint: disable=no-name-in-module
 from ..consts import ID_OPTIONS, FieldAlias
 from .options import Options
 from .definitionBase import DefinitionBase
@@ -64,7 +64,7 @@ def make_derived(name: str, def_info: Type[Union[ArrayOf, MapOf, FieldInfo]]) ->
 
     field_opts, type_opts = opts.split()
     if len(type_opts.value()) > 0:
-        # print(f"Derivable: {name}")
+        print(f"Derivable: {name}")
         pass
 
     for ref in filter(None, (opts.ktype, opts.vtype)):

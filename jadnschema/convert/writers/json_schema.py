@@ -5,7 +5,7 @@ import json
 import re
 
 from typing import Any, Dict, Tuple, Union
-from pydantic.fields import ModelField
+from pydantic.fields import ModelField  # pylint: disable=no-name-in-module
 from .baseWriter import WriterBase
 from ..constants import HexChar, IPv4_Addr, IPv4_Mask, IPv6_Addr, IPv6_Mask
 from ..enums import CommentLevels, JsonEnumStyle, JsonImportStyle, JsonRootStyle
@@ -300,12 +300,6 @@ class JADNtoJSON(WriterBase):
 
         custom_json.update(opts)
         return {self.formatStr(itm.name): self._cleanEmpty(custom_json)}
-
-    _formatBinary = _formatCustom
-    _formatBoolean = _formatCustom
-    _formatInteger = _formatCustom
-    _formatNumber = _formatCustom
-    _formatString = _formatCustom
 
     # Helpers
     def _optReformat(self, opt_type: str, opts: Options, base_ref: bool = False) -> dict:

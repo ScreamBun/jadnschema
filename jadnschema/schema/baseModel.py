@@ -1,5 +1,5 @@
 from typing import Any, Mapping, Set, Tuple, Union
-from pydantic import BaseModel as pydanticBase, Extra
+from pydantic import BaseModel as pydanticBase, Extra  # pylint: disable=no-name-in-module
 
 IntStr = Union[int, str]
 UntStrMapUnion = Union[Set[IntStr], Mapping[IntStr, Any]]

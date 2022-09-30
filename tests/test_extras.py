@@ -28,11 +28,9 @@ class Conversions(TestCase):
         convert.cddl_dump(self._schema_obj, os.path.join(self._test_dir, schema + '.none'), comm=convert.CommentLevels.NONE)
         # convert.cddl_load(open(os.path.join(self._test_dir, schema + '.all.cddl'), 'rb').read(), os.path.join(self._test_dir, schema + '.cddl.jadn'))
 
-    @skip
     def test_GraphViz(self):
         convert.dot_dump(self._schema_obj, os.path.join(self._test_dir, schema))
 
-    @skip
     def test_HTML(self):
         convert.html_dump(self._schema_obj, os.path.join(self._test_dir, schema))
 
@@ -53,7 +51,6 @@ class Conversions(TestCase):
         # with open(os.path.join(self._test_dir, schema + '.jidl.jadn'), "w") as f:
         #     convert.jidl_loads(open(os.path.join(self._test_dir, schema + '.jidl'), 'rb').read()).dump(f)
 
-    @skip
     def test_JSON(self):
         for e in convert.JsonEnumStyle:
             for i in convert.JsonImportStyle:
@@ -62,7 +59,6 @@ class Conversions(TestCase):
                 # convert.json_dump(self._schema_obj, os.path.join(self._test_dir, schema + '.none.{e}.{i}'), comm=convert.CommentLevels.NONE, enum=e, imp=i)
         # convert.json_load(open(os.path.join(self._test_dir, schema + '.all.json'), 'rb').read(), os.path.join(self._test_dir, schema + '.json.jadn'))
 
-    @skip
     def test_MarkDown(self):
         convert.md_dump(schema=self._schema_obj, fname=os.path.join(self._test_dir, schema))
 
@@ -72,7 +68,6 @@ class Conversions(TestCase):
         convert.proto_dump(self._schema_obj, os.path.join(self._test_dir, schema + '.none'), comm=convert.CommentLevels.NONE)
         # convert.proto_load(open(os.path.join(self._test_dir, schema + '.all.proto'), 'rb').read(), os.path.join(self._test_dir, schema + '.proto.jadn'))
 
-    @skip
     def test_Relax_NG(self):
         convert.relax_dump(self._schema_obj, os.path.join(self._test_dir, schema + '.all'), comm=convert.CommentLevels.ALL)
         convert.relax_dump(self._schema_obj, os.path.join(self._test_dir, schema + '.none'), comm=convert.CommentLevels.NONE)

@@ -1,10 +1,10 @@
 from enum import Enum
 from typing import ClassVar
-from pydantic import create_model
-from pydantic.main import ModelMetaclass
+from pydantic import create_model  # pylint: disable=no-name-in-module
+from pydantic.main import ModelMetaclass  # pylint: disable=no-name-in-module
 from .options import Options
 from .field import getFieldSchema
-from ..consts import SELECTOR_TYPES, STRUCTURED_TYPES
+from ..consts import SELECTOR_TYPES, STRUCTURED_TYPES, FIELD_TYPES
 from ..baseModel import BaseModel
 from ...utils import classproperty, ellipsis_str
 
@@ -81,7 +81,10 @@ class DefinitionBase(BaseModel, metaclass=DefinitionMeta):  # pylint: disable=in
 
     @classmethod
     def has_fields(cls) -> bool:
-        return cls.is_selector() or cls.is_structure()
+        for base in cls.__mro__:
+            if base.__name__ in FIELD_TYPES:
+                return True
+        return False
 
     # Helpers
     @classproperty

@@ -7,7 +7,7 @@ class MetaEnum(EnumMeta):
         if opts := attrs.get('_optional_values'):
             attrs.update(opts(mcs))
 
-        return super().__new__(mcs, name, bases, attrs)
+        return super(MetaEnum, mcs).__new__(mcs, name, bases, attrs)
 
     def __contains__(cls, item):
         return item in list(cls.__members__.values())

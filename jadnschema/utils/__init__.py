@@ -1,4 +1,4 @@
-from .general import addKey, classproperty, ellipsis_str
+from .general import addKey, classproperty, ellipsis_str, toStr
 from .enums import EnumBase
 from .ext_dicts import ObjectDict, FrozenDict, QueryDict
 
@@ -7,6 +7,7 @@ __all__ = [
     "addKey",
     "classproperty",
     "ellipsis_str",
+    "toStr",
     # Enums
     "EnumBase",
     # Extended Dicts
