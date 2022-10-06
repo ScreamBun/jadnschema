@@ -77,15 +77,16 @@ class Enumerated(DefinitionBase, metaclass=EnumeratedMeta):  # pylint: disable=i
 
     # Validation
     @root_validator(pre=True)
-    def validate(cls, val: Union[int, str]):  # pylint: disable=no-self-argument
+    def validate_data(cls, value: dict) -> dict:  # pylint: disable=no-self-argument
+        val = value.get("__root__", None)
         if isinstance(val, int):
             for v in cls.__enums__:
                 if val == v.value.extra.get("id", None):
-                    return val
+                    return value
         else:
             for v in cls.__enums__:
                 if val == v.name:
-                    return val
+                    return value
 
         raise ValidationError(f"Value is not a valid for {cls.name}")
 
@@ -99,6 +100,19 @@ class Map(DefinitionBase):
     Each key has an id and name or label, and is mapped to a value type.
     """
     # __root__: dict
+
+    # Validation
+    @root_validator(pre=True)
+    def validate_data(cls, val: dict):  # pylint: disable=no-self-argument
+        if (minProps := cls.__options__.minv) and isinstance(minProps, int):
+            if len(val) < minProps:
+                raise ValidationError("minimum property count not met")
+
+        if (maxProps := cls.__options__.maxv) and isinstance(maxProps, int):
+            if len(val) > maxProps:
+                raise ValidationError("maximum property count exceeded")
+
+        return val
 
     class Config:
         extra = Extra.allow

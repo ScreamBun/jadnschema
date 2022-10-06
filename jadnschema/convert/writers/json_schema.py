@@ -437,10 +437,13 @@ class JADNtoJSON(WriterBase):
             return type(itm)(tmp)
         return itm
 
-    def _setOrder(self, itm: Any) -> Any:
+    def _setOrder(self, itm: Any, parent: str = None) -> Any:
         if isinstance(itm, dict):
-            tmp = {k: self._setOrder(v) for k, v in itm.items()}
-            rtn = {k: tmp[k] for k in SchemaOrder if k in tmp}
+            tmp = {k: self._setOrder(v, k) for k, v in itm.items()}
+            if parent != "properties":
+                rtn = {k: tmp[k] for k in SchemaOrder if k in tmp}
+            else:
+                rtn = {**tmp}
             rtn.update({k: tmp[k] for k in tmp if k not in SchemaOrder})
             return rtn
         if isinstance(itm, (list, tuple)):

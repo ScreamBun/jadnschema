@@ -2,7 +2,7 @@
 Conversion Constants
 """
 # Hexadecimal
-HexChar = r"[0-9a-fA-F]"
+HexChar = r"[0-9A-Fa-f]"
 
 # IPv4 Address
 IPv4_Octet = r"(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])"

@@ -81,8 +81,32 @@ ALLOWED_TYPE_OPTIONS = FrozenDict(
     Record=("extend", "minv", "maxv")
 )
 
+EXTENSIONS = {
+    "AnonymousType",            # TYPE_OPTIONS included in FieldOptions
+    "Multiplicity",             # maxc other than 1, or minv other than 0 (optional) or 1 (required)
+    "DerivedEnum",              # enum and pointer/dir options, create Enumerated type of fields or JSON Pointers
+    "MapOfEnum",                # ktype option specifies an Enumerated type
+    "Pointers",                 # TBD
+    "Link"                      # key and link options
+}
+
+# Schema Definition Order
+DEF_ORDER_FILE_NAMES = ("def_order.txt", "def-order.txt", "definition_order.txt", "definition-order.txt",
+                        "defOrder.txt", "definitionOrder.txt")
+
 # Pydantic Helper
+SysAlias = (":", "$")
+
 FieldAlias = {
+    "assert": "assert_",
+    "break": "break_",
+    "class": "class_",
+    "continue": "continue_",
     "copy": "copy_",
-    "name": "name_"
+    "finally": "finally_",
+    "global": "global_",
+    "name": "name_",
+    "raise": "raise_",
+    "update": "update_",
+    "yield": "yield_"
 }

@@ -1,10 +1,11 @@
 import re
+
 from collections import namedtuple
 from enum import Enum
-from typing import Callable, Dict, Type, Optional, Union, get_args
+from typing import Callable, Dict, Type, Optional, Tuple, Union, get_args
 from pydantic import Field, create_model  # pylint: disable=no-name-in-module
 from pydantic.fields import FieldInfo  # pylint: disable=no-name-in-module
-from ..consts import ID_OPTIONS, FieldAlias
+from ..consts import FieldAlias
 from .options import Options
 from .definitionBase import DefinitionBase
 from .primitives import Binary, Boolean, Integer, Number, String
@@ -46,33 +47,16 @@ __all__ = [
     "make_def"
 ]
 
+# Types
+DerivedArg = Union[
+    Type[Union[ArrayOf, MapOf]],
+    Dict[str, Tuple[str, FieldInfo]]
+]
+
 
 def clsName(name: str) -> str:
     name = re.sub(r"[\-\s]", "_", name)
     return name
-
-
-def make_derived(name: str, def_info: Type[Union[ArrayOf, MapOf, FieldInfo]]) -> Dict[str, Type[Definition]]:
-    # TODO: Finish derived def creation
-    derived = {}
-    if isinstance(def_info, FieldInfo):
-        opts = def_info.extra["options"]
-    elif issubclass(def_info, (ArrayOf, MapOf)):
-        opts = def_info.__options__
-    else:
-        raise TypeError(f"Unknown type for def_info variable: {type(def_info)}")
-
-    field_opts, type_opts = opts.split()
-    if len(type_opts.value()) > 0:
-        print(f"Derivable: {name}")
-        pass
-
-    for ref in filter(None, (opts.ktype, opts.vtype)):
-        if key := ID_OPTIONS.get(ref[0]):
-            val = ref[1:]
-            print(f"Derived Ref: {name} -> {key}:{val}")
-
-    return derived
 
 
 def custom_def(name: str, cls: Type[Definition], opts: Union[dict, list, Options], desc: str = "") -> Type[Definition]:
@@ -115,8 +99,8 @@ def make_def(data: list, formats: Dict[str, Callable] = None) -> Type[Definition
                     annotation = field_type
                     field_obj["required"] = True
                 field_info = Field(**field_obj)
-                derived = make_derived(name, field_info)
                 fields[name] = (annotation, field_info)
+
         alias = clsName(def_obj.name)
         base_opts = [b.__options__ for b in reversed(cls.__mro__) if issubclass(b, DefinitionBase) and b != DefinitionBase]
         cls_kwargs.update(
@@ -124,5 +108,6 @@ def make_def(data: list, formats: Dict[str, Callable] = None) -> Type[Definition
             __doc__=def_obj.description,
             __options__=Options(*base_opts, def_obj.options, name=def_obj.name, validation=formats)
         )
-        return create_model(alias, __base__=cls, __cls_kwargs__=cls_kwargs, **fields)
+        def_model = create_model(alias, __base__=cls, __cls_kwargs__=cls_kwargs, **fields)
+        return def_model
     raise TypeError(f"Unknown definition of {def_obj.type}")

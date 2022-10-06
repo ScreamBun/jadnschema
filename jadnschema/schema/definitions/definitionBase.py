@@ -10,26 +10,25 @@ from ...utils import classproperty, ellipsis_str
 
 
 class DefinitionMeta(ModelMetaclass):
-    def __new__(mcs, name, bases, attrs, **kwargs):  # # pylint: disable=bad-classmethod-argument
+    def __new__(mcs, name, bases, attrs, **kwargs):  # pylint: disable=bad-classmethod-argument
+        base_opts = [b.__options__ for b in reversed(bases) if issubclass(b, BaseModel) and b != BaseModel]
         opts = Options(
+            *base_opts,
             attrs.pop("__options__", None), attrs.pop("Options", None),
             kwargs.pop("__options__", None), kwargs.pop("Options", None),
             getattr(mcs, "__options__", None), getattr(mcs, "Options", None),
         )
-        base_opts = [b.__options__ for b in reversed(bases) if issubclass(b, BaseModel) and b != BaseModel]
-        opts = Options(*base_opts, opts)
         new_namespace = {
             **attrs,
             **kwargs,
             "__options__": opts,
         }
-        cls = super().__new__(mcs, name, bases, new_namespace)
+        cls = super().__new__(mcs, name, bases, new_namespace)  # pylint: disable=too-many-function-args
         base_names = [b.__name__ for b in bases]
         for idx, (field, opts) in enumerate(cls.__fields__.items()):
             if field != "__root__":
                 opts.field_info.extra["parent"] = cls
-                field_opts = opts.field_info.extra.get("options", Options())
-                field_opts = opts.field_info.extra["options"] = Options(field_opts)
+                field_opts = opts.field_info.extra.setdefault("options", Options())
                 opts.field_info.extra.setdefault("id", idx)
                 if not opts.required and field_opts.minc != 0 and "Choice" not in base_names:
                     field_opts.minc = 0

@@ -7,6 +7,7 @@ from ..consts import ALLOWED_TYPE_OPTIONS, REQUIRED_TYPE_OPTIONS, OPTIONS, OPTIO
 from ..formats import ValidationFormats
 
 # Consts
+NULL_ARGS = (None, "")
 MULTI_CHECK: Callable[[int, int], bool] = lambda x, y: True
 
 
@@ -49,15 +50,14 @@ class Options(BaseModel):
             elif isinstance(arg, dict):
                 data.update(arg)
             elif inspect.isclass(arg) or isinstance(arg, Options):
-                data.update({k: getattr(arg, k) for k in self.__fields__ if getattr(arg, k, None) is not None})
+                data.update({k: getattr(arg, k) for k in self.__fields__ if getattr(arg, k, None) not in NULL_ARGS})
         data.update(kwargs)
         super().__init__(**data)
 
     def schema(self) -> List[str]:
         rslt = []
-        for field in self.__fields__:
-            val = getattr(self, field)
-            if field not in self.__custom__ and val is not None:
+        for field, val in self.dict(exclude_unset=True).items():
+            if val is not None:
                 if val is True:
                     rslt.append(f"{OPTION_ID.get(field)}")
                 else:

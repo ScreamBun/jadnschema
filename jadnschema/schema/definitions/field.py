@@ -19,8 +19,7 @@ def getFieldType(field: ModelField) -> str:
 def getFieldSchema(field: ModelField) -> list:
     field_extra = field.field_info.extra
     parent = field_extra.get("parent")
-    name = field.alias
-    schema = [field_extra.get("id"), name]
+    schema = [field_extra.get("id"), field.alias]
 
     if parent.has_fields():
         opts = field_extra.get("options")

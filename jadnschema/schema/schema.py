@@ -3,12 +3,14 @@ import json
 from numbers import Number
 from pathlib import Path
 from typing import Any, Callable, Dict, List, NoReturn, Optional, Set, Type, Union, get_args
+from pydantic import Field
 from pydantic.main import ModelMetaclass, PrivateAttr  # pylint: disable=no-name-in-module
 from .baseModel import BaseModel
 from .consts import OPTION_ID
 from .info import Information
-from .definitions import DefTypes, Definition, make_def, make_derived
+from .definitions import DefTypes, Definition, make_def
 from .definitions.field import getFieldType
+# from .extensions import unfold_extensions
 from .formats import ValidationFormats
 from ..exceptions import FormatError, SchemaException
 
@@ -16,40 +18,38 @@ from ..exceptions import FormatError, SchemaException
 class SchemaMeta(ModelMetaclass):
     def __new__(mcs, name, bases, attrs, **kwargs):  # pylint: disable=bad-classmethod-argument
         types = attrs.get("types", {})
-        derived_types = {}
-        if isinstance(types, list):
-            types = {td[0]: make_def(td) for td in types}
 
-        for def_cls in types.values():
-            if def_cls.data_type in ("ArrayOf", "MapOf"):
-                derived_types.update(make_derived(def_cls.name, def_cls))
+        if isinstance(types, list):
+            # info = Information(**attrs.get("info", {}))
+            # types = unfold_extensions(types, info.config.Sys)
+            types = {td[0]: make_def(td) for td in types}
 
         new_namespace = {
             **attrs,
             "_info": "info" in attrs,
-            "_derived_types": derived_types,
-            "types": types,
+            "types": types
         }
-        return super().__new__(mcs, name, bases, new_namespace, **kwargs)
+        return super().__new__(mcs, name, bases, new_namespace, **kwargs)  # pylint: disable=too-many-function-args
 
 
 class Schema(BaseModel, metaclass=SchemaMeta):  # pylint: disable=invalid-metaclass
-    info: Optional[Information]
+    info: Optional[Information] = Field(default_factory=Information)
     types: dict  # Dict[str, Definition]
-    _derived_types: Dict[str, Type[Definition]] = PrivateAttr({})
     _info: bool = PrivateAttr(False)
     __formats__: Dict[str, Callable] = ValidationFormats
 
     # Pydantic Overrides
     @classmethod
-    def parse_obj(cls: Type["Schema"], obj: Any) -> "Schema":
+    def parse_obj(cls: Type["Schema"], obj: dict) -> "Schema":
         cls._info = "info" in obj
         types = obj.get("types")
+
         if isinstance(types, list):
-            obj["types"] = {val[0]: make_def(val, cls.__formats__) for val in reversed(types)}
+            # info = Information(**obj.get("info", {}))
+            # obj["types"] = unfold_extensions(types, info.config.Sys)
+            obj["types"] = {val[0]: make_def(val, cls.__formats__) for val in reversed(obj["types"])}
 
         cls_defs = {d.__name__: d for d in obj["types"].values()}
-        cls_defs.update(cls._derived_types)
         cls_defs.update(DefTypes)
         for def_cls in obj["types"].values():
             def_cls.update_forward_refs(**cls_defs)
@@ -110,7 +110,7 @@ class Schema(BaseModel, metaclass=SchemaMeta):  # pylint: disable=invalid-metacl
 
     def _dependencies(self) -> Dict[str, Set[str]]:
         base_deps = {a.name for a in get_args(Definition)}
-        base_deps.add(None)
+        base_deps.update({None, ""})
         deps = {}
         for def_cls in self.types.values():
             if def_cls.data_type in ("ArrayOf", "MapOf"):
@@ -118,12 +118,26 @@ class Schema(BaseModel, metaclass=SchemaMeta):  # pylint: disable=invalid-metacl
                     def_cls.__options__.get("ktype", "String"),
                     def_cls.__options__.get("vtype", "String")
                 } - base_deps
-            else:
+            elif def_cls.has_fields():
                 fields = def_cls.__fields__
                 if "__root__" in fields:
-                    deps[def_cls.name] = set()
+                    deps[def_cls.name] = {
+                        def_cls.__options__.get("ktype", "String"),
+                        def_cls.__options__.get("vtype", "String")
+                    } - base_deps
                 else:
-                    deps[def_cls.name] = {getFieldType(f) for f in def_cls.__fields__.values()} - base_deps
+                    field_deps = set()
+                    for f in fields.values():
+                        field_deps.add(getFieldType(f))
+                        if f.field_info.extra["type"] in ("ArrayOf", "MapOf"):
+                            field_deps.update({
+                                f.field_info.extra["options"].get("ktype"),
+                                f.field_info.extra["options"].get("vtype")
+                            })
+                    deps[def_cls.name] = field_deps - base_deps
+            else:
+                deps[def_cls.name] = {def_cls.data_type, } - base_deps
+
         return deps
 
     def addFormat(self, fmt: str, fun: Callable[[Any], Optional[List[Exception]]], override: bool = False) -> NoReturn:

@@ -68,14 +68,14 @@
       [4, "response_requested", "Response-Type", ["[0"], "The type of Response required for the Command: none, ack, status, complete"]
     ]],
     ["Results", "Map", ["{1"], "Response Results", [
-      [1, "versions", "Version", ["q", "[0", "]10"], "List of OpenC2 language versions supported by this Actuator"],
-      [2, "profiles", "Namespace", ["q", "[0", "]0"], "List of profiles supported by this Actuator"],
+      [1, "versions", "Versions", ["[0"], "List of OpenC2 language versions supported by this Actuator"],
+      [2, "profiles", "Profiles", ["[0"], "List of profiles supported by this Actuator"],
       [3, "pairs", "Action-Targets", ["[0"], "List of targets applicable to each supported Action"],
       [4, "rate_limit", "Number", ["y0.0", "[0"], "Maximum number of requests per minute supported by design or policy"],
       [5, "args", "Enumerated", ["#Args", "[0", "]0"], "List of supported Command Arguments"]
     ]],
-    ["Action-Targets", "MapOf", ["*Targets", "+Action", "{1"], "Map of each action supported by this actuator to the list of targets applicable to that action"],
-    ["Targets", "ArrayOf", ["*>Target", "{1", "}0", "q"], "List of Target types"],
+    ["Action-Targets", "MapOf", ["*Targets", "+Action", "{1"], "Map of all actions to all targets"],
+    ["Targets", "ArrayOf", ["*>Target", "{1", "}0", "q"], "List of all Target types"],
     ["Status-Code", "Enumerated", ["="], "", [
       [102, "Processing", "an interim Response used to inform the Producer that the Consumer has accepted the Command but has not yet completed it"],
       [200, "OK", "the Command has succeeded"],
@@ -177,6 +177,8 @@
       [2, "status", "Respond with progress toward Command completion"],
       [3, "complete", "Respond when all aspects of Command completed"]
     ]],
+    ["Versions", "ArrayOf", ["*Version", "{0", "}10", "q"], "List of OpenC2 language versions"],
+    ["Profiles", "ArrayOf", ["*Namespace", "{0", "}0", "q"], "List of OpenC2 profiles"],
     ["Version", "String", [], "Major.Minor version number"],
     ["Namespace", "String", ["/uri"], "Unique name of an Actuator Profile"],
     ["Command-ID", "String", ["%^\\S{0,36}$"], "Command Identifier"]

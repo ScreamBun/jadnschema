@@ -10,7 +10,7 @@ RSP_TYPE = "OpenC2-Response"
 
 class CommandValidation(TestCase):
     _test_root = os.path.join(os.path.abspath(os.path.dirname(__file__)))
-    _schema = f'{_test_root}/schema/oc2ls-v1.0.1-resolved.jadn'
+    _schema = f'{_test_root}/schema/oc2ls-v1.1-lang_resolved.jadn'
 
     @classmethod
     def setUpClass(cls) -> None:
