@@ -1,3 +1,6 @@
+"""
+JADN Schema Definition types
+"""
 import re
 
 from collections import namedtuple
@@ -10,16 +13,6 @@ from .options import Options
 from .definitionBase import DefinitionBase
 from .primitives import Binary, Boolean, Integer, Number, String
 from .structures import Array, ArrayOf, Choice, Map, Enumerated, MapOf, Record
-
-Primitive = Union[Binary, Boolean, Integer, Number, String]
-Structure = Union[Array, ArrayOf, Choice, Enumerated, Map, MapOf, Record]
-Definition = Union[Primitive, Structure]
-
-jadn_def = namedtuple("jadn_def", ("name", "type", "options", "description", "fields"), defaults=(None, None, [], "", []))
-def_field = namedtuple("def_field", ("id", "name", "type", "options", "description"))
-enum_field = namedtuple("enum_field", ("id", "name", "description"))
-
-DefTypes = {d.__name__: d for d in get_args(Definition)}
 
 __all__ = [
     # Definitions
@@ -42,16 +35,24 @@ __all__ = [
     "DefTypes",
     "Field",
     "Options",
-    "clsName",
     "custom_def",
     "make_def"
 ]
 
 # Types
+Primitive = Union[Binary, Boolean, Integer, Number, String]
+Structure = Union[Array, ArrayOf, Choice, Enumerated, Map, MapOf, Record]
+Definition = Union[Primitive, Structure]
 DerivedArg = Union[
     Type[Union[ArrayOf, MapOf]],
     Dict[str, Tuple[str, FieldInfo]]
 ]
+
+# Helpers
+DefTypes = {d.__name__: d for d in get_args(Definition)}
+jadn_def = namedtuple("jadn_def", ("name", "type", "options", "description", "fields"), defaults=(None, None, [], "", []))
+def_field = namedtuple("def_field", ("id", "name", "type", "options", "description"))
+enum_field = namedtuple("enum_field", ("id", "name", "description"))
 
 
 def clsName(name: str) -> str:
@@ -59,7 +60,16 @@ def clsName(name: str) -> str:
     return name
 
 
-def custom_def(name: str, cls: Type[Definition], opts: Union[dict, list, Options], desc: str = "") -> Type[Definition]:
+def custom_def(name: str, cls: Type[Union[Primitive, ArrayOf, MapOf]], opts: Union[dict, list, Options], desc: str = "") -> Type[Union[Primitive, ArrayOf, MapOf]]:
+    """
+    Create a custom definition with the given arguments
+    A structured type cannot be created using the function
+    :param name: name of the custom definitions
+    :param cls: base class of the definition, one of `Binary`, `Boolean`, `Integer`, `Number`, `String`, `ArrayOf`, `MapOf`
+    :param opts: options of the definition
+    :param desc: description of the definition
+    :return: custom type definition
+    """
     alias = clsName(name)
     base_opts = [b.__options__ for b in reversed(cls.__mro__) if issubclass(b, DefinitionBase) and b != DefinitionBase]
     opts = Options(*base_opts, opts, name=name)
@@ -71,6 +81,12 @@ def custom_def(name: str, cls: Type[Definition], opts: Union[dict, list, Options
 
 
 def make_def(data: list, formats: Dict[str, Callable] = None) -> Type[Definition]:
+    """
+    Create a custom definition with the given arguments
+    :param data: the original JADN for the definition
+    :param formats: the JADN format validators
+    :return: type definition class
+    """
     def_obj = jadn_def(*data)
     if cls := DefTypes.get(def_obj.type):
         cls_kwargs = {}

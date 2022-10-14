@@ -1,8 +1,13 @@
+"""
+JADN Schema Class
+"""
 import json
+import os
 
+from io import BufferedIOBase, TextIOBase
 from numbers import Number
 from pathlib import Path
-from typing import Any, Callable, Dict, List, NoReturn, Optional, Set, Type, Union, get_args
+from typing import Any, Callable, Dict, List, NoReturn, Optional, Set, Union, get_args
 from pydantic import Field
 from pydantic.main import ModelMetaclass, PrivateAttr  # pylint: disable=no-name-in-module
 from .baseModel import BaseModel
@@ -13,6 +18,10 @@ from .definitions.field import getFieldType
 # from .extensions import unfold_extensions
 from .formats import ValidationFormats
 from ..exceptions import FormatError, SchemaException
+__pdoc__ = {
+    "Schema.info": "Information about this package",
+    "Schema.types": "Types defined in this package"
+}
 
 
 class SchemaMeta(ModelMetaclass):
@@ -33,6 +42,9 @@ class SchemaMeta(ModelMetaclass):
 
 
 class Schema(BaseModel, metaclass=SchemaMeta):  # pylint: disable=invalid-metaclass
+    """
+    JADN Schema
+    """
     info: Optional[Information] = Field(default_factory=Information)
     types: dict  # Dict[str, Definition]
     _info: bool = PrivateAttr(False)
@@ -40,7 +52,12 @@ class Schema(BaseModel, metaclass=SchemaMeta):  # pylint: disable=invalid-metacl
 
     # Pydantic Overrides
     @classmethod
-    def parse_obj(cls: Type["Schema"], obj: dict) -> "Schema":
+    def parse_obj(cls, obj: dict) -> "Schema":
+        """
+        Parse the given object into a Schema
+        :param obj: dictionary to parse
+        :return: parsed Schema instance
+        """
         cls._info = "info" in obj
         types = obj.get("types")
 
@@ -57,6 +74,10 @@ class Schema(BaseModel, metaclass=SchemaMeta):  # pylint: disable=invalid-metacl
         return super(cls, cls).parse_obj(obj)
 
     def schema(self) -> Dict[str, Any]:
+        """
+        Format this schema into valid JADN format
+        :return: JADN formatted schema
+        """
         schema = {}
         if self._info:
             schema["info"] = self.info.schema()
@@ -65,6 +86,11 @@ class Schema(BaseModel, metaclass=SchemaMeta):  # pylint: disable=invalid-metacl
 
     # Validation
     def validate(self, value: Any) -> Definition:
+        """
+        Validate the given data against the exported types
+        :param value: data to validate
+        :return: validated data as an instance of the exported type
+        """
         if self.info:
             if self.info.exports:
                 for export in self.info.exports:
@@ -72,6 +98,12 @@ class Schema(BaseModel, metaclass=SchemaMeta):  # pylint: disable=invalid-metacl
         raise SchemaException("Value is not a valid exported type")
 
     def validate_as(self, type_: str, value: Any) -> Definition:
+        """
+        Validate the given data against a specific type
+        :param type_: name of the type
+        :param value: data to validate
+        :return: validated data as an instance of the exported type
+        """
         if self.info and self.info.exports:
             if type_ not in self.info.exports.json():
                 print("Type is not a valid exported definition")
@@ -109,6 +141,10 @@ class Schema(BaseModel, metaclass=SchemaMeta):  # pylint: disable=invalid-metacl
         return "???"
 
     def _dependencies(self) -> Dict[str, Set[str]]:
+        """
+        Determine the dependencies for each type within the schema
+        :return: dictionary of dependencies
+        """
         base_deps = {a.name for a in get_args(Definition)}
         base_deps.update({None, ""})
         deps = {}
@@ -176,10 +212,48 @@ class Schema(BaseModel, metaclass=SchemaMeta):  # pylint: disable=invalid-metacl
             "cycles": [],
         }
 
-    def dump(self, fname: Union[str, Path], ind: int = 2) -> NoReturn:
+    def dump(self, fname: Union[str, Path], indent: int = 2) -> NoReturn:
+        """
+        Write the JADN to a file
+        :param fname: file to write to
+        :param indent: spaces to indent
+        :return: Formatted JADN schema in the given file
+        """
         output = fname if fname.endswith(".jadn") else f"{fname}.jadn"
         with open(output, "w", encoding="UTF-8") as f:
-            f.write(self.dumps(ind))
+            f.write(self.dumps(indent))
 
-    def dumps(self, ind: int = 2) -> str:
-        return self._dumps(self.schema(), indent=ind)
+    def dumps(self, indent: int = 2) -> str:
+        """
+        Properly format a JADN schema
+        :param indent: spaces to indent
+        :return: Formatted JADN schema in string format
+        """
+        return self._dumps(self.schema(), indent=indent)
+
+    @classmethod
+    def load(cls, fname: Union[str, BufferedIOBase, TextIOBase]) -> "Schema":
+        """
+        Load a JADN schema from a file
+        :param fname: JADN schema file to load
+        :return: Loaded schema
+        """
+        if isinstance(fname, (BufferedIOBase, TextIOBase)):
+            return cls.parse_raw(fname.read())
+
+        if isinstance(fname, str):
+            if os.path.isfile(fname):
+                return cls.parse_file(fname)
+            raise FileNotFoundError(f"Schema file not found - '{fname}'")
+        raise TypeError("fname is not valid")
+
+    @classmethod
+    def loads(cls, schema: Union[bytes, bytearray, dict, str]) -> "Schema":
+        """
+        load a JADN schema from a string
+        :param schema: JADN schema to load
+        :return: Loaded schema
+        """
+        if isinstance(schema, dict):
+            return cls.parse_obj(schema)
+        return cls.parse_raw(schema)

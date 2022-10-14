@@ -5,6 +5,12 @@ import datetime
 import strict_rfc3339
 
 from ... import utils
+__all__ = [
+    # All formats
+    "RFC3339_Formats",
+    # Specific formats
+    "date_time", "date", "time"
+]
 
 RFC3339_Formats = {}
 
@@ -59,13 +65,3 @@ def time(val: str) -> datetime.time:
         # TODO: change to better exception
         raise ValueError from err
     return d.time()
-
-
-__all__ = [
-    # Format Dict
-    "RFC3339_Formats",
-    # Format Funcs
-    "date",
-    "datetime",
-    "time"
-]

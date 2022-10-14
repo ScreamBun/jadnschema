@@ -1,5 +1,5 @@
 """
-JADN Validation Format Functions
+JADN format validation functions
 """
 from .general import GeneralFormats
 from .jadn_idna import IDNA_Formats

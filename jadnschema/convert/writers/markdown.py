@@ -3,15 +3,21 @@ JADN to Markdown tables
 """
 from typing import Dict, List, Union
 from pydantic.fields import ModelField  # pylint: disable=no-name-in-module
-from .baseWriter import WriterBase
+from .baseWriter import BaseWriter
 from .utils import Alignment, TableFormat
 from ..enums import CommentLevels
 from ...schema import Schema
 from ...schema.definitions import Options, Array, ArrayOf, Choice, Enumerated, Map, MapOf, Record, Primitive
+__pdoc__ = {
+    "JADNtoMD.format": "File extension of the given format",
+    "JADNtoMD.escape_chars": "Characters that are not supported in the schema format and need to be removed/escaped",
+    "JADNtoMD.comment_multi": "Multiline comment characters; Tuple[START_CHAR, END_CHAR]",
+    "JADNtoMD.comment_single": "Single line comment character",
+}
 
 
 # Conversion Class
-class JADNtoMD(WriterBase):
+class JADNtoMD(BaseWriter):
     format = "md"
 
     def dumps(self, **kwargs) -> str:
@@ -202,11 +208,26 @@ class JADNtoMD(WriterBase):
 
 
 # Writer Functions
-def md_dump(schema: Union[str, dict, Schema], fname: str, source: str = "", comm: CommentLevels = CommentLevels.ALL, **kwargs):
+def md_dump(schema: Union[str, dict, Schema], fname: str, source: str = "", comm: CommentLevels = CommentLevels.ALL, **kwargs) -> None:
+    """
+    Convert the JADN schema to MarkDown and write it to the given file
+    :param schema: Schema to convert
+    :param fname: schema file to write
+    :param source: source information
+    :param comm: comment level
+    :param kwargs: key/value args for the conversion
+    """
     comm = comm if comm in CommentLevels else CommentLevels.ALL
     return JADNtoMD(schema, comm).dump(fname, source, **kwargs)
 
 
-def md_dumps(schema: Union[str, dict, Schema], comm: CommentLevels = CommentLevels.ALL, **kwargs):
+def md_dumps(schema: Union[str, dict, Schema], comm: CommentLevels = CommentLevels.ALL, **kwargs) -> str:
+    """
+    Convert the JADN schema to MarkDown
+    :param schema: Schema to convert
+    :param comm: comment level
+    :param kwargs: key/value args for the conversion
+    :return: MarkDown string
+    """
     comm = comm if comm in CommentLevels else CommentLevels.ALL
     return JADNtoMD(schema, comm).dumps(**kwargs)

@@ -6,11 +6,18 @@ import re
 
 from typing import Any, Dict, Tuple, Union
 from pydantic.fields import ModelField  # pylint: disable=no-name-in-module
-from .baseWriter import WriterBase
+from .baseWriter import BaseWriter
 from ..constants import HexChar, IPv4_Addr, IPv4_Mask, IPv6_Addr, IPv6_Mask
 from ..enums import CommentLevels, JsonEnumStyle, JsonImportStyle, JsonRootStyle
 from ...schema import Schema
 from ...schema.definitions import Options, Primitive, Array, ArrayOf, Choice, Enumerated, Map, MapOf, Record
+__all__ = ["JADNtoJSON", "json_dump", "json_dumps"]
+__pdoc__ = {
+    "JADNtoJSON.format": "File extension of the given format",
+    "JADNtoJSON.escape_chars": "Characters that are not supported in the schema format and need to be removed/escaped",
+    "JADNtoJSON.comment_multi": "Multiline comment characters; Tuple[START_CHAR, END_CHAR]",
+    "JADNtoJSON.comment_single": "Single line comment character",
+}
 
 # Constants
 EmptyValues = ["", " ", None, (), [], {}]
@@ -94,15 +101,25 @@ ValidationMap: Dict[str, Union[str, None]] = {
 
 
 # Conversion Class
-class JADNtoJSON(WriterBase):
+class JADNtoJSON(BaseWriter):
     format = "json"
     comment_multi = ("/*", "*/")
     _ignoreOpts: Tuple[str] = ("dir", "id", "ktype", "vtype")
 
     def dumps(self, **kwargs) -> str:
+        """
+        Convert the schema to JSON
+        :param kwargs: key/value args to use for conversion
+        :return: JSON schema string
+        """
         return json.dumps(self.schema(**kwargs), indent=2)
 
     def schema(self, **kwargs) -> dict:
+        """
+        Convert the schema to JSON
+        :param kwargs: key/value args to use for conversion
+        :return: JSON schema dict
+        """
         kwargs.setdefault("enum", JsonEnumStyle.Enum)
         kwargs.setdefault("imp", JsonImportStyle.Any)
         kwargs.setdefault("root", JsonRootStyle.Property)
@@ -452,11 +469,26 @@ class JADNtoJSON(WriterBase):
 
 
 # Writer Functions
-def json_dump(schema: Union[str, dict, Schema], fname: str, source: str = "", comm: CommentLevels = CommentLevels.ALL, **kwargs):
+def json_dump(schema: Union[str, dict, Schema], fname: str, source: str = "", comm: CommentLevels = CommentLevels.ALL, **kwargs) -> None:
+    """
+    Convert the JADN schema to JSON and write it to the given file
+    :param schema: Schema to convert
+    :param fname: schema file to write
+    :param source: source information
+    :param comm: comment level
+    :param kwargs: key/value args for the conversion
+    """
     comm = comm if comm in CommentLevels else CommentLevels.ALL
     return JADNtoJSON(schema, comm).dump(fname, source, **kwargs)
 
 
-def json_dumps(schema: Union[str, dict, Schema], comm: CommentLevels = CommentLevels.ALL, **kwargs):
+def json_dumps(schema: Union[str, dict, Schema], comm: CommentLevels = CommentLevels.ALL, **kwargs) -> str:
+    """
+    Convert the JADN schema to JSON schema
+    :param schema: Schema to convert
+    :param comm: comment level
+    :param kwargs: key/value args for the conversion
+    :return: JSON schema string
+    """
     comm = comm if comm in CommentLevels else CommentLevels.ALL
     return JADNtoJSON(schema, comm).dumps(**kwargs)

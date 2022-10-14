@@ -1,3 +1,6 @@
+"""
+Enum Base Class
+"""
 from enum import Enum, EnumMeta
 from typing import Tuple, Type, Union
 

@@ -2,11 +2,18 @@
 JADN Network Formats
 """
 import re
+import netaddr
 
 from ipaddress import IPv4Address, IPv4Network, IPv6Address, IPv6Network
 from typing import Optional, Union
 from .consts import HOSTNAME_MAX_LENGTH
 from ...utils import addKey
+__all__ = [
+    # All formats
+    "NetworkFormats",
+    # Specific
+    "hostname", "IPv4", "IPv6", "EUI", "IPv4_Address", "IPv6_Address", "IPv4_Network", "IPv6_Network"
+]
 
 NetworkFormats = {}
 
@@ -61,23 +68,18 @@ def IPv6(val: str) -> IPv6Address:
     return IPv6Address(val)
 
 
-try:
-    import netaddr
-except ImportError:
-    pass
-else:
-    @addKey(d=NetworkFormats, k="eui")
-    def EUI(val: Union[bytes, str]) -> netaddr.EUI:
-        """
-        IEEE Extended Unique Identifier (MAC Address), EUI-48 or EUI-64
-        :param val: EUI to validate
-        :return: None or Exception
-        """
-        if not isinstance(val, (bytes, str)):
-            raise TypeError(f"EUI is not expected type, given {type(val)}")
+@addKey(d=NetworkFormats, k="eui")
+def EUI(val: Union[bytes, str]) -> netaddr.EUI:
+    """
+    IEEE Extended Unique Identifier (MAC Address), EUI-48 or EUI-64
+    :param val: EUI to validate
+    :return: None or Exception
+    """
+    if not isinstance(val, (bytes, str)):
+        raise TypeError(f"EUI is not expected type, given {type(val)}")
 
-        val = val if isinstance(val, str) else val.decode("utf-8")
-        return netaddr.EUI(val)
+    val = val if isinstance(val, str) else val.decode("utf-8")
+    return netaddr.EUI(val)
 
 
 # How to validate??
@@ -142,6 +144,3 @@ def IPv6_Network(val: Union[list, str, tuple]) -> Union[IPv6Address, IPv6Network
 
     val = "/".join(map(str, val))
     return IPv6Network(val, strict=False)
-
-
-__all__ = ["NetworkFormats"]

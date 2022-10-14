@@ -4,15 +4,22 @@ JADN to GraphViz
 import json
 import re
 
-from typing import Union, get_args
+from typing import Tuple, Union, get_args
 from graphviz import Digraph
 from pydantic.fields import ModelField  # pylint: disable=no-name-in-module
-from .baseWriter import WriterBase
+from .baseWriter import BaseWriter
 from ..enums import CommentLevels
 from ...schema import Schema
 from ...schema.definitions import Primitive
 from ...utils import FrozenDict
-StandardField = dict
+__all__ = ["JADNtoGraphViz", "dot_dump", "dot_dumps"]
+__pdoc__ = {
+    "JADNtoGraphViz.format": "File extension of the given format",
+    "JADNtoGraphViz.escape_chars": "Characters that are not supported in the schema format and need to be removed/escaped",
+    "JADNtoGraphViz.comment_multi": "Multiline comment characters; Tuple[START_CHAR, END_CHAR]",
+    "JADNtoGraphViz.comment_single": "Single line comment character",
+    "JADNtoGraphViz.atypes": "Attribute types, specific styles applies for these definitions"
+}
 
 GraphStyles = FrozenDict({
     "links": True,              # Show link edges (dashed)
@@ -47,17 +54,13 @@ GraphStyles = FrozenDict({
 
 
 # Conversion Class
-class JADNtoGraphViz(WriterBase):  # pylint: disable=abstract-method
+class JADNtoGraphViz(BaseWriter):  # pylint: disable=abstract-method
     format = "gv"
     comment_single = "#"
     comment_multi = (comment_single, "")
-    atypes = (*(d.__name__ for d in get_args(Primitive)), "Enumerated")
+    atypes: Tuple[str, ...] = (*(d.__name__ for d in get_args(Primitive)), "Enumerated")
 
     def dumps(self, **kwargs) -> str:
-        """
-        Converts the JADN schema to JADN
-        :return: JSON schema
-        """
         dot = Digraph(name="G", **GraphStyles.dotfile)
         dot.attr(**GraphStyles.dotattr)
         node_link = {t.name: f"n{i}" for i, t in enumerate(self._schema.types.values()) if t.data_type not in self.atypes}
@@ -75,7 +78,7 @@ class JADNtoGraphViz(WriterBase):  # pylint: disable=abstract-method
                             dot.edge(f"n{idx}", node_link[field.field_info.extra["type"]], **self._fieldAttrs(field))
         return f"{self.makeHeader()}\n\n{dot.source}".replace("\t", " "*4)
 
-    def makeHeader(self):
+    def makeHeader(self) -> str:
         """
         Create the header for the schema
         :return: header for schema
@@ -104,11 +107,26 @@ class JADNtoGraphViz(WriterBase):  # pylint: disable=abstract-method
 
 
 # Writer Functions
-def dot_dump(schema: Union[str, dict, Schema], fname: str, source: str = "", comm: CommentLevels = CommentLevels.ALL, **kwargs):
+def dot_dump(schema: Union[str, dict, Schema], fname: str, source: str = "", comm: CommentLevels = CommentLevels.ALL, **kwargs) -> None:
+    """
+    Convert the JADN schema to GraphViz/Dot and write it to the given file
+    :param schema: Schema to convert
+    :param fname: schema file to write
+    :param source: source information
+    :param comm: comment level
+    :param kwargs: key/value args for the conversion
+    """
     comm = comm if comm in CommentLevels else CommentLevels.ALL
     return JADNtoGraphViz(schema, comm).dump(fname, source, **kwargs)
 
 
-def dot_dumps(schema: Union[str, dict, Schema], comm: CommentLevels = CommentLevels.ALL, **kwargs):
+def dot_dumps(schema: Union[str, dict, Schema], comm: CommentLevels = CommentLevels.ALL, **kwargs) -> str:
+    """
+    Convert the JADN schema to GraphViz/Dot
+    :param schema: Schema to convert
+    :param comm: comment level
+    :param kwargs: key/value args for the conversion
+    :return: GraphViz/Dot schema string
+    """
     comm = comm if comm in CommentLevels else CommentLevels.ALL
     return JADNtoGraphViz(schema, comm).dumps(**kwargs)

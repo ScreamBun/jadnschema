@@ -4,19 +4,25 @@ JADN to HTML
 import json
 import os
 
-from typing import List, NoReturn, Union
+from typing import List, Union
 from pydantic.fields import ModelField  # pylint: disable=no-name-in-module
-from .baseWriter import WriterBase
+from .baseWriter import BaseWriter
 from .utils import DocHTML
 from ..enums import CommentLevels
 from ...jadn import data_dir
 from ...schema import Schema
 from ...schema.definitions import Options, Array, ArrayOf, Choice, Enumerated, Map, MapOf, Record
 from ...schema.definitions import DefTypes
+__pdoc__ = {
+    "JADNtoHTML.format": "File extension of the given format",
+    "JADNtoHTML.escape_chars": "Characters that are not supported in the schema format and need to be removed/escaped",
+    "JADNtoHTML.comment_multi": "Multiline comment characters; Tuple[START_CHAR, END_CHAR]",
+    "JADNtoHTML.comment_single": "Single line comment character",
+}
 
 
 # Conversion Class
-class JADNtoHTML(WriterBase):
+class JADNtoHTML(BaseWriter):
     format = "html"
     comment_multi = ("<!--", "-->")
     _themeFile = os.path.join(data_dir(), "theme.css")  # Default theme
@@ -48,7 +54,7 @@ class JADNtoHTML(WriterBase):
 
         return doc.getvalue(True)
 
-    def makeHeader(self, tag: DocHTML.tag) -> NoReturn:
+    def makeHeader(self, tag: DocHTML.tag) -> None:
         """
         Create the headers for the schema
         :return: header for schema
@@ -59,7 +65,7 @@ class JADNtoHTML(WriterBase):
                     tag("td", f'{key}:', klass="h")
                     tag("td", json.dumps(val), klass="s")
 
-    def makeStructures(self, tag: DocHTML.tag) -> NoReturn:
+    def makeStructures(self, tag: DocHTML.tag) -> None:
         """
         Create the type definitions for the schema
         :return: type definitions for the schema
@@ -94,7 +100,7 @@ class JADNtoHTML(WriterBase):
         )
 
     # Structure Formats
-    def _formatArray(self, itm: Array, **kwargs) -> NoReturn:
+    def _formatArray(self, itm: Array, **kwargs) -> None:
         tag: DocHTML.tag = kwargs["tag"]
         name = self.formatStr(itm.name)
         tag("h3", name, id=name)
@@ -113,7 +119,7 @@ class JADNtoHTML(WriterBase):
             caption=f"{self.formatStr(itm.name)} (Array)"
         )
 
-    def _formatArrayOf(self, itm: ArrayOf, **kwargs) -> NoReturn:
+    def _formatArrayOf(self, itm: ArrayOf, **kwargs) -> None:
         tag: DocHTML.tag = kwargs["tag"]
         name = self.formatStr(itm.name)
         tag("h3", name, id=name)
@@ -124,7 +130,7 @@ class JADNtoHTML(WriterBase):
         multi = f"{{{multi}}}" if multi else ""
         tag("p", f"{self.formatStr(itm.name)} (ArrayOf({value_type}){multi})")
 
-    def _formatChoice(self, itm: Choice, **kwargs) -> NoReturn:
+    def _formatChoice(self, itm: Choice, **kwargs) -> None:
         tag: DocHTML.tag = kwargs["tag"]
         name = self.formatStr(itm.name)
         tag("h3", name, id=name)
@@ -144,7 +150,7 @@ class JADNtoHTML(WriterBase):
             caption=f"{self.formatStr(itm.name)} (Choice{f' {json.dumps(opts)}' if opts.keys() else ''})"
         )
 
-    def _formatEnumerated(self, itm: Enumerated, **kwargs) -> NoReturn:
+    def _formatEnumerated(self, itm: Enumerated, **kwargs) -> None:
         tag: DocHTML.tag = kwargs["tag"]
         name = self.formatStr(itm.name)
         tag("h3", name, id=name)
@@ -169,7 +175,7 @@ class JADNtoHTML(WriterBase):
             caption=f"{self.formatStr(itm.name)} (Enumerated{'.ID' if 'id' in itm.__options__ else ''})"
         )
 
-    def _formatMap(self, itm: Map, **kwargs) -> NoReturn:
+    def _formatMap(self, itm: Map, **kwargs) -> None:
         tag: DocHTML.tag = kwargs["tag"]
         name = self.formatStr(itm.name)
         tag("h3", name, id=name)
@@ -192,7 +198,7 @@ class JADNtoHTML(WriterBase):
             caption=f"{self.formatStr(itm.name)} (Map{multi})"
         )
 
-    def _formatMapOf(self, itm: MapOf, **kwargs) -> NoReturn:
+    def _formatMapOf(self, itm: MapOf, **kwargs) -> None:
         tag: DocHTML.tag = kwargs["tag"]
         name = self.formatStr(itm.name)
         tag("h3", name, id=name)
@@ -204,7 +210,7 @@ class JADNtoHTML(WriterBase):
         value_count = itm.__options__.multiplicity()
         tag("p", f"{self.formatStr(itm.name)} (MapOf({key_type}, {value_type})[{value_count}])")
 
-    def _formatRecord(self, itm: Record, **kwargs) -> NoReturn:
+    def _formatRecord(self, itm: Record, **kwargs) -> None:
         tag: DocHTML.tag = kwargs["tag"]
         name = self.formatStr(itm.name)
         tag("h3", name, id=name)
@@ -261,7 +267,7 @@ class JADNtoHTML(WriterBase):
         else:
             return ""
 
-    def _makeHtmlTable(self, tag: DocHTML.tag, headers: dict, rows: list, caption: str = "", column_id: str = None) -> NoReturn:
+    def _makeHtmlTable(self, tag: DocHTML.tag, headers: dict, rows: list, caption: str = "", column_id: str = None) -> None:
         """
         Create a table using the given header and row values
         :param headers: table header names and attributes
@@ -336,11 +342,26 @@ class JADNtoHTML(WriterBase):
 
 
 # Writer Functions
-def html_dump(schema: Union[str, dict, Schema], fname: str, source: str = "", comm: CommentLevels = CommentLevels.ALL, **kwargs):
+def html_dump(schema: Union[str, dict, Schema], fname: str, source: str = "", comm: CommentLevels = CommentLevels.ALL, **kwargs) -> None:
+    """
+    Convert the JADN schema to HTML and write it to the given file
+    :param schema: Schema to convert
+    :param fname: schema file to write
+    :param source: source information
+    :param comm: comment level
+    :param kwargs: key/value args for the conversion
+    """
     comm = comm if comm in CommentLevels else CommentLevels.ALL
     return JADNtoHTML(schema, comm).dump(fname, source, **kwargs)
 
 
-def html_dumps(schema: Union[str, dict, Schema], comm: CommentLevels = CommentLevels.ALL, **kwargs):
+def html_dumps(schema: Union[str, dict, Schema], comm: CommentLevels = CommentLevels.ALL, **kwargs) -> str:
+    """
+    Convert the JADN schema to HTML
+    :param schema: Schema to convert
+    :param comm: comment level
+    :param kwargs: key/value args for the conversion
+    :return: HTML string
+    """
     comm = comm if comm in CommentLevels else CommentLevels.ALL
     return JADNtoHTML(schema, comm).dumps(**kwargs)

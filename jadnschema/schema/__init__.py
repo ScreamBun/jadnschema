@@ -1,3 +1,6 @@
+"""
+JADN Schema definition objects
+"""
 from pydantic import Field
 from .schema import Schema
 from .definitions.primitives import Binary, Boolean, Integer, Number, String

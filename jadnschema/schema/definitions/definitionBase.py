@@ -1,3 +1,7 @@
+"""
+JADN Definition BaseModel
+Customized from `jadnschema.schema.baseModel.BaseModel`
+"""
 from enum import Enum
 from typing import ClassVar
 from pydantic import create_model  # pylint: disable=no-name-in-module
@@ -7,6 +11,11 @@ from .field import getFieldSchema
 from ..consts import SELECTOR_TYPES, STRUCTURED_TYPES, FIELD_TYPES
 from ..baseModel import BaseModel
 from ...utils import classproperty, ellipsis_str
+__pdoc__ = {
+    "DefinitionBase.name": "The definition's valid schema name",
+    "DefinitionBase.description": "The definition's description",
+    "DefinitionBase.data_type": "The definition's base datatype"
+}
 
 
 class DefinitionMeta(ModelMetaclass):
@@ -47,6 +56,10 @@ class DefinitionBase(BaseModel, metaclass=DefinitionMeta):  # pylint: disable=in
     # Pydantic overrides
     @classmethod
     def schema(cls) -> list:
+        """
+        Format the definition to valid JADN schema format
+        :return: formatted JADN
+        """
         mro = [c for c in cls.__mro__ if not c.__name__ == cls.__name__][0]
         schema = [cls.name, mro.__name__, cls.__options__.schema(), (cls.__doc__ or "").strip()]
         if cls.__fields__ and "__root__" not in cls.__fields__:
@@ -59,6 +72,10 @@ class DefinitionBase(BaseModel, metaclass=DefinitionMeta):  # pylint: disable=in
     # Custom Methods
     @classmethod
     def is_enum(cls) -> bool:
+        """
+        Determine if the definition is an enumerated type
+        :return: True/False if the definition is an enumerated type
+        """
         for base in cls.__mro__:
             if base.__name__ == "Enumerated":
                 return True
@@ -66,6 +83,11 @@ class DefinitionBase(BaseModel, metaclass=DefinitionMeta):  # pylint: disable=in
 
     @classmethod
     def is_structure(cls) -> bool:
+        """
+        Determine if the definition is a structure type
+        `Array`, `ArrayOf`, `Map`, `MapOf`, & `Record` are structure types
+        :return: True/False if the definition is a structure type
+        """
         for base in cls.__mro__:
             if base.__name__ in STRUCTURED_TYPES:
                 return True
@@ -73,6 +95,11 @@ class DefinitionBase(BaseModel, metaclass=DefinitionMeta):  # pylint: disable=in
 
     @classmethod
     def is_selector(cls) -> bool:
+        """
+        Determine if the definition is a selector type
+        `Enumerated` & `Choice` are selector types
+        :return: True/False if the definition is a selector type
+        """
         for base in cls.__mro__:
             if base.__name__ in SELECTOR_TYPES:
                 return True
@@ -80,6 +107,11 @@ class DefinitionBase(BaseModel, metaclass=DefinitionMeta):  # pylint: disable=in
 
     @classmethod
     def has_fields(cls) -> bool:
+        """
+        Determine if the definition has fields
+        `Enumerated`, `Choice`, `Array`, `Map`, & `Record` should have defined fields
+        :return: True/False if the definition has fields
+        """
         for base in cls.__mro__:
             if base.__name__ in FIELD_TYPES:
                 return True
@@ -88,18 +120,25 @@ class DefinitionBase(BaseModel, metaclass=DefinitionMeta):  # pylint: disable=in
     # Helpers
     @classproperty
     def name(cls) -> str:  # pylint: disable=no-self-argument
+        """The definition's valid schema name"""
         return cls.__options__.name or cls.__name__
 
     @classproperty
     def description(cls) -> str:  # pylint: disable=no-self-argument
+        """The definition's description"""
         return cls.__doc__
 
     @classproperty
     def data_type(cls) -> str:  # pylint: disable=no-self-argument
+        """The definition's base datatype"""
         return cls.__options__.data_type
 
-    @classproperty
+    @classmethod
     def enumerated(cls) -> "Enumerated":  # pylint: disable=no-self-argument
+        """
+        Convert the given class to an 'Enumerated' class if applicable
+        :return: converted Enumerated class object
+        """
         if cls.data_type in ("Binary", "Boolean", "Integer", "Number", "Null", "String"):
             raise TypeError(f"{cls.name} cannot be extended as an enumerated type")
 

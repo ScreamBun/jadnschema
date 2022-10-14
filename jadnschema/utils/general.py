@@ -1,9 +1,18 @@
+"""
+General Utils
+"""
 import sys
 
-from typing import Any, Callable, Type
+from typing import Any, Callable
 
 
 def addKey(d: dict, k: str = None) -> Callable:
+    """
+    Decorator to append a function to a dict, referencing the function name or given key as the key in the dict
+    :param d: dict to append the key/func onto
+    :param k: key to use on the dict
+    :return: original function
+    """
     def wrapped(fun: Callable, key: str = k) -> Callable:
         d[key if key else fun.__name__] = fun
         return fun
@@ -11,12 +20,18 @@ def addKey(d: dict, k: str = None) -> Callable:
 
 
 def ellipsis_str(val: str, cut: int = 100) -> str:
-    if len(val)> cut:
+    """
+    Terminate a string larger than 'cut' characters and append an ellipsis
+    :param val: string to limit the size of
+    :param cut: number of characters to terminate string at
+    :return: original string or ellipsis string
+    """
+    if len(val) > cut:
         return f"{val[:cut]}..."
     return val
 
 
-def safe_cast(val: Any, to_type: Type, default: Any = None) -> Any:
+def safe_cast(val: Any, to_type: type, default: Any = None) -> Any:
     """
     Cast the given value to the given type safely without an exception being thrown
     :param val: value to cast

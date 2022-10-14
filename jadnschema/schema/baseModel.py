@@ -1,3 +1,7 @@
+"""
+JADN Customized BaseModel
+Customized from `pydantic.main.BaseModel`
+"""
 from typing import Any, Mapping, Set, Tuple, Union
 from pydantic import BaseModel as pydanticBase, Extra  # pylint: disable=no-name-in-module
 
@@ -36,23 +40,50 @@ class BaseModel(pydanticBase):
         raise AttributeError(f"{self.__class__.__name__} does not contain {key} as an attribute")
 
     def get(self, attr: str, default: Any = None):
+        """
+        Dict-like functionality, copy of dict.get
+        :param attr: property name to get the value of
+        :param default: default value if the property is not found of does not have a value
+        :return: the value of the property of default
+        """
         if attr in self.__fields__:
             return getattr(self, attr, default)
         raise KeyError(f"{attr} is not a valid key of {self.__class__.__name__}")
 
     def keys(self) -> Tuple[str, ...]:
+        """
+        Dict-like functionality, copy of dict.keys
+        :return: the properties of the model
+        """
         return tuple(attr for attr in self.__fields__ if self[attr])
 
     def items(self) -> Tuple[Tuple[str, Any], ...]:
-        return tuple(self.dict(by_alias=True, exclude_unset=True).items())
+        """
+        Dict-like functionality, copy of dict.items
+        :return: the key/value pairs of the model
+        """
+        return tuple(idx for idx in self.dict(by_alias=True, exclude_unset=True).items())
 
     def update(self, kv: Mapping = None, **kwargs) -> None:
+        """
+        Dict-like functionality, copy of dict.update
+        :param kv: key/value pairs (dict) to update the model with
+        :param kwargs: keyword args to update the model
+        :return: None
+        """
         for k, v in self.__class__(**{**(kv or {}), **kwargs}).items():
             setattr(self, k, v)
 
     def values(self) -> Tuple[Any, ...]:
+        """
+        Dict-like functionality, copy of dict.values
+        :return: the values of the model properties
+        """
         d = self.dict(by_alias=True, exclude_unset=True)
         return tuple(d)
 
     class Config:
+        """
+        Configuration data for base class of `pydantic.main.BaseModel`
+        """
         extra = Extra.forbid

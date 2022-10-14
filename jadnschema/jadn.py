@@ -1,6 +1,5 @@
 """
 Basic JADN functions
-load, dump, format, validate
 """
 import os
 
@@ -14,7 +13,7 @@ def analyze(schema: dict) -> Dict[str, Set[str]]:
     :param schema: schema to analyze
     :return: analysis results
     """
-    return Schema(schema).analyze()
+    return Schema.parse_obj(schema).analyze()
 
 
 def check(schema: Union[dict, str]) -> Schema:
@@ -38,12 +37,12 @@ def dump(schema: dict, file_name: Union[str, BinaryIO, TextIO], indent: int = 2,
     :param indent: spaces to indent
     :param strip_com: strip comments from schema
     :param width: max length of comment
-        length <= 0 will leave all comment unless strip is True
+    - length <= 0 will leave all comment unless strip is True
     """
-    return Schema(schema).dump(file_name, indent)
+    return Schema.parse_obj(schema).dump(file_name, indent)
 
 
-def dumps(schema: Union[dict, Schema], indent: int = 2, strip_com: bool = False, width: int = 0) -> str:
+def dumps(schema: dict, indent: int = 2, strip_com: bool = False, width: int = 0) -> str:
     """
     Properly format a JADN schema
     :param schema: Schema to format
@@ -53,18 +52,18 @@ def dumps(schema: Union[dict, Schema], indent: int = 2, strip_com: bool = False,
         length <= 0 will leave all comment unless strip is True
     :return: Formatted JADN schema
     """
-    return Schema(schema).dumps(indent)
+    return Schema.parse_obj(schema).dumps(indent)
 
 
 def load(file_name: Union[str, BinaryIO, TextIO], unfold: Set[str] = None) -> Schema:
     """
     Load a JADN schema from a file
     :param file_name: JADN schema file to load
-    :param unfold: JADN extensions to simplify
-        AnonymousType:   Replace all anonymous type definitions with explicit
-        Multiplicity:    Replace all multi-value fields with explicit ArrayOf type definitions
-        DerivedEnum:     Replace all derived and pointer enumerations with explicit Enumerated type definitions
-        MapOfEnum:       Replace all MapOf types with listed keys with explicit Map type definitions
+    :param unfold: a set of JADN extensions to simplify
+        * AnonymousType:   Replace all anonymous type definitions with explicit
+        * Multiplicity:    Replace all multi-value fields with explicit ArrayOf type definitions
+        * DerivedEnum:     Replace all derived and pointer enumerations with explicit Enumerated type definitions
+        * MapOfEnum:       Replace all MapOf types with listed keys with explicit Map type definitions
     :return: loaded schema
     """
     if isinstance(file_name, str):
@@ -77,10 +76,10 @@ def loads(schema: Union[bytes, dict, str], unfold: Set[str] = None) -> Schema:
     load a JADN schema from a string
     :param schema: JADN schema to load
     :param unfold: JADN extensions to simplify
-        AnonymousType:   Replace all anonymous type definitions with explicit
-        Multiplicity:    Replace all multi-value fields with explicit ArrayOf type definitions
-        DerivedEnum:     Replace all derived and pointer enumerations with explicit Enumerated type definitions
-        MapOfEnum:       Replace all MapOf types with listed keys with explicit Map type definitions
+        * AnonymousType:   Replace all anonymous type definitions with explicit
+        * Multiplicity:    Replace all multi-value fields with explicit ArrayOf type definitions
+        * DerivedEnum:     Replace all derived and pointer enumerations with explicit Enumerated type definitions
+        * MapOfEnum:       Replace all MapOf types with listed keys with explicit Map type definitions
     :return: loaded schema
     """
     if isinstance(schema, dict):
@@ -110,10 +109,10 @@ def strip(schema: dict, width: int = 0) -> dict:
     Strip/Truncate comments from schema
     :param schema: schema to strip comments
     :param width: max length of comment
-        length <= 0 will leave all comment unless strip is True
+        - length <= 0 will leave all comment unless strip is True
     :return: comment stripped JADN schema
     """
-    return Schema(schema).schema()
+    return Schema.parse_obj(schema).schema()
 
 
 def unfold_extensions(schema: dict, extensions: Set[str] = None) -> dict:

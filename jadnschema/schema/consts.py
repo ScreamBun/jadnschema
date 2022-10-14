@@ -1,4 +1,11 @@
-from ..utils import FrozenDict
+"""
+JADN schema formatting consts
+"""
+__all__ = [
+    "PRIMITIVE_TYPES", "SELECTOR_TYPES", "STRUCTURED_TYPES", "FIELD_TYPES", "CORE_TYPES",
+    "TYPE_OPTIONS", "FIELD_OPTIONS", "OPTIONS", "OPTION_ID", "ID_OPTIONS", "TYPE_OPTION_KEYS", "FIELD_OPTION_KEYS",
+    "REQUIRED_TYPE_OPTIONS", "ALLOWED_TYPE_OPTIONS", "EXTENSIONS", "DEF_ORDER_FILE_NAMES", "SysAlias", "FieldAlias"
+]
 
 # Core datatypes
 PRIMITIVE_TYPES = ("Binary", "Boolean", "Integer", "Number", "String")
@@ -51,35 +58,35 @@ ID_OPTIONS = {v: k for k, v in OPTION_ID.items()}
 TYPE_OPTION_KEYS = tuple(v[0] for v in TYPE_OPTIONS.values())
 FIELD_OPTION_KEYS = tuple(v[0] for v in FIELD_OPTIONS.values())
 
-REQUIRED_TYPE_OPTIONS = FrozenDict(
-    Binary=(),
-    Boolean=(),
-    Integer=(),
-    Number=(),
-    String=(),
-    Enumerated=(),
-    Choice=(),
-    Array=(),
-    ArrayOf=("vtype", ),
-    Map=(),
-    MapOf=("ktype", "vtype"),
-    Record=()
-)
+REQUIRED_TYPE_OPTIONS = {
+    "Binary": (),
+    "Boolean": (),
+    "Integer": (),
+    "Number": (),
+    "String": (),
+    "Enumerated": (),
+    "Choice": (),
+    "Array": (),
+    "ArrayOf": ("vtype", ),
+    "Map": (),
+    "MapOf": ("ktype", "vtype"),
+    "Record": ()
+}
 
-ALLOWED_TYPE_OPTIONS = FrozenDict(
-    Binary=("minv", "maxv", "format"),
-    Boolean=(),
-    Integer=("minv", "maxv", "format"),
-    Number=("minf", "maxf", "format"),
-    String=("minv", "maxv", "format", "pattern"),
-    Enumerated=("id", "enum", "pointer", "extend"),
-    Choice=("id", "extend"),
-    Array=("extend", "format", "minv", "maxv"),
-    ArrayOf=("vtype", "minv", "maxv", "unique", "set", "unordered"),
-    Map=("id", "extend", "minv", "maxv"),
-    MapOf=("ktype", "vtype", "minv", "maxv"),
-    Record=("extend", "minv", "maxv")
-)
+ALLOWED_TYPE_OPTIONS = {
+    "Binary": ("minv", "maxv", "format"),
+    "Boolean": (),
+    "Integer": ("minv", "maxv", "format"),
+    "Number": ("minf", "maxf", "format"),
+    "String": ("minv", "maxv", "format", "pattern"),
+    "Enumerated": ("id", "enum", "pointer", "extend"),
+    "Choice": ("id", "extend"),
+    "Array": ("extend", "format", "minv", "maxv"),
+    "ArrayOf": ("vtype", "minv", "maxv", "unique", "set", "unordered"),
+    "Map": ("id", "extend", "minv", "maxv"),
+    "MapOf": ("ktype", "vtype", "minv", "maxv"),
+    "Record": ("extend", "minv", "maxv")
+}
 
 EXTENSIONS = {
     "AnonymousType",            # TYPE_OPTIONS included in FieldOptions

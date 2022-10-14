@@ -1,5 +1,5 @@
 """
-JADN Schema Utility functions
+JADN Schema Extension removal functions
 """
 import os
 import inflect
@@ -9,6 +9,7 @@ from typing import Dict, Generator, List, NoReturn, Optional, Set, Tuple, Union
 from .definitions import Options
 from .consts import CORE_TYPES, DEF_ORDER_FILE_NAMES, EXTENSIONS, ID_OPTIONS, OPTION_ID, SysAlias
 from ..exceptions import SchemaException
+__all__ = ["unfold_extensions"]
 
 
 @dataclass

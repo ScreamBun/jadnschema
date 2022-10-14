@@ -4,13 +4,22 @@ JADN Primitive Types
 import re
 
 from functools import partial
-from typing import Union
+from typing import Any, Union
 from pydantic import ValidationError, root_validator
 from .definitionBase import DefinitionBase
+__all__ = ["Primitive", "Binary", "Boolean", "Integer", "Number", "String"]
 Primitive = Union["Binary", "Boolean", "Integer", "Number", "String"]
 
 
-def validate_format(cls: Primitive, fmt: str, val: str) -> str:
+def validate_format(cls: Primitive, fmt: str, val: Any) -> Any:
+    """
+    Attempt to validate the format of a given Primitive type
+    :param cls: Primitive type to validate
+    :param fmt: format to validate against
+    :param val: value to validate
+    :raise Exception: invalid format
+    :return: original formatted value
+    """
     if re.match(r"^u\d+$", fmt):
         fun = partial(cls.__options__.validation["unsigned"], int(fmt[1:]))
     else:
@@ -29,7 +38,14 @@ class Binary(DefinitionBase):
 
     # Validation
     @root_validator(pre=True)
-    def validate(cls, val: str):  # pylint: disable=no-self-argument
+    def validate_data(cls, value: dict) -> dict:  # pylint: disable=no-self-argument
+        """
+        Pydantic validator - validate the string as a Binary type
+        :param value: value to validate
+        :raise ValueError: invalid data given
+        :return: original value
+        """
+        val = value.get("__root__", None)
         if fmt := cls.__options__.format:
             validate_format(cls, fmt, val)
         val_len = len(val)
@@ -39,7 +55,7 @@ class Binary(DefinitionBase):
             raise ValidationError(f"{cls.name} is invalid, minimum length of {min_len:,} bytes not met")
         if max_len < val_len:
             raise ValidationError(f"{cls.name} is invalid, maximum length of {min_len:,} bytes exceeded")
-        return val
+        return value
 
     class Config:
         arbitrary_types_allowed = True
@@ -69,7 +85,14 @@ class Integer(DefinitionBase):
 
     # Validation
     @root_validator(pre=True)
-    def validate(cls, val: int):  # pylint: disable=no-self-argument
+    def validate_data(cls, value: dict) -> dict:  # pylint: disable=no-self-argument
+        """
+        Pydantic validator - validate the int as an Integer type
+        :param value: value to validate
+        :raise ValueError: invalid data given
+        :return: original value
+        """
+        val = value.get("__root__", None)
         if fmt := cls.__options__.format:
             validate_format(cls, fmt, str(val))
         min_val = cls.__options__.minv or 0
@@ -79,7 +102,7 @@ class Integer(DefinitionBase):
             raise ValidationError(f"{cls.name} is invalid, minimum of {min_val:,} not met")
         if max_val != 0 and max_val < val:
             raise ValidationError(f"{cls.name} is invalid, maximum of {max_val:,} exceeded")
-        return val
+        return value
 
     class Config:
         arbitrary_types_allowed = True
@@ -96,7 +119,14 @@ class Number(DefinitionBase):
 
     # Validation
     @root_validator(pre=True)
-    def validate(cls, val: int):  # pylint: disable=no-self-argument
+    def validate_data(cls, value: dict) -> dict:  # pylint: disable=no-self-argument
+        """
+        Pydantic validator - validate the float as a Number type
+        :param value: value to validate
+        :raise ValueError: invalid data given
+        :return: original value
+        """
+        val = value.get("__root__", None)
         if fmt := cls.__options__.format:
             validate_format(cls, fmt, str(val))
         min_val = cls.__options__.minf or 0
@@ -106,7 +136,7 @@ class Number(DefinitionBase):
             raise ValidationError(f"{cls.name} is invalid, minimum of {min_val:,} not met")
         if max_val != 0 and max_val < val:
             raise ValidationError(f"{cls.name} is invalid, maximum of {max_val:,} exceeded")
-        return val
+        return value
 
     class Config:
         arbitrary_types_allowed = True
@@ -123,7 +153,14 @@ class String(DefinitionBase):
 
     # Validation
     @root_validator(pre=True)
-    def validate(cls, val: str):  # pylint: disable=no-self-argument
+    def validate_data(cls, value: dict) -> dict:  # pylint: disable=no-self-argument
+        """
+        Pydantic validator - validate the string as a String type
+        :param value: value to validate
+        :raise ValueError: invalid data given
+        :return: original value
+        """
+        val = value.get("__root__", None)
         if fmt := cls.__options__.format:
             validate_format(cls, fmt, val)
         val_len = len(val)
@@ -133,20 +170,10 @@ class String(DefinitionBase):
             raise ValidationError(f"{cls.name} is invalid, minimum length of {min_len:,} characters not met")
         if max_len < val_len:
             raise ValidationError(f"{cls.name} is invalid, maximum length of {min_len:,} characters exceeded")
-        return val
+        return value
 
     class Config:
         arbitrary_types_allowed = True
 
     class Options:
         data_type = "String"
-
-
-__all__ = [
-    "Primitive",
-    "Binary",
-    "Boolean",
-    "Integer",
-    "Number",
-    "String"
-]

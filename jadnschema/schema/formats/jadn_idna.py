@@ -7,6 +7,12 @@ import idna.codec  # pylint: disable=unused-import
 from .general import email
 from .network import hostname
 from ...utils import addKey
+__all__ = [
+    # All formats
+    "IDNA_Formats",
+    # Specific
+    "idn_hostname", "idn_email"
+]
 
 IDNA_Formats = {}
 
@@ -50,6 +56,3 @@ def idn_email(val: str) -> str:
         print(f"{val} - {err}")
         raise ValueError from err
     return email(val)
-
-
-__all__ = ["IDNA_Formats"]

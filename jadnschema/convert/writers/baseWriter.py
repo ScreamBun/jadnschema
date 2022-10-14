@@ -16,9 +16,15 @@ from ...schema.definitions import (
     Definition, Array, ArrayOf, Choice, Enumerated, Map, MapOf, Record, Binary, Boolean, Integer, Number, String
 )
 from ...utils import FrozenDict
+__pdoc__ = {
+    "WriterBase.format": "File extension of the given format",
+    "WriterBase.escape_chars": "Characters that are not supported in the schema format and need to be removed/escaped",
+    "WriterBase.comment_multi": "Multiline comment characters; Tuple[START_CHAR, END_CHAR]",
+    "WriterBase.comment_single": "Single line comment character"
+}
 
 
-class WriterBase:
+class BaseWriter:
     format: str = None
     escape_chars: Tuple[str, ...] = (" ", )
     comment_multi: Tuple[str, str] = ("<!--", "-->")
@@ -55,6 +61,13 @@ class WriterBase:
         self._customFields = {t.name: t.data_type for t in self._schema.types.values()}
 
     def dump(self, fname: Union[str, Path], source: str = None, **kwargs) -> NoReturn:
+        """
+        Convert the JADN schema to another format and write it to the given file
+        :param fname: schema file to write
+        :param source: source information
+        :param kwargs: key/value args to use for conversion
+        :return:
+        """
         output = fname if fname.endswith(self.format) else f"{fname}.{self.format}"
         with open(output, "w", encoding="UTF-8") as f:
             if source:
@@ -63,48 +76,53 @@ class WriterBase:
             f.write(self.dumps(**kwargs))
 
     def dumps(self, **kwargs) -> Any:
+        """
+        Convert the JADN schema to another format
+        :param kwargs: key/value args to use for conversion
+        :return: converted schema
+        """
         raise NotImplementedError(f"{self.__class__.__name__} does not implement `dumps` as a class function")
 
     # Structure Formats
-    def _formatCustom(self, itm: Definition, **kwargs) -> Union[dict, str, NoReturn]:
+    def _formatCustom(self, itm: Definition, **kwargs) -> Union[dict, str, None]:
         raise FormatError(f"{self.__class__.__name__}: format {itm.name}({itm.data_type}) not converted")
 
     # Structures
-    def _formatArray(self, itm: Array, **kwargs) -> Union[dict, str, NoReturn]:
+    def _formatArray(self, itm: Array, **kwargs) -> Union[dict, str, None]:
         raise NotImplementedError
 
-    def _formatArrayOf(self, itm: ArrayOf, **kwargs) -> Union[dict, str, NoReturn]:
+    def _formatArrayOf(self, itm: ArrayOf, **kwargs) -> Union[dict, str, None]:
         raise NotImplementedError
 
-    def _formatChoice(self, itm: Choice, **kwargs) -> Union[dict, str, NoReturn]:
+    def _formatChoice(self, itm: Choice, **kwargs) -> Union[dict, str, None]:
         raise NotImplementedError
 
-    def _formatEnumerated(self, itm: Enumerated, **kwargs) -> Union[dict, str, NoReturn]:
+    def _formatEnumerated(self, itm: Enumerated, **kwargs) -> Union[dict, str, None]:
         raise NotImplementedError
 
-    def _formatMap(self, itm: Map, **kwargs) -> Union[dict, str, NoReturn]:
+    def _formatMap(self, itm: Map, **kwargs) -> Union[dict, str, None]:
         raise NotImplementedError
 
-    def _formatMapOf(self, itm: MapOf, **kwargs) -> Union[dict, str, NoReturn]:
+    def _formatMapOf(self, itm: MapOf, **kwargs) -> Union[dict, str, None]:
         raise NotImplementedError
 
-    def _formatRecord(self, itm: Record, **kwargs) -> Union[dict, str, NoReturn]:
+    def _formatRecord(self, itm: Record, **kwargs) -> Union[dict, str, None]:
         raise NotImplementedError
 
     # Primitives
-    def _formatBinary(self, itm: Binary, **kwargs) -> Union[dict, str, NoReturn]:
+    def _formatBinary(self, itm: Binary, **kwargs) -> Union[dict, str, None]:
         return self._formatCustom(itm, **kwargs)
 
-    def _formatBoolean(self, itm: Boolean, **kwargs) -> Union[dict, str, NoReturn]:
+    def _formatBoolean(self, itm: Boolean, **kwargs) -> Union[dict, str, None]:
         return self._formatCustom(itm, **kwargs)
 
-    def _formatInteger(self, itm: Integer, **kwargs) -> Union[dict, str, NoReturn]:
+    def _formatInteger(self, itm: Integer, **kwargs) -> Union[dict, str, None]:
         return self._formatCustom(itm, **kwargs)
 
-    def _formatNumber(self, itm: Number, **kwargs) -> Union[dict, str, NoReturn]:
+    def _formatNumber(self, itm: Number, **kwargs) -> Union[dict, str, None]:
         return self._formatCustom(itm, **kwargs)
 
-    def _formatString(self, itm: String, **kwargs) -> Union[dict, str, NoReturn]:
+    def _formatString(self, itm: String, **kwargs) -> Union[dict, str, None]:
         return self._formatCustom(itm, **kwargs)
 
     # Helpers
@@ -168,6 +186,11 @@ class WriterBase:
         return inst.table
 
     def formatStr(self, s: str) -> str:
+        """
+        Format a string for the given schema format
+        :param s: string to format
+        :return: formatted string
+        """
         escape_chars = list(filter(None, self.escape_chars))
         if s == "*":
             return "unknown"
@@ -176,5 +199,10 @@ class WriterBase:
         return s
 
     def formatTitle(self, title: str) -> str:
+        """
+        Format a title string for the given schema format
+        :param title: string to format
+        :return: formatted string
+        """
         words = [self._title_overrides.get(w, w) for w in title.split("-")]
         return " ".join(words)

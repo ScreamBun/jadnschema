@@ -1,4 +1,7 @@
-from .baseWriter import WriterBase
+"""
+JADN conversion writers
+"""
+from .baseWriter import BaseWriter
 # from .cddl import JADNtoCDDL, cddl_dump, cddl_dumps
 from .graphviz import JADNtoGraphViz, dot_dump, dot_dumps
 from .html import JADNtoHTML, html_dump, html_dumps
@@ -13,7 +16,7 @@ from .relax_ng import JADNtoRelaxNG, relax_dump, relax_dumps
 
 __all__ = [
     # Base
-    "WriterBase",
+    "BaseWriter",
     # Writers
     # "JADNtoCDDL",
     "JADNtoGraphViz",

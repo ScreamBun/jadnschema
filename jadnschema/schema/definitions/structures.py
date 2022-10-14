@@ -6,6 +6,8 @@ from typing import ClassVar, Union
 from pydantic import Extra, ValidationError, root_validator
 from .definitionBase import DefinitionBase, DefinitionMeta
 
+__all__ = ["Array", "ArrayOf", "Choice", "Enumerated", "Map", "MapOf", "Record"]
+
 
 class Array(DefinitionBase):
     """
@@ -13,6 +15,17 @@ class Array(DefinitionBase):
     Each field has a position, label, and type.
     """
     # __root__: Union[set, str, tuple]
+
+    @root_validator(pre=True)
+    def validate_data(cls, value: dict) -> dict:  # pylint: disable=no-self-argument
+        """
+        Pydantic validator - validate the data as an Array type
+        :param value: data to validate
+        :raise ValueError: invalid data given
+        :return: original data
+        """
+        # TODO: finish validation
+        return value
 
     class Options:
         data_type = "Array"
@@ -26,6 +39,17 @@ class ArrayOf(DefinitionBase):
     """
     __root__: Union[set, str, tuple]
 
+    @root_validator(pre=True)
+    def validate_data(cls, value: dict) -> dict:  # pylint: disable=no-self-argument
+        """
+        Pydantic validator - validate the data as an ArrayOf type
+        :param value: data to validate
+        :raise ValueError: invalid data given
+        :return: original data
+        """
+        # TODO: finish validation
+        return value
+
     class Options:
         data_type = "ArrayOf"
 
@@ -35,6 +59,17 @@ class Choice(DefinitionBase):
     A discriminated union: one type selected from a set of named or labeled types.
     """
     # __root__: dict
+
+    @root_validator(pre=True)
+    def validate_data(cls, value: dict) -> dict:  # pylint: disable=no-self-argument
+        """
+        Pydantic validator - validate the data as an Choice type
+        :param value: data to validate
+        :raise ValueError: invalid data given
+        :return: original data
+        """
+        # TODO: finish validation
+        return value
 
     class Options:
         data_type = "Choice"
@@ -78,6 +113,12 @@ class Enumerated(DefinitionBase, metaclass=EnumeratedMeta):  # pylint: disable=i
     # Validation
     @root_validator(pre=True)
     def validate_data(cls, value: dict) -> dict:  # pylint: disable=no-self-argument
+        """
+        Pydantic validator - validate the value as an Enumerated type
+        :param value: value to validate
+        :raise ValueError: invalid data given
+        :return: original value
+        """
         val = value.get("__root__", None)
         if isinstance(val, int):
             for v in cls.__enums__:
@@ -103,16 +144,16 @@ class Map(DefinitionBase):
 
     # Validation
     @root_validator(pre=True)
-    def validate_data(cls, val: dict):  # pylint: disable=no-self-argument
+    def validate_data(cls, value: dict):  # pylint: disable=no-self-argument
         if (minProps := cls.__options__.minv) and isinstance(minProps, int):
-            if len(val) < minProps:
+            if len(value) < minProps:
                 raise ValidationError("minimum property count not met")
 
         if (maxProps := cls.__options__.maxv) and isinstance(maxProps, int):
-            if len(val) > maxProps:
+            if len(value) > maxProps:
                 raise ValidationError("maximum property count exceeded")
 
-        return val
+        return value
 
     class Config:
         extra = Extra.allow
@@ -129,6 +170,17 @@ class MapOf(DefinitionBase):
     """
     # __root__: dict
 
+    @root_validator(pre=True)
+    def validate_data(cls, value: dict) -> dict:  # pylint: disable=no-self-argument
+        """
+        Pydantic validator - validate the data as a MapOf type
+        :param value: data to validate
+        :raise ValueError: invalid data given
+        :return: original data
+        """
+        # TODO: finish validation
+        return value
+
     class Config:
         extra = Extra.allow
 
@@ -143,16 +195,26 @@ class Record(DefinitionBase):
     """
     # __root__: dict
 
+    @root_validator(pre=True)
+    def validate_data(cls, value: dict) -> dict:  # pylint: disable=no-self-argument
+        """
+        Pydantic validator - validate the data as a Record type
+        :param value: data to validate
+        :raise ValueError: invalid data given
+        :return: original data
+        """
+        if (minProps := cls.__options__.minv) and isinstance(minProps, int):
+            if len(value) < minProps:
+                raise ValidationError("minimum property count not met")
+
+        if (maxProps := cls.__options__.maxv) and isinstance(maxProps, int):
+            if len(value) > maxProps:
+                raise ValidationError("maximum property count exceeded")
+
+        return value
+
+    class Config:
+        extra = Extra.forbid
+
     class Options:
         data_type = "Record"
-
-
-__all__ = [
-    "Array",
-    "ArrayOf",
-    "Choice",
-    "Enumerated",
-    "Map",
-    "MapOf",
-    "Record"
-]

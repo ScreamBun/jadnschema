@@ -1,3 +1,6 @@
+"""
+Module Utils
+"""
 from .general import addKey, classproperty, ellipsis_str, toStr
 from .enums import EnumBase
 from .ext_dicts import ObjectDict, FrozenDict, QueryDict

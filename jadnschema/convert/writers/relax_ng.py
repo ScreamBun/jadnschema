@@ -5,13 +5,19 @@ import json
 import re
 import xml.dom.minidom as md
 
-from typing import NoReturn, Union
-from .baseWriter import WriterBase
+from typing import Union
+from .baseWriter import BaseWriter
 from .utils import DocXML
 from ..enums import CommentLevels
 from ...utils import toStr
 from ...schema import Schema
 from ...schema.definitions import Array, ArrayOf, Choice, Enumerated, Map, MapOf, Record, Primitive
+__pdoc__ = {
+    "JADNtoRelaxNG.format": "File extension of the given format",
+    "JADNtoRelaxNG.escape_chars": "Characters that are not supported in the schema format and need to be removed/escaped",
+    "JADNtoRelaxNG.comment_multi": "Multiline comment characters; Tuple[START_CHAR, END_CHAR]",
+    "JADNtoRelaxNG.comment_single": "Single line comment character",
+}
 
 FieldMap = {
     "Binary": "base64Binary",
@@ -25,7 +31,7 @@ TagContents = Union[complex, dict, float, int, list, str]
 
 
 # Conversion Class
-class JADNtoRelaxNG(WriterBase):
+class JADNtoRelaxNG(BaseWriter):
     format: str = "relax"
     comment_multi = ("<!--", "-->")
     comment_single = ""
@@ -69,7 +75,7 @@ class JADNtoRelaxNG(WriterBase):
         return "\n".join(header) + "\n"
 
     # Structure Formats
-    def _formatArray(self, itm: Array, **kwargs) -> NoReturn:  # TODO: what should this do??
+    def _formatArray(self, itm: Array, **kwargs) -> None:  # TODO: what should this do??
         tag: DocXML.tag = kwargs["tag"]
         type_opts = {"type": itm.data_type}
         if o := itm.__options__.dict(exclude_unset=True):
@@ -97,7 +103,7 @@ class JADNtoRelaxNG(WriterBase):
                                 p.comment(com)
                                 self._fieldType(field.field_info.extra["type"], tag)
 
-    def _formatArrayOf(self, itm: ArrayOf, **kwargs) -> NoReturn:  # TODO: what should this do??
+    def _formatArrayOf(self, itm: ArrayOf, **kwargs) -> None:  # TODO: what should this do??
         tag: DocXML.tag = kwargs["tag"]
         type_opts = {"type": itm.data_type}
         if o := itm.__options__.dict(exclude_unset=True):
@@ -108,7 +114,7 @@ class JADNtoRelaxNG(WriterBase):
             with tag("oneOrMore" if type_opts["options"] and len(type_opts["options"]) > 0 else "zeroOrMore"):
                 self._fieldType(itm.__options__.get("vtype", "string"), tag)
 
-    def _formatChoice(self, itm: Choice, **kwargs) -> NoReturn:
+    def _formatChoice(self, itm: Choice, **kwargs) -> None:
         tag: DocXML.tag = kwargs["tag"]
         type_opts = {"type": itm.data_type}
         if o := itm.__options__.dict(exclude_unset=True):
@@ -127,7 +133,7 @@ class JADNtoRelaxNG(WriterBase):
                         p.comment(self._formatComment(field.field_info.description, jadn_opts=field_opts))
                         self._fieldType(field.field_info.extra["type"], tag)
 
-    def _formatEnumerated(self, itm: Enumerated, **kwargs) -> NoReturn:
+    def _formatEnumerated(self, itm: Enumerated, **kwargs) -> None:
         tag: DocXML.tag = kwargs["tag"]
         type_opts = {"type": itm.data_type}
         if o := itm.__options__.dict(exclude_unset=True):
@@ -142,7 +148,7 @@ class JADNtoRelaxNG(WriterBase):
                     p = tag("value", self.formatStr(val.default or f"Unknown_{self.formatStr(val.alias)}_{val.extra['id']}"))
                     p.comment(self._formatComment(val.description, jadn_opts=field_opts))
 
-    def _formatMap(self, itm: Map, **kwargs) -> NoReturn:
+    def _formatMap(self, itm: Map, **kwargs) -> None:
         tag: DocXML.tag = kwargs["tag"]
         type_opts = {"type": itm.data_type}
         if o := itm.__options__.dict(exclude_unset=True):
@@ -171,11 +177,11 @@ class JADNtoRelaxNG(WriterBase):
                                 p.comment(com)
                                 self._fieldType(field.field_info.extra["type"], tag)
 
-    def _formatMapOf(self, itm: MapOf, **kwargs) -> NoReturn:  # TODO: what should this do??
+    def _formatMapOf(self, itm: MapOf, **kwargs) -> None:  # TODO: what should this do??
         # tag: DocXML.tag = kwargs["tag"]
         print(f"Format MapOf for RelaxNG - {itm}")
 
-    def _formatRecord(self, itm: Record, **kwargs) -> NoReturn:
+    def _formatRecord(self, itm: Record, **kwargs) -> None:
         tag: DocXML.tag = kwargs["tag"]
         type_opts = {"type": itm.data_type}
         if o := itm.__options__.dict(exclude_unset=True):
@@ -204,7 +210,7 @@ class JADNtoRelaxNG(WriterBase):
                                 p.comment(com)
                                 self._fieldType(field.field_info.extra["type"], tag)
 
-    def _formatCustom(self, itm: Union[Primitive, ArrayOf, MapOf], **kwargs) -> NoReturn:
+    def _formatCustom(self, itm: Union[Primitive, ArrayOf, MapOf], **kwargs) -> None:
         tag: DocXML.tag = kwargs["tag"]
         com = itm.description if itm.description else ""
         if o := itm.__options__.dict(exclude_unset=True):
@@ -215,15 +221,14 @@ class JADNtoRelaxNG(WriterBase):
             self._fieldType(itm.data_type, tag)
 
     # Helper Functions
-    def _formatPretty(self, xml):
+    def _formatPretty(self, xml) -> str:
         """
         Format the XML in a human-readable format
         :param xml: XML string to format
         :return: formatted XML
         """
         rtn_xml = "\n".join([line for line in md.parseString(xml).toprettyxml(indent=self._indent).split("\n") if line.strip()])
-        rtn_xml = re.sub(r"^<\?xml.*?\?>\n", "", rtn_xml)
-        return rtn_xml
+        return re.sub(r"^<\?xml.*?\?>\n", "", rtn_xml)
 
     def _formatTag(self, tag: str, contents: TagContents = "", com="", **kwargs) -> str:
         """
@@ -275,11 +280,26 @@ class JADNtoRelaxNG(WriterBase):
 
 
 # Writer Functions
-def relax_dump(schema: Union[str, dict, Schema], fname: str, source: str = "", comm: CommentLevels = CommentLevels.ALL, **kwargs):
+def relax_dump(schema: Union[str, dict, Schema], fname: str, source: str = "", comm: CommentLevels = CommentLevels.ALL, **kwargs) -> None:
+    """
+    Convert the JADN schema to Relax-NG and write it to the given file
+    :param schema: Schema to convert
+    :param fname: schema file to write
+    :param source: source information
+    :param comm: comment level
+    :param kwargs: key/value args for the conversion
+    """
     comm = comm if comm in CommentLevels else CommentLevels.ALL
     return JADNtoRelaxNG(schema, comm).dump(fname, source, **kwargs)
 
 
-def relax_dumps(schema: Union[str, dict, Schema], comm: CommentLevels = CommentLevels.ALL, **kwargs):
+def relax_dumps(schema: Union[str, dict, Schema], comm: CommentLevels = CommentLevels.ALL, **kwargs) -> str:
+    """
+    Convert the JADN schema to Relax-NG
+    :param schema: Schema to convert
+    :param comm: comment level
+    :param kwargs: key/value args for the conversion
+    :return: Relax-NG string
+    """
     comm = comm if comm in CommentLevels else CommentLevels.ALL
     return JADNtoRelaxNG(schema, comm).dumps(**kwargs)

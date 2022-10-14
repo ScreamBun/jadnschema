@@ -1,8 +1,16 @@
+"""
+JADN definition field helpers
+"""
 from typing import ForwardRef, Union, get_args, get_origin
 from pydantic.fields import ModelField  # pylint: disable=no-name-in-module
 
 
 def getFieldType(field: ModelField) -> str:
+    """
+    Get the base type of the field
+    :param field: the field to get het base type
+    :return: base field type
+    """
     ref = field.type_
     if isinstance(ref, ForwardRef):
         ref = getattr(ref, "__forward_arg__", ref)
@@ -17,6 +25,11 @@ def getFieldType(field: ModelField) -> str:
 
 
 def getFieldSchema(field: ModelField) -> list:
+    """
+    Format the definition to valid JADN schema format
+    :param field: field to get the JADN schema
+    :return: formatted JADN
+    """
     field_extra = field.field_info.extra
     parent = field_extra.get("parent")
     schema = [field_extra.get("id"), field.alias]

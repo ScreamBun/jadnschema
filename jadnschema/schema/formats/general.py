@@ -7,6 +7,12 @@ import jsonpointer
 from typing import Union
 from urllib.parse import urlparse
 from ...utils import addKey
+__all__ = [
+    # All formats
+    "GeneralFormats",
+    # Specific
+    "email", "uri", "json_pointer", "relative_json_pointer", "regex", "bit_8", "bit_16", "bit_32", "unsigned"
+]
 
 GeneralFormats = {}
 
@@ -175,6 +181,3 @@ def unsigned(n: int, val: Union[bytes, int]) -> Union[bytes, int]:
     if val and len(val) > max_val:
         raise ValueError(f"unsigned bytes given is invalid, cannot be more than {max_val:,} bytes")
     return val
-
-
-__all__ = ["GeneralFormats"]

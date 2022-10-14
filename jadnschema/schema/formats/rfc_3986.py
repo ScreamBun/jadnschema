@@ -4,6 +4,12 @@ JADN RFC3987 Formats
 import rfc3986
 
 from ...utils import addKey
+__all__ = [
+    # All formats
+    "RFC3986_Formats",
+    # Specific formats
+    "uri", "uri_reference"
+]
 
 RFC3986_Formats = {}
 
@@ -40,12 +46,3 @@ def uri_reference(val: str) -> rfc3986.URIReference:
     except Exception as err:  # pylint: disable=broad-except
         # TODO: change to better exception
         raise ValueError from err
-
-
-__all__ = [
-    # Format Dict
-    "RFC3986_Formats",
-    # Format Funcs
-    "uri",
-    "uri_reference"
-]

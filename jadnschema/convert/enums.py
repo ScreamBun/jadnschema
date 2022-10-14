@@ -1,8 +1,11 @@
+"""
+JADN conversion enumerated types
+"""
 from ..utils import EnumBase
 
 
-# Valid Schema Formats for conversion
 class SchemaFormats(str, EnumBase):
+    """Valid Schema Formats for conversion"""
     # CDDL = "cddl"
     # HTML = "html"
     # JDIL = "jidl"
@@ -14,8 +17,8 @@ class SchemaFormats(str, EnumBase):
     # Thrift = "thrift"
 
 
-# Conversion Comment Level
 class CommentLevels(str, EnumBase):
+    """Conversion Comment Level"""
     ALL = "all"
     NONE = "none"
 

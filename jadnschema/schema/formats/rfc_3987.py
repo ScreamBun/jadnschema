@@ -3,50 +3,58 @@ JADN RFC3987 Formats
 """
 import rfc3987
 
-from typing import Optional
+from typing import Any, Optional, TypedDict
 from ...utils import addKey
+__all__ = [
+    # All formats
+    "RFC3987_Formats",
+    # Specific formats
+    "ParseResults", "iri", "iri_reference"
+]
 
 RFC3987_Formats = {}
 
 
+class ParseResults(TypedDict):
+    scheme: str
+    authority: str
+    # userinfo
+    # host: str
+    # port: int
+    path: str
+    query: Optional[Any]
+    fragment: Optional[str]
+
+
 @addKey(d=RFC3987_Formats, k="iri")
-def iri(val: str) -> Optional[Exception]:
+def iri(val: str) -> ParseResults:
     """
     Validate an IRI - RFC 3987
     :param val: IRI instance to validate
     :return: None or Exception
     """
     if not isinstance(val, str):
-        return TypeError(f"iri given is not expected string, given {type(val)}")
+        raise TypeError(f"iri given is not expected string, given {type(val)}")
 
     try:
-        rfc3987.parse(val, rule="IRI")
-    except Exception as e:  # pylint: disable=broad-except
+        return ParseResults(**rfc3987.parse(val, rule="IRI"))
+    except Exception as err:  # pylint: disable=broad-except
         # TODO: change to better exception
-        return e
+        raise ValueError from err
 
 
 @addKey(d=RFC3987_Formats, k="iri-reference")
-def iri_reference(val: str) -> Optional[Exception]:
+def iri_reference(val: str) -> ParseResults:
     """
     Validate an IRI-Reference - RFC 3987
     :param val: IRI-Reference instance to validate
     :return: None or Exception
     """
     if not isinstance(val, str):
-        return TypeError(f"iri given is not expected string, given {type(val)}")
+        raise TypeError(f"iri given is not expected string, given {type(val)}")
 
     try:
-        rfc3987.parse(val, rule="IRI_reference")
-    except Exception as e:  # pylint: disable=broad-except
+        return ParseResults(**rfc3987.parse(val, rule="IRI_reference"))
+    except Exception as err:  # pylint: disable=broad-except
         # TODO: change to better exception
-        return e
-
-
-__all__ = [
-    # Format Dict
-    "RFC3987_Formats",
-    # Format Funcs
-    "iri",
-    "iri_reference"
-]
+        raise ValueError from err

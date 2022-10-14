@@ -1,3 +1,6 @@
+"""
+Extended Dict Utils
+"""
 import copy
 
 from typing import Any, Iterable, List, Mapping, Union
@@ -75,7 +78,6 @@ class FrozenDict(ObjectDict):
         Raise an error for an attempt to alter the FrozenDict
         :param args: positional args
         :param kwargs: key/value args
-        :return: None
         :raise TypeError
         """
         raise TypeError('cannot change object - object is immutable')
@@ -92,6 +94,10 @@ class FrozenDict(ObjectDict):
 
     # Custom functions
     def unfreeze(self) -> dict:
+        """
+        Convert the 'FrozenDict' to a standard dict with editable values
+        :return: standard dict
+        """
         rtn = {}
         for k, v in self.items():
             rtn[k] = self._unfreeze(v)
@@ -262,6 +268,10 @@ class QueryDict(ObjectDict):
         return self._compositeKeys(self, sep)
 
     def setSeperator(self, value: str) -> None:
+        """
+        Set the seperator character for the 'QueryDict'
+        :param value: single character to use as the seperator
+        """
         self.separator = value
 
     # Helper Functions
