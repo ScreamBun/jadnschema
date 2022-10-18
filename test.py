@@ -5,7 +5,7 @@ from typing import Union
 from jadnschema.schema import Schema
 from oc2ls_v11 import OpenC2LangV11
 
-schema_file = "oc2ls-v1.1-lang_resolved.jadn"
+schema_file = "tests/schema/oc2ls-v1.1-lang_resolved.jadn"
 
 
 def pretty_jadn(schema: Union[dict, float, int, str, tuple], indent: int = 2, _level: int = 0) -> str:

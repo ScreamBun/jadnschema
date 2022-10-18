@@ -30,7 +30,7 @@ if __name__ == "__main__":
 
     rec_mods = recursive_htmls(module)
     for (name, html, subs) in rec_mods:
-        print(f"write doc for {name[-1] if len(name) > 0 else base_module}")
+        print(f"write doc for {base_module}{'.' if name else ''}{'.'.join(name)}")
         if subs:
             mod_path = Path(os.path.join(doc_path.absolute(), *name, "index.html"))
         else:

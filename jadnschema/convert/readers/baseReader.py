@@ -57,4 +57,4 @@ class BaseReader:
         """
         Parse the schema into JADN format
         """
-        raise NotImplemented
+        raise NotImplementedError

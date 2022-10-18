@@ -6,6 +6,7 @@ from pydantic.fields import ModelField  # pylint: disable=no-name-in-module
 from .baseWriter import BaseWriter
 from .utils import Alignment, TableFormat
 from ..enums import CommentLevels
+from ..helpers import register_writer
 from ...schema import Schema
 from ...schema.definitions import Options, Array, ArrayOf, Choice, Enumerated, Map, MapOf, Record, Primitive
 __pdoc__ = {
@@ -17,14 +18,11 @@ __pdoc__ = {
 
 
 # Conversion Class
+@register_writer
 class JADNtoMD(BaseWriter):
     format = "md"
 
     def dumps(self, **kwargs) -> str:
-        """
-        Convert the given JADN schema to MarkDown Tables
-        :return: formatted MarkDown tables of the given Schema
-        """
         schema_md = self.makeHeader()
         structures = self._makeStructures(default="")
         for name in self._definition_order:
@@ -174,7 +172,7 @@ class JADNtoMD(BaseWriter):
                 "description": field.field_info.description,
             }
         else:
-            # DataType
+            # Definition
             opts = field.__options__
             field_dict = {
                 "id": "",

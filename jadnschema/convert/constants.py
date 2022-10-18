@@ -8,6 +8,7 @@ HexChar = r"[0-9A-Fa-f]"
 IPv4_Octet = r"(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])"
 IPv4_Addr = fr"({IPv4_Octet}\.){{3}}{IPv4_Octet}"
 IPv4_Mask = r"(3[0-2]|[0-2]?[0-9])"  # 1-32
+IPv4_Net = fr"{IPv4_Addr}(\/{IPv4_Mask})?"
 
 # IPv6 Address
 IPv6_Octet = fr"{HexChar}{{1,4}}"
@@ -26,3 +27,4 @@ IPv6_Addr = (
     fr"({IPv6_Octet}:){{1,4}}:{IPv4_Addr}"              # 2001:db8:3:4::192.0.2.33  64:ff9b::192.0.2.33 (IPv4-Embedded IPv6 Address)
 )
 IPv6_Mask = r"(12[0-8]|1[01][0-9]|[0-9]?[0-9])"  # 1-128
+IPv6_Net = fr"{IPv6_Addr}(\/{IPv6_Mask})?"

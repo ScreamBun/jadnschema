@@ -11,11 +11,11 @@ from typing import Any, Callable, Dict, List, NoReturn, Optional, Set, Union, ge
 from pydantic import Field
 from pydantic.main import ModelMetaclass, PrivateAttr  # pylint: disable=no-name-in-module
 from .baseModel import BaseModel
-from .consts import OPTION_ID
+from .consts import EXTENSIONS, OPTION_ID
 from .info import Information
 from .definitions import DefTypes, Definition, make_def
 from .definitions.field import getFieldType
-# from .extensions import unfold_extensions
+from .extensions import unfold_extensions
 from .formats import ValidationFormats
 from ..exceptions import FormatError, SchemaException
 __pdoc__ = {
@@ -50,29 +50,32 @@ class Schema(BaseModel, metaclass=SchemaMeta):  # pylint: disable=invalid-metacl
     _info: bool = PrivateAttr(False)
     __formats__: Dict[str, Callable] = ValidationFormats
 
+    def __init__(self, *args, **kwargs):
+        arg_types = []
+        def_types = {}
+        if len(args) == 2:
+            arg_types.append(args[1])
+            args = tuple(*args[:-1])
+
+        if defs := kwargs.pop("types", None):
+            arg_types.append(defs)
+
+        for types in arg_types:
+            if isinstance(types, list):
+                def_types = {val[0]: make_def(val, self.__formats__) for val in reversed(types)}
+            elif isinstance(types, dict):
+                def_types = types
+
+            cls_defs = {d.__name__: d for d in def_types.values()}
+            cls_defs.update(DefTypes)
+            for def_cls in def_types.values():
+                def_cls.update_forward_refs(**cls_defs)
+            def_types.update(dict(reversed(def_types.items())))
+
+        kwargs["types"] = def_types
+        super().__init__(*args, **kwargs)
+
     # Pydantic Overrides
-    @classmethod
-    def parse_obj(cls, obj: dict) -> "Schema":
-        """
-        Parse the given object into a Schema
-        :param obj: dictionary to parse
-        :return: parsed Schema instance
-        """
-        cls._info = "info" in obj
-        types = obj.get("types")
-
-        if isinstance(types, list):
-            # info = Information(**obj.get("info", {}))
-            # obj["types"] = unfold_extensions(types, info.config.Sys)
-            obj["types"] = {val[0]: make_def(val, cls.__formats__) for val in reversed(obj["types"])}
-
-        cls_defs = {d.__name__: d for d in obj["types"].values()}
-        cls_defs.update(DefTypes)
-        for def_cls in obj["types"].values():
-            def_cls.update_forward_refs(**cls_defs)
-        obj["types"] = dict(reversed(obj["types"].items()))
-        return super(cls, cls).parse_obj(obj)
-
     def schema(self) -> Dict[str, Any]:
         """
         Format this schema into valid JADN format
@@ -212,16 +215,19 @@ class Schema(BaseModel, metaclass=SchemaMeta):  # pylint: disable=invalid-metacl
             "cycles": [],
         }
 
-    def dump(self, fname: Union[str, Path], indent: int = 2) -> NoReturn:
+    def dump(self, fname: Union[str, Path, BufferedIOBase, TextIOBase], indent: int = 2) -> NoReturn:
         """
         Write the JADN to a file
         :param fname: file to write to
         :param indent: spaces to indent
         :return: Formatted JADN schema in the given file
         """
-        output = fname if fname.endswith(".jadn") else f"{fname}.jadn"
-        with open(output, "w", encoding="UTF-8") as f:
-            f.write(self.dumps(indent))
+        if isinstance(fname, (BufferedIOBase, TextIOBase)):
+            fname.write(self.dumps(indent))
+        else:
+            output = fname if fname.endswith(".jadn") else f"{fname}.jadn"
+            with open(output, "w", encoding="UTF-8") as f:
+                f.write(self.dumps(indent))
 
     def dumps(self, indent: int = 2) -> str:
         """
@@ -257,3 +263,19 @@ class Schema(BaseModel, metaclass=SchemaMeta):  # pylint: disable=invalid-metacl
         if isinstance(schema, dict):
             return cls.parse_obj(schema)
         return cls.parse_raw(schema)
+
+    def simplify(self, extensions: Set[str] = None) -> "Schema":
+        """
+        Simplify the schema with schema extensions removed
+        :param extensions: the options to simplify
+            * AnonymousType:   Replace all anonymous type definitions with explicit
+            * Multiplicity:    Replace all multi-value fields with explicit ArrayOf type definitions
+            * DerivedEnum:     Replace all derived and pointer enumerations with explicit Enumerated type definitions
+            * MapOfEnum:       Replace all MapOf types with listed keys with explicit Map type definitions
+            * Link:            Replace Key and Link fields with explicit types
+        :return: simplified schema
+        """
+        schema = self.schema()
+        exts = EXTENSIONS.union(extensions) if extensions else EXTENSIONS
+        schema["types"] = unfold_extensions(schema["types"], self.info.config.Sys, exts)
+        return Schema(**schema)

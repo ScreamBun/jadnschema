@@ -9,6 +9,7 @@ from typing import Union
 from .baseWriter import BaseWriter
 from .utils import DocXML
 from ..enums import CommentLevels
+from ..helpers import register_writer
 from ...utils import toStr
 from ...schema import Schema
 from ...schema.definitions import Array, ArrayOf, Choice, Enumerated, Map, MapOf, Record, Primitive
@@ -31,16 +32,13 @@ TagContents = Union[complex, dict, float, int, list, str]
 
 
 # Conversion Class
+@register_writer
 class JADNtoRelaxNG(BaseWriter):
-    format: str = "relax"
+    format: str = "rng"
     comment_multi = ("<!--", "-->")
     comment_single = ""
 
     def dumps(self, **kwargs) -> str:
-        """
-        Converts the JADN schema to RelaxNG
-        :return: RelaxNG schema
-        """
         # Make initial tree
         root_kwargs = {
             "root_tag": "grammar",
@@ -178,8 +176,29 @@ class JADNtoRelaxNG(BaseWriter):
                                 self._fieldType(field.field_info.extra["type"], tag)
 
     def _formatMapOf(self, itm: MapOf, **kwargs) -> None:  # TODO: what should this do??
-        # tag: DocXML.tag = kwargs["tag"]
         print(f"Format MapOf for RelaxNG - {itm}")
+        tag: DocXML.tag = kwargs["tag"]
+        type_opts = {"type": itm.data_type}
+        if o := itm.__options__.dict(exclude_unset=True):
+            type_opts["options"] = o
+
+        with tag("define", name=self.formatStr(itm.name)) as t:
+            t.comment(self._formatComment(itm.description, jadn_opts=type_opts))
+            with tag("interleave"):
+                key_type = self._schema.types.get(itm.__options__.get("ktype"))
+                if key_type.data_type in ("Choice", "Enumerated", "Map", "Record"):
+                    if key_type.data_type == "Enumerated":
+                        keys = [f.name for f in key_type.__enums__]
+                    else:
+                        keys = [f.alias for f in key_type.__fields__.values()]
+                else:
+                    raise TypeError(f"Invalid MapOf definition for {itm.name}")
+
+                value_type = itm.__options__.get("vtype", "String")
+                for k in keys:
+                    with tag("optional"):
+                        with tag(tag_name="element", name=self.formatStr(k)):
+                            self._fieldType(value_type, tag)
 
     def _formatRecord(self, itm: Record, **kwargs) -> None:
         tag: DocXML.tag = kwargs["tag"]

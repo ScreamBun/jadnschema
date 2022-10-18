@@ -55,36 +55,38 @@ def dumps(schema: dict, indent: int = 2, strip_com: bool = False, width: int = 0
     return Schema.parse_obj(schema).dumps(indent)
 
 
-def load(file_name: Union[str, BinaryIO, TextIO], unfold: Set[str] = None) -> Schema:
+def load(file_name: Union[str, BinaryIO, TextIO], extensions: Set[str] = None) -> Schema:
     """
     Load a JADN schema from a file
     :param file_name: JADN schema file to load
-    :param unfold: a set of JADN extensions to simplify
+    :param extensions: a set of JADN extensions to simplify
         * AnonymousType:   Replace all anonymous type definitions with explicit
         * Multiplicity:    Replace all multi-value fields with explicit ArrayOf type definitions
         * DerivedEnum:     Replace all derived and pointer enumerations with explicit Enumerated type definitions
         * MapOfEnum:       Replace all MapOf types with listed keys with explicit Map type definitions
+        * Link:            Replace Key and Link fields with explicit types
     :return: loaded schema
     """
     if isinstance(file_name, str):
-        return Schema.parse_file(file_name)
-    return Schema.parse_raw(file_name.read())
+        return Schema.parse_file(file_name).simplify(extensions)
+    return Schema.parse_raw(file_name.read()).simplify(extensions)
 
 
-def loads(schema: Union[bytes, dict, str], unfold: Set[str] = None) -> Schema:
+def loads(schema: Union[bytes, dict, str], extensions: Set[str] = None) -> Schema:
     """
     load a JADN schema from a string
     :param schema: JADN schema to load
-    :param unfold: JADN extensions to simplify
+    :param extensions: JADN extensions to simplify
         * AnonymousType:   Replace all anonymous type definitions with explicit
         * Multiplicity:    Replace all multi-value fields with explicit ArrayOf type definitions
         * DerivedEnum:     Replace all derived and pointer enumerations with explicit Enumerated type definitions
         * MapOfEnum:       Replace all MapOf types with listed keys with explicit Map type definitions
+        * Link:            Replace Key and Link fields with explicit types
     :return: loaded schema
     """
     if isinstance(schema, dict):
-        return Schema.parse_obj(schema)
-    return Schema.parse_raw(schema)
+        return Schema.parse_obj(schema).simplify(extensions)
+    return Schema.parse_raw(schema).simplify(extensions)
 
 
 # Extra ??
@@ -115,11 +117,16 @@ def strip(schema: dict, width: int = 0) -> dict:
     return Schema.parse_obj(schema).schema()
 
 
-def unfold_extensions(schema: dict, extensions: Set[str] = None) -> dict:
+def unfold_extensions(schema: dict, extensions: Set[str] = None) -> Schema:
     """
     Simplify the given schema
     :param schema: schema to simplify
     :param extensions: JADN extensions
+        * AnonymousType:   Replace all anonymous type definitions with explicit
+        * Multiplicity:    Replace all multi-value fields with explicit ArrayOf type definitions
+        * DerivedEnum:     Replace all derived and pointer enumerations with explicit Enumerated type definitions
+        * MapOfEnum:       Replace all MapOf types with listed keys with explicit Map type definitions
+        * Link:            Replace Key and Link fields with explicit types
     :return: simplified schema
     """
-    return Schema.parse_obj(schema).schema()
+    return Schema(schema).simplify(extensions)

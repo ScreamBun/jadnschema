@@ -1,14 +1,12 @@
 """
 JADN Schema Definition types
 """
-import re
-
 from collections import namedtuple
 from enum import Enum
 from typing import Callable, Dict, Type, Optional, Tuple, Union, get_args
 from pydantic import Field, create_model  # pylint: disable=no-name-in-module
 from pydantic.fields import FieldInfo  # pylint: disable=no-name-in-module
-from ..consts import FieldAlias
+from ..consts import FieldAlias, SysAlias, ValidName
 from .options import Options
 from .definitionBase import DefinitionBase
 from .primitives import Binary, Boolean, Integer, Number, String
@@ -16,6 +14,7 @@ from .structures import Array, ArrayOf, Choice, Map, Enumerated, MapOf, Record
 
 __all__ = [
     # Definitions
+    "DefinitionBase",
     "Binary",
     "Boolean",
     "Integer",
@@ -56,8 +55,9 @@ enum_field = namedtuple("enum_field", ("id", "name", "description"))
 
 
 def clsName(name: str) -> str:
-    name = re.sub(r"[\-\s]", "_", name)
-    return name
+    if ValidName.match(name):
+        return name
+    return SysAlias.sub("__", name)
 
 
 def custom_def(name: str, cls: Type[Union[Primitive, ArrayOf, MapOf]], opts: Union[dict, list, Options], desc: str = "") -> Type[Union[Primitive, ArrayOf, MapOf]]:

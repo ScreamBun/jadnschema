@@ -9,10 +9,10 @@ from pydantic.fields import ModelField  # pylint: disable=no-name-in-module
 from .baseWriter import BaseWriter
 from .utils import DocHTML
 from ..enums import CommentLevels
+from ..helpers import register_writer
 from ...jadn import data_dir
 from ...schema import Schema
-from ...schema.definitions import Options, Array, ArrayOf, Choice, Enumerated, Map, MapOf, Record
-from ...schema.definitions import DefTypes
+from ...schema.definitions import DefTypes, Options, Array, ArrayOf, Choice, Enumerated, Map, MapOf, Record, Primitive
 __pdoc__ = {
     "JADNtoHTML.format": "File extension of the given format",
     "JADNtoHTML.escape_chars": "Characters that are not supported in the schema format and need to be removed/escaped",
@@ -22,18 +22,14 @@ __pdoc__ = {
 
 
 # Conversion Class
+@register_writer
 class JADNtoHTML(BaseWriter):
     format = "html"
     comment_multi = ("<!--", "-->")
     _themeFile = os.path.join(data_dir(), "theme.css")  # Default theme
     _scriptFile = os.path.join(data_dir(), "scripts.js")  # Default scripts
 
-    def dumps(self, styles: str = None, **kwargs) -> str:  # pylint: disable=W0221
-        """
-        Converts the JADN schema to HTML
-        :param styles: CSS or Less styles to add to the HTML
-        :return: JSON schema
-        """
+    def dumps(self, styles: str = None, **kwargs) -> str:
         # Make initial tree
         doc, tag = DocHTML('<!DOCTYPE html>', lang='en').context()
 
@@ -77,15 +73,7 @@ class JADNtoHTML(BaseWriter):
             if type_def.is_structure() or type_def.is_selector():
                 getattr(self, f"_format{type_def.data_type}")(type_def, tag=tag)
             else:
-                mltiOpts = {} if type_def.data_type in ("Integer", "Number") else {"check": lambda x, y: x > 0 or y > 0}
-                multi = type_def.__options__.multiplicity(**mltiOpts)
-                multi = f"{{{multi}}}" if multi else ""
-                fmt = f" /{type_def.__options__.format}" if type_def.__options__.format else ""
-                primitives.append(dict(
-                    Name=type_def.name,
-                    Definition=f"{type_def.data_type}{multi}{fmt}",
-                    Description=type_def.description
-                ))
+                primitives.append(type_def)
 
         tag("h2", "Primitive Types")
         self._makeHtmlTable(
@@ -95,7 +83,7 @@ class JADNtoHTML(BaseWriter):
                 Definition={"class": "s"},
                 Description={"class": "d"}
             ),
-            rows=primitives,
+            rows=self._makeTableRows(primitives),
             column_id="Name"
         )
 
@@ -105,7 +93,7 @@ class JADNtoHTML(BaseWriter):
         name = self.formatStr(itm.name)
         tag("h3", name, id=name)
         if itm.description:
-            tag("h4", itm.description)
+            tag("h5", itm.description, klass="description")
 
         self._makeHtmlTable(
             tag=tag,
@@ -115,7 +103,7 @@ class JADNtoHTML(BaseWriter):
                 "#": {"class": "n"},
                 "Description": {"class": "s"},
             },
-            rows=self._makeTableRows(itm.__fields__.values(), "Array"),
+            rows=self._makeTableRows(itm.__fields__.values()),
             caption=f"{self.formatStr(itm.name)} (Array)"
         )
 
@@ -124,7 +112,8 @@ class JADNtoHTML(BaseWriter):
         name = self.formatStr(itm.name)
         tag("h3", name, id=name)
         if itm.description:
-            tag("h4", itm.description)
+            tag("h5", itm.description, klass="description")
+
         value_type = self.formatStr(itm.__options__.get("vtype", "string"))
         multi = itm.__options__.multiplicity(0, 0, check=lambda x, y: x > 0 or y > 0)
         multi = f"{{{multi}}}" if multi else ""
@@ -135,7 +124,7 @@ class JADNtoHTML(BaseWriter):
         name = self.formatStr(itm.name)
         tag("h3", name, id=name)
         if itm.description:
-            tag("h4", itm.description)
+            tag("h5", itm.description, klass="description")
 
         opts = itm.__options__.dict(exclude_unset=True)
         self._makeHtmlTable(
@@ -146,7 +135,7 @@ class JADNtoHTML(BaseWriter):
                 "Type": {"class": "s"},
                 "Description": {"class": "d"},
             },
-            rows=self._makeTableRows(itm.__fields__.values(), "Choice"),
+            rows=self._makeTableRows(itm.__fields__.values()),
             caption=f"{self.formatStr(itm.name)} (Choice{f' {json.dumps(opts)}' if opts.keys() else ''})"
         )
 
@@ -155,7 +144,7 @@ class JADNtoHTML(BaseWriter):
         name = self.formatStr(itm.name)
         tag("h3", name, id=name)
         if itm.description:
-            tag("h4", itm.description)
+            tag("h5", itm.description, klass="description")
 
         rows = []
         if "id" in itm.__options__:
@@ -180,7 +169,7 @@ class JADNtoHTML(BaseWriter):
         name = self.formatStr(itm.name)
         tag("h3", name, id=name)
         if itm.description:
-            tag("h4", itm.description)
+            tag("h5", itm.description, klass="description")
 
         multi = itm.__options__.multiplicity(check=lambda x, y: x > 0 or y > 0)
         multi = f"{{{multi}}}" if multi else ""
@@ -194,7 +183,7 @@ class JADNtoHTML(BaseWriter):
                 "#": {"class": "n"},
                 "Description": {"class": "d"},
             },
-            rows=self._makeTableRows(itm.__fields__.values(), "Map"),
+            rows=self._makeTableRows(itm.__fields__.values()),
             caption=f"{self.formatStr(itm.name)} (Map{multi})"
         )
 
@@ -203,7 +192,7 @@ class JADNtoHTML(BaseWriter):
         name = self.formatStr(itm.name)
         tag("h3", name, id=name)
         if itm.description:
-            tag("h4", itm.description)
+            tag("h5", itm.description, klass="description")
 
         key_type = self.formatStr(itm.__options__.get("ktype", "string"))
         value_type = self.formatStr(itm.__options__.get("vtype", "string"))
@@ -215,7 +204,8 @@ class JADNtoHTML(BaseWriter):
         name = self.formatStr(itm.name)
         tag("h3", name, id=name)
         if itm.description:
-            tag("h4", itm.description)
+            tag("h5", itm.description, klass="description")
+
         multi = itm.__options__.multiplicity(check=lambda x, y: x > 0 or y > 0)
         multi = f"{{{multi}}}" if multi else ""
 
@@ -228,7 +218,7 @@ class JADNtoHTML(BaseWriter):
                 "#": {"class": "n"},
                 "description": {"class": "d"},
             },
-            rows=self._makeTableRows(itm.__fields__.values(), "Record"),
+            rows=self._makeTableRows(itm.__fields__.values()),
             caption=f"{self.formatStr(itm.name)} (Record{multi})"
         )
 
@@ -316,28 +306,50 @@ class JADNtoHTML(BaseWriter):
                                 cell = str(cell)
                                 tag("span", " " if cell == "" else cell, **({"id": td_id} if column_id == column else {}))
 
-    def _makeTableRows(self, fields: List[ModelField], dataType: str) -> List[dict]:
+    def _makeTableRows(self, fields: List[Union[ModelField, Primitive]]) -> List[dict]:
         rows = []
         for field in fields:
-            info = field.field_info
-            row = {
-                "id": info.extra["id"],
-                "name": field.alias,
-                "type": "",
-                "options": info.extra["options"],
-                "description": info.description
-            }
+            if isinstance(field, ModelField):
+                # Field
+                type_key = "type"
+                opts: Options = field.field_info.extra["options"]
+                field_dict = {
+                    "id": field.field_info.extra["id"],
+                    "name": field.alias,
+                    "type": field.field_info.extra["type"],
+                    "options": opts.multiplicity(1, 1, True),
+                    "description": field.field_info.description,
+                }
+            else:
+                # Definition
+                type_key = "definition"
+                opts = field.__options__
+                field_dict = {
+                    "name": field.name,
+                    "definition": field.data_type,
+                    "description": field.description,
+                }
 
-            # Field Type
-            field_type = info.extra['type']
-            desc = {
-                "ArrayOf": lambda o: f"({o.get('vtype', 'String')})",
-                "MapOf": lambda o: f"({o.get('ktype', 'String')}, {o.get('vtype', 'String')})",
-                "String": lambda o: f"(%{o.pattern}%)" if o.pattern else ""
-            }.get(field_type, lambda o: "")(info.extra["options"])
-            desc += f" /{info.extra['options'].format}" if info.extra['options'].format else ""
-            row["type"] = field_type, desc
-            rows.append(row)
+            # Field Info
+            desc = ""
+            if field_dict[type_key] == "MapOf":
+                desc += f"({opts.get('ktype', 'String')}, {opts.get('vtype', 'String')})"
+            elif field_dict[type_key] == "ArrayOf":
+                desc += f"({opts.get('vtype', 'String')})"
+
+            opt_args = {} if field_dict[type_key] in ("Integer", "Number") else {"check": lambda x, y: x > 0 or y > 0}
+            if multi := opts.multiplicity(**opt_args):
+                desc += f"{{{multi}}}"
+
+            desc += f"(pattern=\"{opts.pattern}\")" if opts.pattern else ""
+            desc += f" /{opts.format}" if opts.format else ""
+            desc += " unique" if getattr(opts, "unique", False) else ""
+            if isinstance(field, ModelField):
+                field_dict[type_key] = field_dict[type_key], desc
+            else:
+                field_dict[type_key] += desc
+
+            rows.append(field_dict)
         return rows
 
 

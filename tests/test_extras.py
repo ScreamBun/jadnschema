@@ -60,7 +60,7 @@ class Conversions(TestCase):
         # convert.json_load(open(os.path.join(self._test_dir, schema + '.all.json'), 'rb').read(), os.path.join(self._test_dir, schema + '.json.jadn'))
 
     def test_MarkDown(self):
-        convert.md_dump(schema=self._schema_obj, fname=os.path.join(self._test_dir, schema))
+        convert.dump(schema=self._schema_obj, fname=os.path.join(self._test_dir, schema), fmt=convert.SchemaFormats.MarkDown)
 
     @skip
     def test_ProtoBuf(self):
@@ -79,18 +79,23 @@ class Conversions(TestCase):
         convert.thrift_dump(self._schema_obj, os.path.join(self._test_dir, schema + '.none'), comm=convert.CommentLevels.NONE)
         # convert.thrift_load(open(os.path.join(self._test_dir, schema + '.all.thrift'), 'rb').read(), os.path.join(self._test_dir, schema + '.thrift.jadn'))
 
+    @skip
+    def test_XSD(self):
+        convert.xsd_dump(self._schema_obj, os.path.join(self._test_dir, schema + '.all'), comm=convert.CommentLevels.ALL)
+        convert.xsd_dump(self._schema_obj, os.path.join(self._test_dir, schema + '.none'), comm=convert.CommentLevels.NONE)
+        # convert.relax_load(open(os.path.join(self._test_dir, schema + '.all.rng'), 'rb').read(), os.path.join(self._test_dir, schema + '.rng.jadn'))
+
     # Tester Functions
     def test_Analyze(self):
         analysis = self._schema_obj.analyze()
         self.assertFalse(analysis["unreferenced"], f"Unreferenced Types: {', '.join(analysis['unreferenced'])}")
         self.assertFalse(analysis["undefined"], f"Undefined Types: {', '.join(analysis['undefined'])}")
 
-    @skip
     def test_Unfold(self):
         with open(os.path.join(self._test_dir, schema + '.init_simple.jadn'), "w") as f:
             self._schema_obj.dump(f)
 
-        simple_schema = self._schema_obj.unfold_extensions(simple=False)
+        simple_schema = self._schema_obj.simplify()
         with open(os.path.join(self._test_dir, schema + '.simple.jadn'), "w") as f:
             simple_schema.dump(f)
 

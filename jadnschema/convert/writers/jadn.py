@@ -4,6 +4,7 @@ JADN to JADN
 from typing import Union
 from .baseWriter import BaseWriter
 from ..enums import CommentLevels
+from ..helpers import register_writer
 from ...schema import Schema
 __pdoc__ = {
     "JADNtoJADN.format": "File extension of the given format",
@@ -14,14 +15,11 @@ __pdoc__ = {
 
 
 # Conversion Class
+@register_writer
 class JADNtoJADN(BaseWriter):  # pylint: disable=abstract-method
     format = "jadn"
 
     def dumps(self, **kwargs) -> str:
-        """
-        Converts the JADN schema to JADN
-        :return: JADN schema
-        """
         return self._schema.dumps()  # strip=self._comm == CommentLevels.NONE)
 
 

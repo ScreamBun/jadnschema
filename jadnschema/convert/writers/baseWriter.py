@@ -17,10 +17,10 @@ from ...schema.definitions import (
 )
 from ...utils import FrozenDict
 __pdoc__ = {
-    "WriterBase.format": "File extension of the given format",
-    "WriterBase.escape_chars": "Characters that are not supported in the schema format and need to be removed/escaped",
-    "WriterBase.comment_multi": "Multiline comment characters; Tuple[START_CHAR, END_CHAR]",
-    "WriterBase.comment_single": "Single line comment character"
+    "BaseWriter.format": "File extension of the given format",
+    "BaseWriter.escape_chars": "Characters that are not supported in the schema format and need to be removed/escaped",
+    "BaseWriter.comment_multi": "Multiline comment characters; Tuple[START_CHAR, END_CHAR]",
+    "BaseWriter.comment_single": "Single line comment character"
 }
 
 
@@ -43,6 +43,7 @@ class BaseWriter:
         "Name": ("name", "value"),
         "Value": "value",
         "Type": "type",
+        "Definition": "definition",
         "#": "options",
         "Description": "description"
     })
@@ -81,7 +82,7 @@ class BaseWriter:
         :param kwargs: key/value args to use for conversion
         :return: converted schema
         """
-        raise NotImplementedError(f"{self.__class__.__name__} does not implement `dumps` as a class function")
+        raise NotImplementedError
 
     # Structure Formats
     def _formatCustom(self, itm: Definition, **kwargs) -> Union[dict, str, None]:

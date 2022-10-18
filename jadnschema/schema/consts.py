@@ -1,10 +1,12 @@
 """
-JADN schema formatting consts
+JADN schema formatting consts.py
 """
+import re
 __all__ = [
     "PRIMITIVE_TYPES", "SELECTOR_TYPES", "STRUCTURED_TYPES", "FIELD_TYPES", "CORE_TYPES",
     "TYPE_OPTIONS", "FIELD_OPTIONS", "OPTIONS", "OPTION_ID", "ID_OPTIONS", "TYPE_OPTION_KEYS", "FIELD_OPTION_KEYS",
-    "REQUIRED_TYPE_OPTIONS", "ALLOWED_TYPE_OPTIONS", "EXTENSIONS", "DEF_ORDER_FILE_NAMES", "SysAlias", "FieldAlias"
+    "REQUIRED_TYPE_OPTIONS", "ALLOWED_TYPE_OPTIONS", "EXTENSIONS", "DEF_ORDER_FILE_NAMES", "SysAlias", "FieldAlias",
+    "ValidName"
 ]
 
 # Core datatypes
@@ -102,7 +104,8 @@ DEF_ORDER_FILE_NAMES = ("def_order.txt", "def-order.txt", "definition_order.txt"
                         "defOrder.txt", "definitionOrder.txt")
 
 # Pydantic Helper
-SysAlias = (":", "$")
+ValidName = re.compile(r"^[A-Za-z_][A-Za-z0-9_]_")
+SysAlias = re.compile(r"[:$?&|!{}\[\]()^~*\"'+\-\s]")
 
 FieldAlias = {
     "assert": "assert_",

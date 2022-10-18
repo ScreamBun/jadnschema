@@ -4,13 +4,15 @@ JADN to JSON Schema
 import json
 import re
 
-from typing import Any, Dict, Tuple, Union
+from typing import Any, Tuple, Union
 from pydantic.fields import ModelField  # pylint: disable=no-name-in-module
-from .baseWriter import BaseWriter
-from ..constants import HexChar, IPv4_Addr, IPv4_Mask, IPv6_Addr, IPv6_Mask
-from ..enums import CommentLevels, JsonEnumStyle, JsonImportStyle, JsonRootStyle
-from ...schema import Schema
-from ...schema.definitions import Options, Primitive, Array, ArrayOf, Choice, Enumerated, Map, MapOf, Record
+from .consts import EmptyValues, FieldMap, JADN_FMT, OptionKeys, SchemaOrder, ValidationMap
+from ..baseWriter import BaseWriter
+from ...enums import CommentLevels, JsonEnumStyle, JsonImportStyle, JsonRootStyle
+from ...helpers import register_writer
+from ....schema import Schema
+from ....schema.consts import OPTION_ID
+from ....schema.definitions import Options, Primitive, Array, ArrayOf, Choice, Enumerated, Map, MapOf, Record
 __all__ = ["JADNtoJSON", "json_dump", "json_dumps"]
 __pdoc__ = {
     "JADNtoJSON.format": "File extension of the given format",
@@ -19,99 +21,15 @@ __pdoc__ = {
     "JADNtoJSON.comment_single": "Single line comment character",
 }
 
-# Constants
-EmptyValues = ["", " ", None, (), [], {}]
-FieldMap: Dict[str, str] = {
-    "Binary": "string",
-    "Boolean": "bool",
-    "Integer": "integer",
-    "Number": "number",
-    "Null": "null",
-    "String": "string"
-}
-JADN_FMT: Dict[str, dict] = {
-    "eui": {"pattern": fr"^({HexChar}{{2}}[:-]){{5}}{HexChar}{{2}}(([:-]{HexChar}{{2}}){{2}})?$"},
-    "ipv4-addr": {"pattern": fr"^{IPv4_Addr}$"},
-    "ipv6-addr": {"pattern": fr"^{IPv6_Addr}$"},
-    "ipv4-net": {"pattern": fr"^{IPv4_Addr}(\/{IPv4_Mask})?$"},
-    "ipv6-net": {"pattern": fr"^{IPv6_Addr}(\/{IPv6_Mask})?$"},
-    "i8": {"minimum": -128, "maximum": 127},
-    "i16": {"minimum": -32768, "maximum": 32767},
-    "i32": {"minimum": -2147483648, "maximum": 2147483647},
-    "x": {"contentEncoding": "base16"}
-}
-OptionKeys: Dict[Tuple[str], Dict[str, str]] = {
-    ("array",): {
-        "minv": "minItems",
-        "maxv": "maxItems",
-        "unique": "uniqueItems"
-    },
-    ("integer", "number"): {
-        "minc": "minimum",
-        "maxc": "maximum",
-        "minf": "minimum",
-        "maxf": "maximum",
-        "minv": "minimum",
-        "maxv": "maximum",
-        "format": "format"
-    },
-    ("choice", "map", "object"): {
-        "minv": "minProperties",
-        "maxv": "maxProperties"
-    },
-    ("binary", "enumerated", "string"): {
-        "format": "format",
-        "minc": "minLength",
-        "maxc": "maxLength",
-        "minv": "minLength",
-        "maxv": "maxLength",
-        "pattern": "pattern"
-    }
-}
-SchemaOrder: Tuple[str, ...] = ("$schema", "$id", "title", "type", "$ref", "const", "description",
-                                "additionalProperties", "minProperties", "maxProperties", "minItems", "maxItems",
-                                "oneOf", "required", "uniqueItems", "items", "format", "contentEncoding", "properties",
-                                "definitions")
-# JADN: JSON
-ValidationMap: Dict[str, Union[str, None]] = {
-    # JADN
-    "b": "binary",
-    "ipv4-addr": "ipv4",
-    "ipv6-addr": "ipv6",
-    "x": "binary",
-    # JSON
-    "date-time": "date-time",
-    "date": "date",
-    "email": "email",
-    "hostname": "hostname",
-    "idn-email": "idn-email",
-    "idn-hostname": "idn-hostname",
-    "ipv4": "ipv4",
-    "ipv6": "ipv6",
-    "iri": "iri",
-    "iri-reference": "iri-reference",
-    "json-pointer": "json-pointer",  # Draft 6
-    "relative-json-pointer": "relative-json-pointer",
-    "regex": "regex",
-    "time": "time",
-    "uri": "uri",
-    "uri-reference": "uri-reference",  # Draft 6
-    "uri-template": "uri-template",  # Draft 6
-}
-
 
 # Conversion Class
+@register_writer
 class JADNtoJSON(BaseWriter):
     format = "json"
     comment_multi = ("/*", "*/")
     _ignoreOpts: Tuple[str] = ("dir", "id", "ktype", "vtype")
 
     def dumps(self, **kwargs) -> str:
-        """
-        Convert the schema to JSON
-        :param kwargs: key/value args to use for conversion
-        :return: JSON schema string
-        """
         return json.dumps(self.schema(**kwargs), indent=2)
 
     def schema(self, **kwargs) -> dict:
@@ -177,7 +95,7 @@ class JADNtoJSON(BaseWriter):
             )
         else:
             # TODO: finish things
-            print(f"Convert Array, unknown typing: {itm.name}")
+            print(f"JSON Schema - convert Array, unknown typing: {itm.name}")
             array_json = dict(
                 title=itm.name.replace("-", " "),
                 type="array",
@@ -207,7 +125,7 @@ class JADNtoJSON(BaseWriter):
                 enum=[f.get(enum_val) for f in val_def.fields]
             )
         else:
-            arrayof_def["items"] = self._getFieldType(vtype)
+            arrayof_def["items"] = self._getFieldType(vtype, **kwargs)
 
         return {self.formatStr(itm.name): self._cleanEmpty(arrayof_def)}
 
@@ -221,7 +139,7 @@ class JADNtoJSON(BaseWriter):
                 minProperties=1,
                 maxProperties=1,
                 **self._optReformat("object", itm.__options__, False),
-                properties={f.alias: self._makeField(f) for f in itm.__fields__.values()}
+                properties={f.alias: self._makeField(f, **kwargs) for f in itm.__fields__.values()}
             ))
         }
 
@@ -254,7 +172,7 @@ class JADNtoJSON(BaseWriter):
                 additionalProperties=False,
                 **self._optReformat("object", itm.__options__, False),
                 required=[f.alias for f in itm.__fields__.values() if f.required],
-                properties={f.alias: self._makeField(f) for f in itm.__fields__.values()}
+                properties={f.alias: self._makeField(f, **kwargs) for f in itm.__fields__.values()}
             ))
         }
 
@@ -262,13 +180,11 @@ class JADNtoJSON(BaseWriter):
         key_type = self._schema.types.get(itm.__options__.get("ktype"))
         if key_type.data_type in ("Choice", "Enumerated", "Map", "Record"):
             if key_type.data_type == "Enumerated":
-                key_values = [f.name for f in key_type.__enums__]
+                keys = [f.name for f in key_type.__enums__]
             else:
-                key_values = [f.alias for f in key_type.__fields__.values()]
-            keys = f"^({'|'.join(key_values)})$"
+                keys = [f.alias for f in key_type.__fields__.values()]
         else:
-            print(f"Invalid MapOf definition for {itm.name}")
-            keys = "^.*$"
+            raise TypeError(f"Invalid MapOf definition for {itm.name}")
 
         return {
             self.formatStr(itm.name): self._cleanEmpty(dict(
@@ -277,9 +193,7 @@ class JADNtoJSON(BaseWriter):
                 description=self._cleanComment(itm.description),
                 additionalProperties=False,
                 minProperties=1,
-                patternProperties={
-                    keys: self._getFieldType(itm.__options__.get("vtype", "String"))
-                }
+                properties={k: self._getFieldType(itm.__options__.get("vtype", "String"), **kwargs) for k in keys}
             ))
         }
 
@@ -292,7 +206,7 @@ class JADNtoJSON(BaseWriter):
                 additionalProperties=False,
                 **self._optReformat("object", itm.__options__, False),
                 required=[f.alias for f in itm.__fields__.values() if f.required],
-                properties={f.alias: self._makeField(f) for f in itm.__fields__.values()}
+                properties={f.alias: self._makeField(f, **kwargs) for f in itm.__fields__.values()}
             ))
         }
 
@@ -300,7 +214,7 @@ class JADNtoJSON(BaseWriter):
     def _formatCustom(self, itm: Primitive, **kwargs) -> dict:
         custom_json = dict(
             title=self.formatTitle(itm.name),
-            **self._getFieldType(itm.data_type),
+            **self._getFieldType(itm.data_type, **kwargs),
             description=self._cleanComment(itm.description)
         )
 
@@ -346,7 +260,7 @@ class JADNtoJSON(BaseWriter):
             elif key in opt_keys:
                 r_opts[opt_keys[key]] = val
             else:
-                print(f"unknown option for type of {opt_type}: {key} - {val}")
+                raise TypeError(f"JSON Schema - unknown option for {opt_type}: {key} - {val}")
 
         if fmt := r_opts.get("format", None):
             if re.match(r"^u\d+$", fmt):
@@ -358,7 +272,7 @@ class JADNtoJSON(BaseWriter):
 
         return r_opts
 
-    def _getFieldType(self, field: Union[str, ModelField]) -> dict:
+    def _getFieldType(self, field: Union[str, ModelField], **kwargs) -> dict:
         field_type = getattr(getattr(field, "type_", field), "name", field)
         field_type = field_type if isinstance(field_type, str) else "String"
 
@@ -387,20 +301,24 @@ class JADNtoJSON(BaseWriter):
                     fmt = "" if imports[src].endswith(".json") else ".json"
                     return {"$ref": f"{imports[src]}{fmt}#/definitions/{attr}"}
 
-        if re.match(r"^Enum\(.*?\)$", field_type):
-            f_type = self._schema.types.get(field_type[5:-1])
-            if f_type.type in ("Array", "Choice", "Map", "Record"):
-                return {
-                    "type": "string",
-                    "description": f"Derived enumeration from {f_type.name}",
-                    "enum": [f.name for f in f_type.get("fields", [])]
-                }
-            raise TypeError(f"Invalid derived enumeration - {f_type.name} should be a Array, Choice, Map or Record type")
+        if re.match(r"^Enumerated$", field_type):
+            f_type = self._schema.types.get(field.field_info.extra["options"].enum).enumerated()
+            derived = self._formatEnumerated(f_type, **kwargs)[f"{f_type.name}"]
+            derived.pop("title", None)
+            derived.pop("minProperties", None)
+            return derived
 
-        if re.match(r"^MapOf\(.*?\)$", field_type):
+        if re.match(r"^MapOf$", field_type):
             print(f"Derived MapOf - {field_type}")
 
-        print(f"unknown type: {field_type} - {field}")
+        if match := re.match(fr"^{OPTION_ID['pointer']}(.*?)$", field_type):
+            f_type = self._schema.types.get(match.groups()[0]).enumerated()
+            derived = self._formatEnumerated(f_type, **kwargs)[f"{f_type.name}"]
+            derived.pop("title", None)
+            derived.pop("minProperties", None)
+            return derived
+
+        print(f"\nJSON Schema - unknown type: {field_type} - {field}")
         return {"type": "string"}
 
     def _getType(self, name: str) -> str:
@@ -413,21 +331,31 @@ class JADNtoJSON(BaseWriter):
             return cls
         return "String"
 
-    def _makeField(self, field: ModelField) -> dict:
+    def _makeField(self, field: ModelField, **kwargs) -> dict:
+        opts = Options(field.field_info.extra["options"])
         if field.field_info.extra["options"].isArray():
             field_def = dict(
                 type="array",
-                items=self._getFieldType(field)
+                items=self._getFieldType(field, **kwargs)
             )
+            if minc := opts.minc:
+                opts.minv = minc
+                del opts.minc
+            if maxc := opts.maxc:
+                opts.maxv = maxc
+                del opts.maxc
+            if enum := opts.enum:
+                opts.vtype = f">{enum}"
+                del opts.enum
         else:
-            field_def = self._getFieldType(field)
+            field_def = self._getFieldType(field, **kwargs)
             field_def = field_def[field.alias] if len(field_def.keys()) == 1 and field.alias in field_def else field_def
 
         ref = "$ref" not in field_def and field.type_ in ("Integer", "Number")
         field_type = field_def.get("type", "")
         field_type = field_def.get("$ref", "") if field_type == "" else field_type
         field_type = self._getType(field_type.split("/")[-1]) if field_type.startswith("#") else field_type
-        field_opts = self._optReformat(field_type, field.field_info.extra["options"], base_ref=ref)
+        field_opts = self._optReformat(field_type, opts, base_ref=ref)
         if field_def.get("type", "") == "array" and "minItems" not in field_opts:
             field_opts["minItems"] = 1
 

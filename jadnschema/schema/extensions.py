@@ -7,7 +7,7 @@ import inflect
 from dataclasses import dataclass, field
 from typing import Dict, Generator, List, NoReturn, Optional, Set, Tuple, Union
 from .definitions import Options
-from .consts import CORE_TYPES, DEF_ORDER_FILE_NAMES, EXTENSIONS, ID_OPTIONS, OPTION_ID, SysAlias
+from .consts import CORE_TYPES, DEF_ORDER_FILE_NAMES, EXTENSIONS, ID_OPTIONS, OPTION_ID
 from ..exceptions import SchemaException
 __all__ = ["unfold_extensions"]
 
@@ -74,6 +74,7 @@ DefinitionDict = Dict[str, DefType]
 ENUM_ID = OPTION_ID["enum"]
 
 
+# Helpers
 def epx(opts: Options) -> Union[str, None]:
     ex = opts.enum
     return ex if ex is not None else opts.pointer
@@ -223,15 +224,15 @@ def unfold_derived_enum(defs: DefinitionDict, sys: str) -> NoReturn:
     def pointer_items(def_name: str) -> List[EnumField]:
         def pathnames(d_name: str, base="") -> Generator[list, None, None]:  # Walk subfields of referenced type
             if def_type := defs.get(d_name):
-                if len(type_def.fields) > 0:
+                if len(def_type.fields) > 0:
                     for f in def_type.fields:
                         if f.options.dir:
                             yield from pathnames(f.type, f"{f.name}/")
                         else:
-                            yield [f"{base}{f.name}", f.description]
+                            yield [f.id, f"{base}{f.name}", f.description]
             else:
                 raise SchemaException(f"{d_name} does not exists within the schema")
-        return [EnumField(n+1, *f) for n, f in enumerate(pathnames(def_name))]
+        return [EnumField(*f) for f in pathnames(def_name)]
 
     def update_eref(enums: dict, opts: Options, optname: str) -> NoReturn:
         if optVal := getattr(opts, optname):
@@ -295,30 +296,28 @@ def unfold_mapOf_enum(defs: DefinitionDict) -> NoReturn:
 
 def unfold_extensions(types: list, sys: str, extensions: Set[str] = None) -> list:
     """
-    Return a schema with listed extensions or all extensions removed.
-    extensions = set of extension names to process:
-        AnonymousType:   Replace all anonymous type definitions with explicit
-        Multiplicity:    Replace all multi-value fields with explicit ArrayOf type definitions
-        DerivedEnum:     Replace all derived and pointer enumerations with explicit Enumerated type definitions
-        MapOfEnum:       Replace all MapOf types with listed keys with explicit Map type definitions
-        Link:            Replace Key and Link fields with explicit types
-    :param types:
-    :param sys:
-    :param extensions:
-    :return:
+    Return a schema with listed extensions or all extensions removed
+    :param types: list of type definitions  to unfold
+    :param sys: character used to denote a system defined definition
+    :param extensions: the options to simplify
+        * AnonymousType:   Replace all anonymous type definitions with explicit
+        * Multiplicity:    Replace all multi-value fields with explicit ArrayOf type definitions
+        * DerivedEnum:     Replace all derived and pointer enumerations with explicit Enumerated type definitions
+        * MapOfEnum:       Replace all MapOf types with listed keys with explicit Map type definitions
+        * Link:            Replace Key and Link fields with explicit types
+    :return: simplified type definitions
     """
-    sys = "__" if sys in SysAlias else sys
-    extensions = extensions or EXTENSIONS
+    exts = EXTENSIONS.union(extensions) if extensions else EXTENSIONS
     defs = {val[0]: DefType(*val) for val in types}
 
-    if "Link" in extensions:  # Replace Key and Link options with explicit types
+    if "Link" in exts:  # Replace Key and Link options with explicit types
         unfold_link(defs, sys)
-    if "Multiplicity" in extensions:  # Expand repeated types into ArrayOf definitions
+    if "Multiplicity" in exts:  # Expand repeated types into ArrayOf definitions
         unfold_multiplicity(defs, sys)
-    if "AnonymousType" in extensions:  # Expand inline definitions into named type definitions
+    if "AnonymousType" in exts:  # Expand inline definitions into named type definitions
         unfold_anonymous_types(defs, sys)
-    if "DerivedEnum" in extensions:  # Generate Enumerated list of fields or JSON Pointers
+    if "DerivedEnum" in exts:  # Generate Enumerated list of fields or JSON Pointers
         unfold_derived_enum(defs, sys)
-    if "MapOfEnum" in extensions:  # Generate explicit Map from MapOf
+    if "MapOfEnum" in exts:  # Generate explicit Map from MapOf
         unfold_mapOf_enum(defs)
     return [d.list() for d in defs.values()]

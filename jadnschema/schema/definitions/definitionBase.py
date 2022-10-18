@@ -2,6 +2,7 @@
 JADN Definition BaseModel
 Customized from `jadnschema.schema.baseModel.BaseModel`
 """
+from copy import deepcopy
 from enum import Enum
 from typing import ClassVar
 from pydantic import create_model  # pylint: disable=no-name-in-module
@@ -37,7 +38,7 @@ class DefinitionMeta(ModelMetaclass):
         for idx, (field, opts) in enumerate(cls.__fields__.items()):
             if field != "__root__":
                 opts.field_info.extra["parent"] = cls
-                field_opts = opts.field_info.extra.setdefault("options", Options())
+                field_opts = Options(opts.field_info.extra.setdefault("options", []))
                 opts.field_info.extra.setdefault("id", idx)
                 if not opts.required and field_opts.minc != 0 and "Choice" not in base_names:
                     field_opts.minc = 0
@@ -142,15 +143,20 @@ class DefinitionBase(BaseModel, metaclass=DefinitionMeta):  # pylint: disable=in
         if cls.data_type in ("Binary", "Boolean", "Integer", "Number", "Null", "String"):
             raise TypeError(f"{cls.name} cannot be extended as an enumerated type")
 
-        if cls.data_type == "Enumerated":
+        if cls.data_type == "Enumerated":  # pylint: disable=comparison-with-callable
             return cls
 
         from .structures import Enumerated  # pylint: disable=import-outside-toplevel
         name = f"Enum-{cls.name}"
+        values = {}
+        for k, v in cls.__fields__.items():
+            values[k] = deepcopy(v.field_info)
+            values[k].default = k
+
         cls_kwargs = dict(
             __name__=name,
             __doc__=f"Derived Enumerated from {cls.name}",
-            __enums__=Enum("__enums__", cls.__fields__),
+            __enums__=Enum("__enums__", values),
             __options__=Options(cls.__options__, name=name)
         )
         return create_model(name, __base__=Enumerated, __cls_kwargs__=cls_kwargs)

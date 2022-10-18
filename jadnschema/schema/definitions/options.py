@@ -17,9 +17,9 @@ MULTI_CHECK: Callable[[int, int], bool] = lambda x, y: True
 
 class Options(BaseModel):
     # Custom Options
-    data_type: str = ""
-    name: Optional[str] = ""
-    validation: Dict[str, Callable] = ValidationFormats
+    data_type: str = ""                                  #: Data type of the definition the options are attached
+    name: Optional[str] = ""                             #: Name of the definition the options are attached
+    validation: Dict[str, Callable] = ValidationFormats  #: JADN format validators
     __custom__ = ["data_type", "name", "validation"]
     # Type Options
     id: Optional[bool]         #: `=` -> ASCII(61): Items and Fields are denoted by FieldID rather than FieldName (Section 3.2.1.1)
@@ -126,7 +126,8 @@ class Options(BaseModel):
         """
         if self.ktype or self.vtype:
             return False
-        return (self.maxc or 1) != 1
+        maxc = self.maxc if isinstance(self.maxc, int) else 1
+        return maxc != 1
 
     def isOptional(self) -> bool:
         """

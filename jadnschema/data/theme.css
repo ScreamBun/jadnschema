@@ -50,8 +50,15 @@ table table th {
     line-height: 1.15;
     vertical-align: top;
 }
+/* Specific styles */
 #schema {
     max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 5px;
+    padding-right: 5px;
+    border-left: 3px gray double;
+    border-right: 3px gray double;
 }
 #meta tr td:first-child {
     font-weight: bold;
@@ -64,6 +71,9 @@ table table th {
     background: #E3391A;
     color: #FFF !important;
     cursor: pointer;
+}
+.description {
+  margin-top: 5px
 }
 .n {
     min-width: 2em;

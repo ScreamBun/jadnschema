@@ -6,35 +6,36 @@ from ..utils import EnumBase
 
 class SchemaFormats(str, EnumBase):
     """Valid Schema Formats for conversion"""
-    # CDDL = "cddl"
-    # HTML = "html"
-    # JDIL = "jidl"
-    JADN = "jadn"
-    # JAS = "jas"
-    # MarkDown = "md"
-    # Proto = "proto"
-    # Relax = "rng"
-    # Thrift = "thrift"
+    # CDDL = "cddl"      #: Convert to [CDDL Format](https://www.rfc-editor.org/rfc/rfc8610)
+    GraphViz = "gv"    #: Convert to [GraphViz Format](https://graphviz.org/doc/info/lang.html)
+    HTML = "html"      #: Convert to HTML Format
+    # JDIL = "jidl"      #: Convert to [JIDL Format]()
+    JADN = "jadn"      #: Convert to [JADN Format](https://docs.oasis-open.org/openc2/jadn/v1.0/csd01/jadn-v1.0-csd01.html)
+    # JAS = "jas"        #: Convert to [JAS Format]()
+    MarkDown = "md"    #: Convert to MarkDown Format
+    # Proto = "proto"    #: Convert to [ProtoBuf Format](https://developers.google.com/protocol-buffers/docs/proto3)
+    Relax = "rng"      #: Convert to [RelaxNG Format](https://relaxng.org/spec-20011203.html)
+    # Thrift = "thrift"  #: Convert to [Thrift Format](https://thrift.apache.org/)
 
 
 class CommentLevels(str, EnumBase):
     """Conversion Comment Level"""
-    ALL = "all"
-    NONE = "none"
+    ALL = "all"    #: Include all comments from the schema
+    NONE = "none"  #: Include no comments from the schema
 
 
 # Conversion
 class JsonRootStyle(str, EnumBase):
-    Property = "property"  # generate root properties for each exported type
-    OneOf = "oneOf"        # generate a oneOf for each exported type
+    Property = "property"  #: Generate root properties for each exported type
+    OneOf = "oneOf"        #: Generate a oneOf for each exported type
 
 
 class JsonEnumStyle(str, EnumBase):
-    Const = "const"  # generate oneOf keyword with const for each item
-    Enum = "enum"    # generate an enum keyword containing all items
-    Regex = "regex"  # generate a regular expression that matches each item
+    Const = "const"  #: Generate oneOf keyword with const for each item
+    Enum = "enum"    #: Generate an enum keyword containing all items
+    Regex = "regex"  #: Generate a regular expression that matches each item
 
 
 class JsonImportStyle(str, EnumBase):
-    Any = "any"  # ignore types defined in other modules, validate anything
-    Ref = "ref"  # generate $ref keywords that must be resolved before the JSON Schema can validate referenced types
+    Any = "any"  #: Ignore types defined in other modules, validate anything
+    Ref = "ref"  #: Generate $ref keywords that must be resolved before the JSON Schema can validate referenced types
