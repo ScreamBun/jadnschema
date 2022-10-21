@@ -9,7 +9,7 @@ def get_requirements():
 
 
 setup(
-    name="JADN Schema",
+    name="jadnschema",
     include_package_data=True,
     install_requires=get_requirements()
 )
