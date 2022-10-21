@@ -5,7 +5,7 @@ from typing import Union
 from .baseWriter import BaseWriter
 from ..enums import CommentLevels
 from ..helpers import register_writer
-from ...schema import Schema
+from ....schema import Schema
 __pdoc__ = {
     "JADNtoJADN.format": "File extension of the given format",
     "JADNtoJADN.escape_chars": "Characters that are not supported in the schema format and need to be removed/escaped",

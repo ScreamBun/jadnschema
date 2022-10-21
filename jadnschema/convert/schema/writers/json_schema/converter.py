@@ -10,9 +10,9 @@ from .consts import EmptyValues, FieldMap, JADN_FMT, OptionKeys, SchemaOrder, Va
 from ..baseWriter import BaseWriter
 from ...enums import CommentLevels, JsonEnumStyle, JsonImportStyle, JsonRootStyle
 from ...helpers import register_writer
-from ....schema import Schema
-from ....schema.consts import OPTION_ID
-from ....schema.definitions import Options, Primitive, Array, ArrayOf, Choice, Enumerated, Map, MapOf, Record
+from .....schema import Schema
+from .....schema.consts import OPTION_ID
+from .....schema.definitions import Options, Primitive, Array, ArrayOf, Choice, Enumerated, Map, MapOf, Record
 __all__ = ["JADNtoJSON", "json_dump", "json_dumps"]
 __pdoc__ = {
     "JADNtoJSON.format": "File extension of the given format",

@@ -10,9 +10,9 @@ from .baseWriter import BaseWriter
 from .utils import DocXML
 from ..enums import CommentLevels
 from ..helpers import register_writer
-from ...utils import toStr
-from ...schema import Schema
-from ...schema.definitions import Array, ArrayOf, Choice, Enumerated, Map, MapOf, Record, Primitive
+from ....utils import toStr
+from ....schema import Schema
+from ....schema.definitions import Array, ArrayOf, Choice, Enumerated, Map, MapOf, Record, Primitive
 __pdoc__ = {
     "JADNtoRelaxNG.format": "File extension of the given format",
     "JADNtoRelaxNG.escape_chars": "Characters that are not supported in the schema format and need to be removed/escaped",
@@ -175,8 +175,7 @@ class JADNtoRelaxNG(BaseWriter):
                                 p.comment(com)
                                 self._fieldType(field.field_info.extra["type"], tag)
 
-    def _formatMapOf(self, itm: MapOf, **kwargs) -> None:  # TODO: what should this do??
-        print(f"Format MapOf for RelaxNG - {itm}")
+    def _formatMapOf(self, itm: MapOf, **kwargs) -> None:
         tag: DocXML.tag = kwargs["tag"]
         type_opts = {"type": itm.data_type}
         if o := itm.__options__.dict(exclude_unset=True):

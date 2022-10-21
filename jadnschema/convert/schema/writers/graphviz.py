@@ -10,10 +10,10 @@ from pydantic.fields import ModelField  # pylint: disable=no-name-in-module
 from .baseWriter import BaseWriter
 from ..enums import CommentLevels
 from ..helpers import register_writer
-from ...schema import Schema
-from ...schema.consts import OPTION_ID, PRIMITIVE_TYPES
-from ...schema.definitions import DefinitionBase, ArrayOf, MapOf
-from ...utils import FrozenDict
+from ....schema import Schema
+from ....schema.consts import OPTION_ID, PRIMITIVE_TYPES
+from ....schema.definitions import DefinitionBase, ArrayOf, MapOf
+from ....utils import FrozenDict
 __all__ = ["JADNtoGraphViz", "dot_dump", "dot_dumps"]
 __pdoc__ = {
     "JADNtoGraphViz.format": "File extension of the given format",

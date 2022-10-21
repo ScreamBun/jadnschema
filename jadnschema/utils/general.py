@@ -1,9 +1,13 @@
 """
 General Utils
 """
+import base64
+import binascii
+import re
 import sys
 
-from typing import Any, Callable
+from datetime import datetime
+from typing import Any, Callable, Dict, Type, Union
 
 
 def addKey(d: dict, k: str = None) -> Callable:
@@ -19,6 +23,47 @@ def addKey(d: dict, k: str = None) -> Callable:
     return wrapped
 
 
+def check_values(val: Any) -> Any:
+    """
+    Check the value of the given arg and attempt to convert it to a bool, int, or float
+    :param val: value to check
+    :return: converted/original value
+    """
+    if isinstance(val, str):
+        if val.lower() in ("true", "false"):
+            return safe_cast(val, bool, val)
+
+        if val.isdigit():
+            return safe_cast(val, int, val)
+
+        if re.match(r"^\d+\.\d+$", val):
+            return safe_cast(val, float, val)
+
+    return val
+
+
+def default_encode(itm: Any, encoders: Dict[Type, Callable[[Any], Any]] = None) -> Any:
+    """
+    Default encode the given object to the predefined types
+    :param itm: object to encode/decode,
+    :param encoders: custom type encoding - Ex) -> {bytes: lambda b: b.decode('utf-8', 'backslashreplace')}
+    :return: default system encoded object
+    """
+    if encoders and isinstance(itm, tuple(encoders.keys())):
+        return encoders[type(itm)](itm)
+
+    if isinstance(itm, dict):
+        return {default_encode(k): default_encode(v, encoders) for k, v in itm.items()}
+
+    if isinstance(itm, (list, set, tuple)):
+        return type(itm)(default_encode(i, encoders) for i in itm)
+
+    if isinstance(itm, (int, float)):
+        return itm
+
+    return toStr(itm)
+
+
 def ellipsis_str(val: str, cut: int = 100) -> str:
     """
     Terminate a string larger than 'cut' characters and append an ellipsis
@@ -29,6 +74,41 @@ def ellipsis_str(val: str, cut: int = 100) -> str:
     if len(val) > cut:
         return f"{val[:cut]}..."
     return val
+
+
+def float_string(num: Union[float, str]) -> Union[float, str]:
+    """
+    Convert the value between a float and prefixed string; float -> string, string -> float
+    :param num: value to concert
+    :return: converted value if available
+    """
+    prefix = "§£"
+    if isinstance(num, float):
+        return f"{prefix}{num}"
+
+    if isinstance(num, str) and num.startswith(prefix) and num[1:].replace(".", "", 1).isdigit():
+        return float(num[1:])
+
+    return num
+
+
+def isBase64(sb: Union[bytes, str]) -> bool:
+    """
+    Determine if the given value is a base64
+    :param sb: value to check
+    :return: bool if base64
+    """
+    try:
+        if isinstance(sb, str):
+            # If there's any unicode here, an exception will be thrown and the function will return false
+            sb_bytes = bytes(sb, 'ascii')
+        elif isinstance(sb, bytes):
+            sb_bytes = sb
+        else:
+            raise ValueError("Argument must be string or bytes")
+        return base64.b64encode(base64.b64decode(sb_bytes)) == sb_bytes
+    except (binascii.Error, ValueError):
+        return False
 
 
 def safe_cast(val: Any, to_type: type, default: Any = None) -> Any:
@@ -52,6 +132,16 @@ def toStr(s: Any) -> str:
     :return: converted string
     """
     return s.decode(sys.getdefaultencoding(), 'backslashreplace') if hasattr(s, 'decode') else str(s)
+
+
+def unixTimeMillis(dt: datetime) -> float:
+    """
+    Convert the datetime to a unix timestamp
+    :param dt: datetime to concert
+    :return: unix timestamp
+    """
+    epoch = datetime.utcfromtimestamp(0)
+    return (dt - epoch).total_seconds() * 1000.0
 
 
 class classproperty(property):

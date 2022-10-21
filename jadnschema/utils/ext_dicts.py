@@ -3,10 +3,9 @@ Extended Dict Utils
 """
 import copy
 
-from typing import Any, Iterable, List, Mapping, Union
+from typing import Any, List, MutableMapping
 from .general import safe_cast
-
-DictLike = Union[Mapping, Iterable]
+__all__ = ["ObjectDict", "FrozenDict", "QueryDict"]
 
 
 # Dictionary Classes
@@ -19,31 +18,26 @@ class ObjectDict(dict):
         SAME AS
     d.key = 'value'
     """
-    def __init__(self, seq: DictLike = None, **kwargs):
+    __wrapped__ = dict
+
+    def __init__(self, seq: MutableMapping = None, **kwargs):
         """
         Initialize an QueryDict
         :param args: positional parameters
         :param kwargs: key/value parameters
         """
-        data = dict(seq) if seq else {}
-        data.update(kwargs)
-
+        data = dict(seq or {}, **kwargs)
         for k, v in data.items():
             if isinstance(v, dict) and not isinstance(v, self.__class__):
                 data[k] = self.__class__(v)
             elif isinstance(v, (list, tuple)):
                 data[k] = tuple(self.__class__(i) if isinstance(i, dict) else i for i in v)
-        dict.__init__(self, **data)
+        super().__init__(data)
 
     def __setitem__(self, key: str, value: Any) -> None:
-        """
-        Override setitem of dict to change the value to an ObjectDict if a standard dictionary
-        :param key: property name
-        :param value: property value
-        :return: None
-        """
-        value = self.__class__(value) if isinstance(value, dict) else value
-        dict.__setitem__(self, key, value)
+        if isinstance(value, dict):
+            value = self.__class__(value)  # if len(value.keys()) > 0 else self.__class__()
+        super().__setitem__(key, value)
 
     __getattr__ = dict.__getitem__
     __setattr__ = __setitem__
@@ -56,6 +50,20 @@ class ObjectDict(dict):
     def __deepcopy__(self, memo):
         cls = self.__class__
         return cls(copy.deepcopy(dict(self)))
+    
+    def update(self, seq: MutableMapping = None, **kwargs) -> None:
+        """
+        Override update of dict to change the value to an ObjectDict if a standard dictionary
+        :param seq:
+        :param kwargs:
+        """
+        data = dict(seq or {}, **kwargs)
+        for k, v in data.items():
+            if isinstance(v, dict) and not isinstance(v, self.__class__):
+                data[k] = self.__class__(v)
+            elif isinstance(v, (list, tuple)):
+                data[k] = tuple(self.__class__(i) if isinstance(i, dict) else i for i in v)
+        super().update(data)
 
 
 class FrozenDict(ObjectDict):

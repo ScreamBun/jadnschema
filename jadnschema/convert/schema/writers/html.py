@@ -10,9 +10,9 @@ from .baseWriter import BaseWriter
 from .utils import DocHTML
 from ..enums import CommentLevels
 from ..helpers import register_writer
-from ...jadn import data_dir
-from ...schema import Schema
-from ...schema.definitions import DefTypes, Options, Array, ArrayOf, Choice, Enumerated, Map, MapOf, Record, Primitive
+from ....jadn import data_dir
+from ....schema import Schema
+from ....schema.definitions import DefTypes, Options, Array, ArrayOf, Choice, Enumerated, Map, MapOf, Record, Primitive
 __pdoc__ = {
     "JADNtoHTML.format": "File extension of the given format",
     "JADNtoHTML.escape_chars": "Characters that are not supported in the schema format and need to be removed/escaped",

@@ -1,7 +1,7 @@
 """
 JADN conversion enumerated types
 """
-from ..utils import EnumBase
+from ...utils import EnumBase
 
 
 class SchemaFormats(str, EnumBase):

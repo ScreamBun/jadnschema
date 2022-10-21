@@ -10,12 +10,12 @@ from typing import Any, Dict, List, NoReturn, Tuple, Union
 from terminaltables import GithubFlavoredMarkdownTable
 from .utils import Alignment, ColumnAlignment, TableFormat, TableStyle
 from ..enums import CommentLevels
-from ...exceptions import FormatError
-from ...schema import Schema
-from ...schema.definitions import (
+from ....exceptions import FormatError
+from ....schema import Schema
+from ....schema.definitions import (
     Definition, Array, ArrayOf, Choice, Enumerated, Map, MapOf, Record, Binary, Boolean, Integer, Number, String
 )
-from ...utils import FrozenDict
+from ....utils import FrozenDict
 __pdoc__ = {
     "BaseWriter.format": "File extension of the given format",
     "BaseWriter.escape_chars": "Characters that are not supported in the schema format and need to be removed/escaped",

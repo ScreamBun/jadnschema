@@ -7,8 +7,8 @@ from .baseWriter import BaseWriter
 from .utils import Alignment, TableFormat
 from ..enums import CommentLevels
 from ..helpers import register_writer
-from ...schema import Schema
-from ...schema.definitions import Options, Array, ArrayOf, Choice, Enumerated, Map, MapOf, Record, Primitive
+from ....schema import Schema
+from ....schema.definitions import Options, Array, ArrayOf, Choice, Enumerated, Map, MapOf, Record, Primitive
 __pdoc__ = {
     "JADNtoMD.format": "File extension of the given format",
     "JADNtoMD.escape_chars": "Characters that are not supported in the schema format and need to be removed/escaped",

@@ -3,7 +3,8 @@ Converter helpers
 """
 from typing import Callable, Literal, Union
 from .enums import CommentLevels, SchemaFormats
-from ..utils import FrozenDict
+from ...schema import Schema
+from ...utils import FrozenDict
 __all__ = [
     # Helpers & Decorators
     "register", "register_reader", "register_writer",
@@ -65,7 +66,7 @@ def register_writer(fmt: Union[str, Callable] = None, override: bool = False) ->
 
 
 # Dynamic
-def dump(schema: Union[str, dict], fname: str, source: str = "", comm: str = CommentLevels.ALL, fmt: SchemaFormats = SchemaFormats.JADN, **kwargs):
+def dump(schema: Union[dict, str, Schema], fname: str, source: str = "", comm: str = CommentLevels.ALL, fmt: SchemaFormats = SchemaFormats.JADN, **kwargs):
     """
     Produce formatted schema from JADN schema
     :param schema: JADN Schema to convert
@@ -83,7 +84,7 @@ def dump(schema: Union[str, dict], fname: str, source: str = "", comm: str = Com
     raise ReferenceError(f"The format specified is not a known format - {fmt}")
 
 
-def dumps(schema: Union[str, dict], comm: str = CommentLevels.ALL, fmt: SchemaFormats = SchemaFormats.JADN, **kwargs):
+def dumps(schema: Union[dict, str, Schema], comm: str = CommentLevels.ALL, fmt: SchemaFormats = SchemaFormats.JADN, **kwargs):
     """
     Produce formatted schema from JADN schema
     :param schema: JADN Schema to convert
