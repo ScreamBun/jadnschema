@@ -1,4 +1,4 @@
-from .message import Message
+from .message import Message, SerialFormats
 from .schema import *
 
 __all__ = [
@@ -35,4 +35,5 @@ __all__ = [
     "load", "loads",
     # Message Conversion
     "Message",
+    "SerialFormats"
 ]

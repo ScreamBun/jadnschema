@@ -11,6 +11,7 @@ import toml
 import ubjson
 import yaml
 
+from collections import namedtuple
 from typing import Union
 from amazon.ion import simpleion as ion
 from .enums import SerialFormats
@@ -90,7 +91,7 @@ def encode_msg(msg: dict, enc: SerialFormats = SerialFormats.JSON, raw: bool = F
     raise ReferenceError(f"Invalid encoding `{enc}` specified, must be one of {', '.join(serializations.encode.keys())}")
 
 
-def decode_msg(msg: Union[bytes, str], enc: SerialFormats, raw: bool = False) -> dict:
+def decode_msg(msg: Union[bytes, dict, str], enc: SerialFormats, raw: bool = False) -> dict:
     """
     Decode the given message using the serialization specified
     :param msg: message to decode
@@ -101,14 +102,13 @@ def decode_msg(msg: Union[bytes, str], enc: SerialFormats, raw: bool = False) ->
     if isinstance(msg, dict):
         return msg
 
-    if not isinstance(msg, (bytes, str)):
-        raise TypeError(f"Message is not expected type {bytes}/{str}, got {type(msg)}")
+    if isinstance(msg, (bytes, str)):
+        if not raw and isBase64(msg):
+            msg = base64.b64decode(msg if isinstance(msg, bytes) else msg.encode())
 
-    if not raw and isBase64(msg):
-        msg = base64.b64decode(msg if isinstance(msg, bytes) else msg.encode())
-
-    enc = enc.lower() if isinstance(enc, str) else enc.value
-    if decoder := serializations.decode.get(enc):
-        msg = decoder(msg)
-        return default_encode(msg, {bytes: bytes.decode})
-    raise ReferenceError(f"Invalid encoding `{enc}` specified, must be one of {', '.join(serializations.decode.keys())}")
+        enc = enc.lower() if isinstance(enc, str) else enc.value.lower()
+        if decoder := serializations.decode.get(enc):
+            msg = decoder(msg)
+            return default_encode(msg, {bytes: bytes.decode})
+        raise ReferenceError(f"Invalid encoding `{enc}` specified, must be one of {', '.join(serializations.decode.keys())}")
+    raise TypeError(f"Message is not expected type {bytes}/{str}, got {type(msg)}")
