@@ -1,5 +1,5 @@
 """
-Module Utils
+Utility functions & classes
 """
 from .general import (
     addKey, check_values, classproperty, default_encode, ellipsis_str, float_string, isBase64, toStr, unixTimeMillis

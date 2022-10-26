@@ -39,8 +39,6 @@ TYPE_OPTIONS = {        # Option ID: (name, value type, canonical order) # ASCII
     98: ("unordered", lambda x: True, 14),  # "b", ArrayOf instance is unordered and not unique (bag)
     88: ("extend", lambda x: True, 15),     # "X", Type has an extension point where fields may be appended
     33: ("default", lambda x: x, 16),       # "!", Default or constant value of instances of this type
-    0x2229: ("and", lambda x: x, 17),       # "∩", INTERSECTION - instance must also match referenced type (allOf)
-    0x222a: ("or", lambda x: x, 18)         # "∪", UNION - instance must match at least one of the types (anyOf)
 }
 
 FIELD_OPTIONS = {
@@ -62,30 +60,34 @@ TYPE_OPTION_KEYS = tuple(v[0] for v in TYPE_OPTIONS.values())
 FIELD_OPTION_KEYS = tuple(v[0] for v in FIELD_OPTIONS.values())
 
 REQUIRED_TYPE_OPTIONS = FrozenDict(
+    # Primitives
     Binary=(),
     Boolean=(),
     Integer=(),
     Number=(),
     String=(),
-    Enumerated=(),
-    Choice=(),
+    # Structures
     Array=(),
     ArrayOf=("vtype", ),
+    Choice=(),
+    Enumerated=(),
     Map=(),
     MapOf=("ktype", "vtype"),
     Record=()
 )
 
 ALLOWED_TYPE_OPTIONS = FrozenDict(
+    # Primitives
     Binary=("minv", "maxv", "format"),
     Boolean=(),
     Integer=("minv", "maxv", "format"),
     Number=("minf", "maxf", "format"),
     String=("minv", "maxv", "format", "pattern"),
-    Enumerated=("id", "enum", "pointer", "extend"),
-    Choice=("id", "extend"),
+    # Structures
     Array=("extend", "format", "minv", "maxv"),
     ArrayOf=("vtype", "minv", "maxv", "unique", "set", "unordered"),
+    Choice=("id", "extend"),
+    Enumerated=("id", "enum", "pointer", "extend"),
     Map=("id", "extend", "minv", "maxv"),
     MapOf=("ktype", "vtype", "minv", "maxv"),
     Record=("extend", "minv", "maxv")
