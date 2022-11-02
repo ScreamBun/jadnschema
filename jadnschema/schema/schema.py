@@ -26,7 +26,7 @@ __pdoc__ = {
 
 class SchemaMeta(ModelMetaclass):
     def __new__(mcs, name, bases, attrs, **kwargs):  # pylint: disable=bad-classmethod-argument
-        types = attrs.get("types", {})
+        types = attrs.get("types")
 
         if isinstance(types, list):
             # info = Information(**attrs.get("info", {}))
@@ -62,7 +62,7 @@ class Schema(BaseModel, metaclass=SchemaMeta):  # pylint: disable=invalid-metacl
 
         for types in arg_types:
             if isinstance(types, list):
-                def_types = {val[0]: make_def(val, self.__formats__) for val in reversed(types)}
+                def_types = {val[0]: make_def(val, self.__formats__) for val in types}
             elif isinstance(types, dict):
                 def_types = types
 
@@ -70,7 +70,6 @@ class Schema(BaseModel, metaclass=SchemaMeta):  # pylint: disable=invalid-metacl
             cls_defs.update(DefTypes)
             for def_cls in def_types.values():
                 def_cls.update_forward_refs(**cls_defs)
-            def_types.update(dict(reversed(def_types.items())))
 
         kwargs["types"] = def_types
         super().__init__(*args, **kwargs)

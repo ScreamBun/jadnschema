@@ -2,6 +2,7 @@
 Base JADN Schema Writer
 """
 import json
+import os
 import re
 
 from datetime import datetime
@@ -12,6 +13,7 @@ from .utils import Alignment, ColumnAlignment, TableFormat, TableStyle
 from ..enums import CommentLevels
 from ....exceptions import FormatError
 from ....schema import Schema
+from ....schema.consts import DEF_ORDER_FILE_NAMES
 from ....schema.definitions import (
     Definition, Array, ArrayOf, Choice, Enumerated, Map, MapOf, Record, Binary, Boolean, Integer, Number, String
 )
@@ -151,21 +153,30 @@ class BaseWriter:
 
     def _makeStructures(self, default: Any = None, **kwargs) -> Dict[str, Union[dict, str]]:
         structs = {}
+        for def_name in self._definition_order:
+            if def_cls := self._schema.types.get(def_name):
+                df = getattr(self, f"_format{def_cls.data_type}", self._formatCustom)
+                if conv := df(itm=def_cls, **kwargs):
+                    structs[def_name] = conv
+                else:
+                    structs[def_name] = default
+
         for def_name, def_cls in self._schema.types.items():
-            df = getattr(self, f"_format{def_cls.data_type}", self._formatCustom)
-            if conv := df(itm=def_cls, **kwargs):
-                structs[def_name] = conv
-            else:
-                structs[def_name] = default
+            if def_name not in self._definition_order:
+                df = getattr(self, f"_format{def_cls.data_type}", self._formatCustom)
+                if conv := df(itm=def_cls, **kwargs):
+                    structs[def_name] = conv
+                else:
+                    structs[def_name] = default
         return structs
 
     def _makeStructuresString(self, default: Any = None, **kwargs) -> str:
         defs = self._makeStructures(default, **kwargs)
-        def_str = ''
+        def_strs = []
         for def_name in self._definition_order:
-            def_str += defs.pop(def_name, '')
-        def_str += '\n'.join(defs.values())
-        return def_str
+            def_strs.append(defs.pop(def_name, ''))
+        def_strs.extend(defs.values())
+        return '\n'.join(def_strs)
 
     def _makeTable(self, rows: List[List[Union[str, int]]], align: ColumnAlignment = None, headers: List[str] = None, table: TableFormat = TableFormat.Ascii, style: TableStyle = None) -> str:
         inst = table.value(

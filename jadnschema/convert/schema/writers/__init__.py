@@ -6,7 +6,7 @@ from .baseWriter import BaseWriter
 from .graphviz import dot_dump, dot_dumps
 from .html import html_dump, html_dumps
 from .jadn import jadn_dump, jadn_dumps
-# from .jadn_idl import jidl_dump, jidl_dumps
+from .jadn_idl import jidl_dump, jidl_dumps
 # from .jas import jas_dump, jas_dumps
 from .json_schema import json_dump, json_dumps
 from .markdown import md_dump, md_dumps
@@ -23,7 +23,7 @@ __all__ = [
     "dot_dump", "dot_dumps",
     "html_dump", "html_dumps",
     "jadn_dump", "jadn_dumps",
-    # "jidl_dump", "jidl_dumps",
+    "jidl_dump", "jidl_dumps",
     # "jas_dump", "jas_dumps",
     "json_dump", "json_dumps",
     "md_dump", "md_dumps",

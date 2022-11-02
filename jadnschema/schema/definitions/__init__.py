@@ -101,8 +101,8 @@ def make_def(data: list, formats: Dict[str, Callable] = None) -> Type[Definition
         else:
             for field in def_obj.fields:
                 field_obj = dict(def_field(*field)._asdict())
-                field_obj["options"] = Options(field_obj["options"])
                 name = field_obj.pop("name")
+                field_obj["options"] = Options(field_obj["options"], name=f"{def_obj.name}.{name}", data_type=field_obj.get("type", "String"))
                 if alias := FieldAlias.get(name):
                     field_obj["alias"] = name
                     name = alias
@@ -118,11 +118,10 @@ def make_def(data: list, formats: Dict[str, Callable] = None) -> Type[Definition
                 fields[name] = (annotation, field_info)
 
         alias = clsName(def_obj.name)
-        base_opts = [b.__options__ for b in reversed(cls.__mro__) if issubclass(b, DefinitionBase) and b != DefinitionBase]
         cls_kwargs.update(
             __name__=alias,
             __doc__=def_obj.description,
-            __options__=Options(*base_opts, def_obj.options, name=def_obj.name, validation=formats)
+            __options__=Options(def_obj.options, name=def_obj.name, validation=formats)
         )
         def_model = create_model(alias, __base__=cls, __cls_kwargs__=cls_kwargs, **fields)
         return def_model

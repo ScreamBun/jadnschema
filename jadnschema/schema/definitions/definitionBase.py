@@ -8,7 +8,7 @@ from typing import ClassVar
 from pydantic import create_model  # pylint: disable=no-name-in-module
 from pydantic.main import ModelMetaclass  # pylint: disable=no-name-in-module
 from .options import Options
-from .field import getFieldSchema
+from .field import getFieldSchema, getFieldType
 from ..consts import SELECTOR_TYPES, STRUCTURED_TYPES, FIELD_TYPES
 from ..baseModel import BaseModel
 from ...utils import classproperty, ellipsis_str
@@ -38,7 +38,9 @@ class DefinitionMeta(ModelMetaclass):
         for idx, (field, opts) in enumerate(cls.__fields__.items()):
             if field != "__root__":
                 opts.field_info.extra["parent"] = cls
-                field_opts = Options(opts.field_info.extra.setdefault("options", []))
+                field_opts = opts.field_info.extra["options"]
+                field_opts.setdefault("name", f"{name}.{opts.alias}")
+                field_opts.setdefault("data_type", getFieldType(opts))
                 opts.field_info.extra.setdefault("id", idx)
                 if not opts.required and field_opts.minc != 0 and "Choice" not in base_names:
                     field_opts.minc = 0

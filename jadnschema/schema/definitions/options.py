@@ -54,7 +54,8 @@ class Options(BaseModel):
             elif isinstance(arg, dict):
                 data.update(arg)
             elif inspect.isclass(arg) or isinstance(arg, Options):
-                data.update({k: getattr(arg, k) for k in self.__fields__ if getattr(arg, k, None) not in NULL_ARGS})
+                keys = [*self.__fields__, *self.__custom__]
+                data.update({k: getattr(arg, k) for k in keys if getattr(arg, k, None) not in NULL_ARGS})
         data.update(kwargs)
         super().__init__(**data)
 
@@ -74,7 +75,7 @@ class Options(BaseModel):
         :raise ValueError: invalid options given
         :return: original options
         """
-        if fields := set(opts.keys()) - set(cls.__custom__):
+        if fields := set(opts.keys()) - set(cls.__custom__) - set(FIELD_OPTION_KEYS):
             data_type = opts.get("data_type")
             if required := set(REQUIRED_TYPE_OPTIONS.get(data_type, ())):
                 if missing := (required - fields):
@@ -169,6 +170,31 @@ class Options(BaseModel):
                 return "1"
             return f"{minimum}..{'*' if maximum == 0 else maximum}"
         return ""
+
+    def numeric_limit(self, min_default: Union[int, float] = None, max_default: Union[int, float] = None) -> str:
+        """
+        Get the numeric limit of the options
+        :param min_default: default minimum
+        :param max_default: default maximum
+        :return: numeric limits or empty string
+        """
+        minKey, maxKey = ("minv", "maxv") if self.data_type == "Integer" else ("minf", "maxf")
+        minimum = getattr(self, minKey, min_default)
+        maximum = getattr(self, maxKey, max_default)
+
+        if minimum is None and maximum is None:
+            return ""
+        if minimum is None and maximum is not None:
+            return f"*..{maximum}"
+        if minimum is not None and maximum is None:
+            return f"{minimum}..*"
+        return f"{minimum}..{maximum}"
+
+    def setdefault(self, name: str, default: Union[bool, int, float, str] = None) -> Union[bool, int, float, str]:
+        if val := getattr(self, name, None):
+            return val
+        setattr(self, name, default)
+        return self[name]
 
     def split(self) -> Tuple["Options", "Options"]:
         """

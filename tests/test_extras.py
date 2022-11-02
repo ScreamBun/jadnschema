@@ -44,7 +44,6 @@ class Conversions(TestCase):
         convert.jas_dump(self._schema_obj, os.path.join(self._test_dir, schema + '.none'), comm=convert.CommentLevels.NONE)
         # convert.jas_load(open(os.path.join(self._test_dir, schema + '.jas'), 'rb').read(), os.path.join(self._test_dir, schema + '.jas.jadn'))
 
-    @skip
     def test_JIDL(self):
         convert.jidl_dump(self._schema_obj, os.path.join(self._test_dir, schema + '.all'), comm=convert.CommentLevels.ALL)
         convert.jidl_dump(self._schema_obj, os.path.join(self._test_dir, schema + '.none'), comm=convert.CommentLevels.NONE)

@@ -24,14 +24,7 @@ class JADNtoMD(BaseWriter):
 
     def dumps(self, **kwargs) -> str:
         schema_md = self.makeHeader()
-        structures = self._makeStructures(default="")
-        for name in self._definition_order:
-            str_def = structures.pop(name, "")
-            schema_md += f"{str_def}\n" if str_def else ""
-
-        for name in tuple(structures):
-            str_def = structures.pop(name, "")
-            schema_md += f"{str_def}\n" if str_def else ""
+        schema_md += self._makeStructuresString(default="")
         return schema_md.replace("\t", " "*4)
 
     def makeHeader(self) -> str:

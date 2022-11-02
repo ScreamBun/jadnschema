@@ -17,7 +17,7 @@ __all__ = [
     "html_dump", "html_dumps",
     "jadn_dump", "jadn_dumps",
     # "jas_dump", "jas_dumps",
-    # "jidl_dump", "jidl_dumps",
+    "jidl_dump", "jidl_dumps",
     "json_dump", "json_dumps",
     "md_dump", "md_dumps",
     # "proto_dump", "proto_dumps",
