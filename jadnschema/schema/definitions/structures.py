@@ -5,7 +5,7 @@ from enum import Enum, EnumMeta
 from typing import ClassVar, Union
 from pydantic import Extra, ValidationError, root_validator
 from .definitionBase import DefinitionBase, DefinitionMeta
-from .options import Options
+from .options import Options  # pylint: disable=unused-import
 
 __all__ = ["Array", "ArrayOf", "Choice", "Enumerated", "Map", "MapOf", "Record"]
 
@@ -16,7 +16,7 @@ class Array(DefinitionBase):
     Each field has a position, label, and type.
     """
     # __root__: Union[set, str, tuple]
-    __options__ = Options(data_type="Array")
+    __options__ = Options(data_type="Array")  # pylint: disable=used-before-assignment
 
     @root_validator(pre=True)
     def validate_data(cls, value: dict) -> dict:  # pylint: disable=no-self-argument
@@ -40,7 +40,7 @@ class ArrayOf(DefinitionBase):
     Ordering and uniqueness are specified by a collection option.
     """
     __root__: Union[set, str, tuple]
-    __options__ = Options(data_type="ArrayOf")
+    __options__ = Options(data_type="ArrayOf")  # pylint: disable=used-before-assignment
 
     @root_validator(pre=True)
     def validate_data(cls, value: dict) -> dict:  # pylint: disable=no-self-argument
@@ -62,7 +62,7 @@ class Choice(DefinitionBase):
     A discriminated union: one type selected from a set of named or labeled types.
     """
     # __root__: dict
-    __options__ = Options(data_type="Choice")
+    __options__ = Options(data_type="Choice")  # pylint: disable=used-before-assignment
 
     @root_validator(pre=True)
     def validate_data(cls, value: dict) -> dict:  # pylint: disable=no-self-argument
@@ -105,7 +105,7 @@ class Enumerated(DefinitionBase, metaclass=EnumeratedMeta):  # pylint: disable=i
     A vocabulary of items where each item has an id and a string value.
     """
     __root__: Union[int, str]
-    __options__ = Options(data_type="Enumerated")
+    __options__ = Options(data_type="Enumerated")  # pylint: disable=used-before-assignment
     __enums__: ClassVar[Enum]
 
     # Pydantic overrides
@@ -146,7 +146,7 @@ class Map(DefinitionBase):
     Each key has an id and name or label, and is mapped to a value type.
     """
     # __root__: dict
-    __options__ = Options(data_type="Map")
+    __options__ = Options(data_type="Map")  # pylint: disable=used-before-assignment
 
     # Validation
     @root_validator(pre=True)
@@ -175,7 +175,7 @@ class MapOf(DefinitionBase):
     Each key has key type ktype, and is mapped to value type vtype.
     """
     # __root__: dict
-    __options__ = Options(data_type="MapOf")
+    __options__ = Options(data_type="MapOf")  # pylint: disable=used-before-assignment
 
     @root_validator(pre=True)
     def validate_data(cls, value: dict) -> dict:  # pylint: disable=no-self-argument
@@ -201,7 +201,7 @@ class Record(DefinitionBase):
     Each key has a position and name, and is mapped to a value type. Represents a row in a spreadsheet or database table.
     """
     # __root__: dict
-    __options__ = Options(data_type="Record")
+    __options__ = Options(data_type="Record")  # pylint: disable=used-before-assignment
 
     @root_validator(pre=True)
     def validate_data(cls, value: dict) -> dict:  # pylint: disable=no-self-argument

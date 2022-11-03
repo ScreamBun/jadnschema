@@ -2,7 +2,6 @@
 Base JADN Schema Writer
 """
 import json
-import os
 import re
 
 from datetime import datetime
@@ -13,7 +12,6 @@ from .utils import Alignment, ColumnAlignment, TableFormat, TableStyle
 from ..enums import CommentLevels
 from ....exceptions import FormatError
 from ....schema import Schema
-from ....schema.consts import DEF_ORDER_FILE_NAMES
 from ....schema.definitions import (
     Definition, Array, ArrayOf, Choice, Enumerated, Map, MapOf, Record, Binary, Boolean, Integer, Number, String
 )
@@ -39,6 +37,7 @@ class BaseWriter:
     # Non Override
     _definition_order: Tuple[str, ...] = ()
     _indent: str = " " * 2
+    _space_start = re.compile(r"^\s+", re.MULTILINE)
     _title_overrides: Dict[str, str] = {}
     _table_field_headers: FrozenDict = FrozenDict({
         "ID": "id",
@@ -143,7 +142,7 @@ class BaseWriter:
         if msg not in ["", None, " "]:
             com += f" {msg}"
 
-        if def_type := kwargs.pop('type', None):
+        if def_type := kwargs.pop("type", None):
             com += f" ${def_type}"
             com += f" {kwargs.pop('jadn_opts')}" if "jadn_opts" in kwargs else ""
 
@@ -174,9 +173,9 @@ class BaseWriter:
         defs = self._makeStructures(default, **kwargs)
         def_strs = []
         for def_name in self._definition_order:
-            def_strs.append(defs.pop(def_name, ''))
+            def_strs.append(defs.pop(def_name, ""))
         def_strs.extend(defs.values())
-        return '\n'.join(def_strs)
+        return "\n".join(def_strs)
 
     def _makeTable(self, rows: List[List[Union[str, int]]], align: ColumnAlignment = None, headers: List[str] = None, table: TableFormat = TableFormat.Ascii, style: TableStyle = None) -> str:
         inst = table.value(
@@ -207,7 +206,7 @@ class BaseWriter:
         if s == "*":
             return "unknown"
         if len(escape_chars) > 0:
-            return re.compile(rf"[{''.join(escape_chars)}]").sub('_', s)
+            return re.compile(rf"[{''.join(escape_chars)}]").sub("_", s)
         return s
 
     def formatTitle(self, title: str) -> str:

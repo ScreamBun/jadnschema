@@ -42,6 +42,31 @@ def check_values(val: Any) -> Any:
     return val
 
 
+def default_decode(itm: Any, decoders: Dict[Type, Callable[[Any], Any]] = None) -> Any:
+    """
+    Default decode the given object to the predefined types
+    :param itm: object to encode/decode,
+    :param decoders: custom type decoding - Ex) -> {bytes: lambda b: b.decode('utf-8', 'backslashreplace')}
+    :return: default system encoded object
+    """
+    if decoders and isinstance(itm, tuple(decoders.keys())):
+        return decoders[type(itm)](itm)
+
+    if isinstance(itm, dict):
+        return {default_decode(k, decoders): default_decode(v, decoders) for k, v in itm.items()}
+
+    if isinstance(itm, (list, set, tuple)):
+        return type(itm)(default_decode(i, decoders) for i in itm)
+
+    if isinstance(itm, (int, float)):
+        return itm
+
+    if isinstance(itm, str):
+        return check_values(itm)
+
+    return itm
+
+
 def default_encode(itm: Any, encoders: Dict[Type, Callable[[Any], Any]] = None) -> Any:
     """
     Default encode the given object to the predefined types
@@ -53,7 +78,7 @@ def default_encode(itm: Any, encoders: Dict[Type, Callable[[Any], Any]] = None) 
         return encoders[type(itm)](itm)
 
     if isinstance(itm, dict):
-        return {default_encode(k): default_encode(v, encoders) for k, v in itm.items()}
+        return {default_encode(k, encoders): default_encode(v, encoders) for k, v in itm.items()}
 
     if isinstance(itm, (list, set, tuple)):
         return type(itm)(default_encode(i, encoders) for i in itm)
@@ -76,7 +101,7 @@ def ellipsis_str(val: str, cut: int = 100) -> str:
     return val
 
 
-def float_string(num: Union[float, str]) -> Union[float, str]:
+def floatString(num: Union[float, str]) -> Union[float, str]:
     """
     Convert the value between a float and prefixed string; float -> string, string -> float
     :param num: value to concert
@@ -111,7 +136,7 @@ def isBase64(sb: Union[bytes, str]) -> bool:
         return False
 
 
-def safe_cast(val: Any, to_type: type, default: Any = None) -> Any:
+def safe_cast(val: Any, to_type: Type, default: Any = None) -> Any:
     """
     Cast the given value to the given type safely without an exception being thrown
     :param val: value to cast
@@ -127,7 +152,7 @@ def safe_cast(val: Any, to_type: type, default: Any = None) -> Any:
 
 def toStr(s: Any) -> str:
     """
-    Convert a given type to a default string
+    Convert the given type to a default string
     :param s: item to convert to a string
     :return: converted string
     """

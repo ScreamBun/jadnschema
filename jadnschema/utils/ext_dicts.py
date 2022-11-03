@@ -42,7 +42,6 @@ class ObjectDict(dict):
     d.key = 'value'
     ```
     """
-
     def __init__(self, seq: MutableMapping = None, **kwargs):
         """
         Initialize an ObjectDict

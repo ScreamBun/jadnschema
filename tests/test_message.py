@@ -32,6 +32,7 @@ class Messages(TestCase):
     def test_loadMessage_binn(self):
         self._loadMessage(SerialFormats.BINN)
 
+    @skip
     def test_loadMessage_bencode(self):
         self._loadMessage(SerialFormats.BENCODE)
 
@@ -41,14 +42,10 @@ class Messages(TestCase):
     def test_loadMessage_cbor(self):
         self._loadMessage(SerialFormats.CBOR)
 
-    @skip
     def test_loadMessage_edn(self):
-        # ToDo: Verify serialization load
         self._loadMessage(SerialFormats.EDN)
 
-    @skip
     def test_loadMessage_ion(self):
-        # ToDo: Verify serialization load
         self._loadMessage(SerialFormats.ION)
 
     def test_loadMessage_json(self):
@@ -59,12 +56,12 @@ class Messages(TestCase):
 
     @skip
     def test_loadMessage_sexp(self):
-        # ToDo: Verify serialization load
+        # ToDo: Verify serialization load, str/int typing
         self._loadMessage(SerialFormats.S_EXPRESSION)
 
     @skip
     def test_loadMessage_smile(self):
-        # ToDo: Verify serialization load
+        # ToDo: Verify serialization load, `del self.error`
         self._loadMessage(SerialFormats.SMILE)
 
     def test_loadMessage_toml(self):
@@ -72,7 +69,7 @@ class Messages(TestCase):
 
     @skip
     def test_loadMessage_xml(self):
-        # ToDo: Verify serialization load, str/int typing
+        # ToDo: Verify serialization load, str/float typing
         self._loadMessage(SerialFormats.XML)
 
     def test_loadMessage_ubjson(self):

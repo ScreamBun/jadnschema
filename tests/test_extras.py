@@ -22,7 +22,6 @@ class Conversions(TestCase):
             os.makedirs(cls._test_dir)
         cls._schema_obj = Schema.parse_file(cls._base_schema)
 
-    @skip
     def test_CDDL(self):
         convert.cddl_dump(self._schema_obj, os.path.join(self._test_dir, schema + '.all'), comm=convert.CommentLevels.ALL)
         convert.cddl_dump(self._schema_obj, os.path.join(self._test_dir, schema + '.none'), comm=convert.CommentLevels.NONE)
@@ -61,7 +60,6 @@ class Conversions(TestCase):
     def test_MarkDown(self):
         convert.dump(schema=self._schema_obj, fname=os.path.join(self._test_dir, schema), fmt=convert.SchemaFormats.MarkDown)
 
-    @skip
     def test_ProtoBuf(self):
         convert.proto_dump(self._schema_obj, os.path.join(self._test_dir, schema + '.all'), comm=convert.CommentLevels.ALL)
         convert.proto_dump(self._schema_obj, os.path.join(self._test_dir, schema + '.none'), comm=convert.CommentLevels.NONE)
@@ -72,7 +70,6 @@ class Conversions(TestCase):
         convert.relax_dump(self._schema_obj, os.path.join(self._test_dir, schema + '.none'), comm=convert.CommentLevels.NONE)
         # convert.relax_load(open(os.path.join(self._test_dir, schema + '.all.rng'), 'rb').read(), os.path.join(self._test_dir, schema + '.rng.jadn'))
 
-    @skip
     def test_Thrift(self):
         convert.thrift_dump(self._schema_obj, os.path.join(self._test_dir, schema + '.all'), comm=convert.CommentLevels.ALL)
         convert.thrift_dump(self._schema_obj, os.path.join(self._test_dir, schema + '.none'), comm=convert.CommentLevels.NONE)

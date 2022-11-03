@@ -67,7 +67,7 @@ class JADNtoIDL(BaseWriter):
             opt = " optional" if opts.isOptional() else ""
 
             itm_fields.append([
-                f'{info.extra["id"]:>{FormatStyles.id}}',
+                f"{info.extra['id']:>{FormatStyles.id}}",
                 f"{field_type}{array}{fmt}{'' if array else opt}",
                 f"{self.comment_single} {f.alias}:: {info.description}" if info.description else ""
             ])
@@ -190,13 +190,13 @@ class JADNtoIDL(BaseWriter):
 
             if opt_id:
                 rows.append([
-                    f'{info.extra["id"]:>{FormatStyles.id}}',
+                    f"{info.extra['id']:>{FormatStyles.id}}",
                     f"{field_type}{fmt}{pattern}{unq}{opt}",
                     f"{self.comment_single} {name}::{info.description if info.description else ''}"
                 ])
             else:
                 rows.append([
-                    f'{info.extra["id"]:>{FormatStyles.id}}',
+                    f"{info.extra['id']:>{FormatStyles.id}}",
                     name,
                     f"{field_type}{fmt}{pattern}{unq}{opt}",
                     f"{self.comment_single} {info.description}" if info.description else ""

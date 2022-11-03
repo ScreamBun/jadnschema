@@ -7,7 +7,7 @@ from functools import partial
 from typing import Any, Union
 from pydantic import ValidationError, root_validator
 from .definitionBase import DefinitionBase
-from .options import Options
+from .options import Options  # pylint: disable=unused-import
 __all__ = ["Primitive", "Binary", "Boolean", "Integer", "Number", "String"]
 Primitive = Union["Binary", "Boolean", "Integer", "Number", "String"]
 
@@ -36,7 +36,7 @@ class Binary(DefinitionBase):
     A sequence of octets. Length is the number of octets.
     """
     __root__: str
-    __options__ = Options(data_type="Binary")
+    __options__ = Options(data_type="Binary")  # pylint: disable=used-before-assignment
 
     # Validation
     @root_validator(pre=True)
@@ -71,7 +71,7 @@ class Boolean(DefinitionBase):
     An element with one of two values: true or false.
     """
     __root__: bool
-    __options__ = Options(data_type="Boolean")
+    __options__ = Options(data_type="Boolean")  # pylint: disable=used-before-assignment
 
     class Config:
         arbitrary_types_allowed = True
@@ -85,7 +85,7 @@ class Integer(DefinitionBase):
     A positive or negative whole number.
     """
     __root__: int
-    __options__ = Options(data_type="Integer")
+    __options__ = Options(data_type="Integer")  # pylint: disable=used-before-assignment
 
     # Validation
     @root_validator(pre=True)
@@ -120,7 +120,7 @@ class Number(DefinitionBase):
     A real number.
     """
     __root__: float
-    __options__ = Options(data_type="Number")
+    __options__ = Options(data_type="Number")  # pylint: disable=used-before-assignment
 
     # Validation
     @root_validator(pre=True)
@@ -155,7 +155,7 @@ class String(DefinitionBase):
     A sequence of characters, each of which has a Unicode codepoint. Length is the number of characters.
     """
     __root__: str
-    __options__ = Options(data_type="String")
+    __options__ = Options(data_type="String")  # pylint: disable=used-before-assignment
 
     # Validation
     @root_validator(pre=True)

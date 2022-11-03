@@ -1,5 +1,5 @@
 """
-Message serialization
+Message Serialization
 """
 import base64
 import bson
@@ -11,12 +11,11 @@ import toml
 import ubjson
 import yaml
 
-from collections import namedtuple
 from typing import Union
-from amazon.ion import simpleion as ion
+from amazon.ion import simpleion as ion, simple_types as ion_types
+from . import pybinn, pysmile
 from .enums import SerialFormats
 from .helpers import bencode_encode, bencode_decode, sp_encode, sp_decode, xml_encode, xml_decode
-from . import pybinn, pysmile
 from ....utils import FrozenDict, default_encode, isBase64
 
 try:
@@ -66,6 +65,14 @@ serializations = FrozenDict(
     )
 )
 
+extra_decoders = FrozenDict({
+    # Builtin Types
+    bytes: bytes.decode,
+    # Serialization Types
+    ion_types.IonPyDict: dict,
+    edn_format.immutable_dict.ImmutableDict: dict
+})
+
 
 def encode_msg(msg: dict, enc: SerialFormats = SerialFormats.JSON, raw: bool = False) -> Union[bytes, str]:
     """
@@ -106,9 +113,10 @@ def decode_msg(msg: Union[bytes, dict, str], enc: SerialFormats, raw: bool = Fal
         if not raw and isBase64(msg):
             msg = base64.b64decode(msg if isinstance(msg, bytes) else msg.encode())
 
-        enc = enc.lower() if isinstance(enc, str) else enc.value.lower()
+        msg = msg.encode("utf-8") if enc.is_binary(enc) and isinstance(msg, str) else msg
+        enc = (enc if isinstance(enc, str) else enc.value).lower()
         if decoder := serializations.decode.get(enc):
             msg = decoder(msg)
-            return default_encode(msg, {bytes: bytes.decode})
+            return default_encode(msg, extra_decoders)
         raise ReferenceError(f"Invalid encoding `{enc}` specified, must be one of {', '.join(serializations.decode.keys())}")
     raise TypeError(f"Message is not expected type {bytes}/{str}, got {type(msg)}")

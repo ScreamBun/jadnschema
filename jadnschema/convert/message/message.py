@@ -7,6 +7,7 @@ from textwrap import shorten
 from typing import List, Union
 from .enums import MessageType
 from .serialize import decode_msg, encode_msg, SerialFormats
+from ...utils import unixTimeMillis
 
 
 class Message:
@@ -82,7 +83,7 @@ class Message:
             # A unique identifier created by Producer and copied by Consumer into responses
             "request_id": str(self.request_id),
             # Creation date/time of the content
-            "created": int(self.created.timestamp()),
+            "created": int(unixTimeMillis(self.created)),
             # Authenticated identifier of the creator of/authority for a request
             "from": self.origin or None,
             # Authenticated identifier(s) of the authorized recipient(s) of a message
@@ -108,7 +109,6 @@ class Message:
 
     @classmethod
     def oc2_loads(cls, m: Union[bytes, str], serial: SerialFormats = SerialFormats.JSON) -> "Message":
-        m = m.encode("utf-8") if serial.is_binary(serial) and isinstance(m, str) else m
         msg = decode_msg(m, serial)
         headers = msg.get("headers", {})
         body = msg.get("body", None)
@@ -116,8 +116,7 @@ class Message:
             raise KeyError("Message is not properly formatted, `body` key is required")
 
         if created := headers.get("created", None):
-            created = datetime.fromtimestamp(created)
-
+            created = datetime.utcfromtimestamp(created / 1000.0)
         if request_id := headers.get("request_id", None):
             request_id = uuid.UUID(request_id)
 

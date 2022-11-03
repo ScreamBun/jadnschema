@@ -2,7 +2,7 @@
 Utility functions & classes
 """
 from .general import (
-    addKey, check_values, classproperty, default_encode, ellipsis_str, float_string, isBase64, safe_cast, toStr, unixTimeMillis
+    addKey, check_values, classproperty, default_decode, default_encode, ellipsis_str, floatString, isBase64, safe_cast, toStr, unixTimeMillis
 )
 from .enums import EnumBase
 from .ext_dicts import ObjectDict, FrozenDict, QueryDict
@@ -12,9 +12,10 @@ __all__ = [
     "addKey",
     "check_values",
     "classproperty",
+    "default_decode",
     "default_encode",
     "ellipsis_str",
-    "float_string",
+    "floatString",
     "isBase64",
     "safe_cast",
     "toStr",

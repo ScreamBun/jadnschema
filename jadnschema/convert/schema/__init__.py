@@ -5,7 +5,7 @@ from .enums import SchemaFormats, CommentLevels, JsonEnumStyle, JsonImportStyle,
 # from .readers import ()
 from .writers import (
     # Conversion Functions
-    # cddl_dump, cddl_dumps,
+    cddl_dump, cddl_dumps,
     dot_dump, dot_dumps,
     html_dump, html_dumps,
     jadn_dump, jadn_dumps,
@@ -13,9 +13,9 @@ from .writers import (
     # jas_dump, jas_dumps,
     json_dump, json_dumps,
     md_dump, md_dumps,
-    # proto_dump, proto_dumps,
+    proto_dump, proto_dumps,
     relax_dump, relax_dumps,
-    # thrift_dump, thrift_dumps
+    thrift_dump, thrift_dumps
     # xsd_dump, xsd_dumps
 )
 from .helpers import register, register_reader, register_writer, dump, dumps, load, loads
@@ -31,7 +31,7 @@ __all__ = [
     # Helpers
     "register", "register_reader", "register_writer",
     # Convert to ...
-    # "cddl_dump", "cddl_dumps",
+    "cddl_dump", "cddl_dumps",
     "dot_dump", "dot_dumps",
     "html_dump", "html_dumps",
     "jadn_dump", "jadn_dumps",
@@ -39,9 +39,9 @@ __all__ = [
     "jidl_dump", "jidl_dumps",
     "json_dump", "json_dumps",
     "md_dump", "md_dumps",
-    # "proto_dump", "proto_dumps",
+    "proto_dump", "proto_dumps",
     "relax_dump", "relax_dumps",
-    # "thrift_dump", "thrift_dumps",
+    "thrift_dump", "thrift_dumps",
     # "xsd_dump", "xsd_dumps"
     # Load From ...
     # "cddl_load", "cddl_loads",

@@ -31,18 +31,18 @@ class JADNtoHTML(BaseWriter):
 
     def dumps(self, styles: str = None, **kwargs) -> str:
         # Make initial tree
-        doc, tag = DocHTML('<!DOCTYPE html>', lang='en').context()
+        doc, tag = DocHTML("<!DOCTYPE html>", lang="en").context()
 
-        with tag('head'):
-            tag('meta', charset='UTF-8')
-            tag('title', self._schema.info.get("title", "JADN Schema Convert"))
-            # tag('link', rel='stylesheet', href=f'{data_dir()}/theme.css', type='text/css')
+        with tag("head"):
+            tag("meta", charset="UTF-8")
+            tag("title", self._schema.info.get("title", "JADN Schema Convert"))
+            # tag("link", rel="stylesheet", href=f"{data_dir()}/theme.css", type="text/css")
             tag("style", self._loadStyles(styles), type="text/css")
             tag("script", self._loadScript(), type="text/javascript")
 
-        with tag('body'):
+        with tag("body"):
             with tag("div", id="schema"):
-                tag('h1', 'Schema')
+                tag("h1", "Schema")
                 with tag("div", id="meta"):
                     self.makeHeader(tag)
                 with tag("div", id="types"):
@@ -58,7 +58,7 @@ class JADNtoHTML(BaseWriter):
         with tag("table"):
             for key, val in self._schema.info.items():
                 with tag("tr"):
-                    tag("td", f'{key}:', klass="h")
+                    tag("td", f"{key}:", klass="h")
                     tag("td", json.dumps(val), klass="s")
 
     def makeStructures(self, tag: DocHTML.tag) -> None:
