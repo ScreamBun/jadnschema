@@ -184,7 +184,7 @@ class JADNtoMD(BaseWriter):
         if multi := opts.multiplicity(**opt_args):
             field_dict["type"] += f"{{{multi}}}"
 
-        field_dict["type"] += f"{{pattern=\"{opts.pattern}\"}}" if opts.pattern else ""
+        field_dict["type"] += f" (%{opts.pattern}%)" if opts.pattern else ""
         field_dict["type"] += f" /{opts.format}" if opts.format else ""
         field_dict["type"] += " unique" if getattr(opts, "unique", False) else ""
 

@@ -1,7 +1,7 @@
 """
 JADN Message & Schema conversion
 """
-from .message import Message, SerialFormats
+from .message import Message, MessageType, SerialFormats
 from .schema import *
 
 __all__ = [
@@ -38,5 +38,6 @@ __all__ = [
     "load", "loads",
     # Message Conversion
     "Message",
+    "MessageType",
     "SerialFormats"
 ]

@@ -49,13 +49,13 @@ class Options(BaseModel):
     def __init__(self, *args, **kwargs):
         data = {}
         for arg in args:
-            if isinstance(arg, list):
+            if inspect.isclass(arg) or isinstance(arg, Options):
+                keys = [*self.__fields__, *self.__custom__]
+                data.update({k: getattr(arg, k) for k in keys if getattr(arg, k, None) not in NULL_ARGS})
+            elif isinstance(arg, list):
                 data.update(self.list2dict(arg))
             elif isinstance(arg, dict):
                 data.update(arg)
-            elif inspect.isclass(arg) or isinstance(arg, Options):
-                keys = [*self.__fields__, *self.__custom__]
-                data.update({k: getattr(arg, k) for k in keys if getattr(arg, k, None) not in NULL_ARGS})
         data.update(kwargs)
         super().__init__(**data)
 

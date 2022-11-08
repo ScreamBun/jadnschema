@@ -86,7 +86,7 @@ class JADNtoCDDL(BaseWriter):
 
     def _formatArrayOf(self, itm: ArrayOf, **kwargs) -> str:  # TODO: what should this do??
         opts = itm.__options__
-        field_type = f"[{opts.get('minv', '')}*{opts.get('maxv', '')} {self.formatStr(opts.get('vtype', 'string'))}]"
+        field_type = f"[{opts.get('minv', '')}*{opts.get('maxv', '')} {self._fieldType(opts.get('vtype', 'string'))}]"
         type_opts = {"type": itm.data_type}
         return f"\n{self.formatStr(itm.name)} = {field_type} {self._formatComment(itm.description, jadn_opts=type_opts)}\n"
 
@@ -163,7 +163,11 @@ class JADNtoCDDL(BaseWriter):
         return f"{comment}\n{self.formatStr(itm.name)} = [{jadn_comment}\n{properties}\n]"
 
     def _formatMapOf(self, itm: MapOf, **kwargs) -> str:  # TODO: what should this do??
-        return f"FORMAT MapOf: {itm.name}"
+        # return f"FORMAT MapOf: {itm.name}"
+        key = self._fieldType(itm.__options__.get('ktype', 'string'))
+        val = self._fieldType(itm.__options__.get('vtype', 'string'))
+        comment = f"\n// {itm.description}" if itm.description else ""
+        return f"{comment}\n{self.formatStr(itm.name)} = {{* {key} => {val}}}"
 
     def _formatRecord(self, itm: Record, **kwargs) -> str:
         rows = []
@@ -195,7 +199,7 @@ class JADNtoCDDL(BaseWriter):
         return f"\n{custom_cddl}{self.comment_single} ${itm.name}({itm.data_type}) {itm.__options__.dict(exclude_unset=True)}"
 
     # Helper Functions
-    def _fieldType(self, f):
+    def _fieldType(self, f: str) -> str:
         """
         Determines the field type for the schema
         :param f: current type

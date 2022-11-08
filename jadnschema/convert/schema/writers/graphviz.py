@@ -4,15 +4,15 @@ JADN to GraphViz
 import json
 import re
 
-from typing import Union
+from typing import List, Union
 from graphviz import Digraph
-from pydantic.fields import ModelField  # pylint: disable=no-name-in-module
+from pydantic.fields import FieldInfo, ModelField  # pylint: disable=no-name-in-module
 from .baseWriter import BaseWriter
 from ..enums import CommentLevels
 from ..helpers import register_writer
 from ....schema import Schema
-from ....schema.consts import OPTION_ID, PRIMITIVE_TYPES
-from ....schema.definitions import DefinitionBase, ArrayOf, MapOf
+from ....schema.consts import FIELD_TYPES, OPTION_ID, PRIMITIVE_TYPES
+from ....schema.definitions import DefinitionBase, ArrayOf, MapOf, Options
 from ....utils import FrozenDict
 __all__ = ["JADNtoGraphViz", "dot_dump", "dot_dumps"]
 __pdoc__ = {
@@ -61,8 +61,8 @@ ShapeTypes = FrozenDict({
     "Number": "ellipse",
     "String": "ellipse",
     # Selector
-    "Enumerated": "ellipse",
-    "Choice": "diamond",
+    "Enumerated": "rectangle",  # "ellipse",
+    "Choice": "rectangle",  # "diamond",
     # Structured
     "Array": "rectangle",
     "ArrayOf": "rectangle",
@@ -86,12 +86,17 @@ class JADNtoGraphViz(BaseWriter):  # pylint: disable=abstract-method
 
         for idx, type_def in enumerate(self._schema.types.values()):
             node_attrs = {"shape": ShapeTypes.get(type_def.data_type, "rectangle")}
+            label = f"{type_def.name} = {type_def.data_type}"
             if type_def.data_type in PRIMITIVE_TYPES:
                 node_attrs["fillcolor"] = GraphStyles.attr_color
+                label += self._makeOptions(type_def.data_type, type_def.__options__)
+            elif type_def.data_type in FIELD_TYPES:
+                fields = [e.value for e in type_def.__enums__] if type_def.data_type == "Enumerated" else type_def.__fields__.values()
+                label = self._labelTable(label, fields)
             if "<->" in type_def.description:
                 node_attrs.update(shape="hexagon")
-            dot.node(name=f"n{idx}", label=f"{type_def.name}({type_def.data_type})", **node_attrs)
 
+            dot.node(name=f"n{idx}", label=label, **node_attrs)
             if type_def.has_fields() and type_def.data_type != "Enumerated":
                 for field in type_def.__fields__.values():
                     self._nestedLink(idx, field, dot, node_link, type_def)
@@ -154,6 +159,83 @@ class JADNtoGraphViz(BaseWriter):  # pylint: disable=abstract-method
                     else:
                         attrs["label"] = k
                     dot.edge(f"n{idx}", links[val], **attrs)
+
+    def _labelTable(self, header: str, fields: List[ModelField]) -> str:
+        label = "<<table border='0' cellborder='0' cellspacing='0' cellpadding='2'>"
+        label += f"<tr><td colspan='4'><b>{header}</b></td></tr>"
+        for field in fields:
+            label += self._makeField(field)
+        label += "</table>>"
+        return label
+
+    def _makeOptions(self, field_type: str, options: Options) -> str:
+        if field_type == "ArrayOf":
+            field_type += f"({self._getType(options.get('vtype', 'String'))})"
+            field_type += f"{{{options.multiplicity(field=False)}}}"
+        elif field_type == "MapOf":
+            field_type += f"({self._getType(options.get('ktype', 'String'))}, {self._getType(options.get('vtype', 'String'))})"
+            field_type += f"{{{options.multiplicity(field=False)}}}"
+        elif field_type == "Enumerated":
+            field_type += f"(Enum[{self._getType(options.get('enum', 'String'))}])"
+        elif field_type in ("Integer", "Number"):
+            multi = options.numeric_limit()
+            field_type += f"{{{multi}}}" if multi else ""
+
+        if options.isArray():
+            multi = options.multiplicity(field=True)
+            field_type += f" [{multi}]"
+        else:
+            multi = options.multiplicity(check=lambda x, y: x > 0 or y > 0)
+            field_type += f"{{{multi}}}" if multi else ""
+
+        fmt = f" /{options.format}" if options.format else ""
+        pattern = f"(%{options.pattern}%)" if options.pattern else ""
+        opt = " optional" if options.isOptional() else ""
+        unq = " unique" if options.get("unique", False) else ""
+
+        return f"{fmt}{pattern}{unq}{opt}"
+
+    def _makeField(self, field: Union[FieldInfo, ModelField], opt_id: bool = False) -> str:
+        row = "<tr>"
+        if isinstance(field, FieldInfo):
+            row += f"<td>{field.extra['id']}</td>"
+            if opt_id:
+                if self._comm == CommentLevels.ALL:
+                    row += f"<td>{field.default}::{field.description}</td>"
+                else:
+                    row += f"<td>{field.default}::...</td>"
+            else:
+                row += f"<td>{field.default}</td>"
+                if self._comm == CommentLevels.ALL:
+                    row += f"<td>{field.description}</td>"
+        else:
+            info = field.field_info
+            opts = info.extra["options"]
+            field_type = info.extra["type"]
+
+            name = f"{field.alias}{'/' if opts.dir else ''}"
+            if opt_id:
+                row += f"<td>{info.extra['id']}</td>"
+                row += f"<td>{field_type}{self._makeOptions(field_type, opts)}</td>"
+                if self._comm == CommentLevels.ALL:
+                    row += f"<td>{name}::{info.description if info.description else ''}</td>"
+                else:
+                    row += f"<td>{name}::...</td>"
+            else:
+                row += f"<td>{info.extra['id']}</td>"
+                row += f"<td>{name}</td>"
+                row += f"<td>{field_type}{self._makeOptions(field_type, opts)}</td>"
+                if self._comm == CommentLevels.ALL:
+                    row += f"<td>{info.description}</td>"
+        row += "</tr>"
+        return row
+
+    def _getType(self, type_: str) -> str:
+        if type_.startswith(OPTION_ID.enum):
+            return f"Enum[{type_[1:]}]"
+        if type_.startswith(OPTION_ID.pointer):
+            return f"Pointer[{type_[1:]}]"
+        return type_
 
 
 # Writer Functions

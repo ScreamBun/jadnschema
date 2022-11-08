@@ -4,14 +4,14 @@ JADN Schema Definition types
 from collections import namedtuple
 from enum import Enum
 from typing import Callable, Dict, Type, Optional, Tuple, Union, get_args
-from pydantic import Field, create_model  # pylint: disable=no-name-in-module
+from pydantic import create_model  # pylint: disable=no-name-in-module
 from pydantic.fields import FieldInfo  # pylint: disable=no-name-in-module
 from ..consts import FieldAlias, SysAlias, ValidName
 from .options import Options
 from .definitionBase import DefinitionBase
+from .field import Field
 from .primitives import Binary, Boolean, Integer, Number, String
 from .structures import Array, ArrayOf, Choice, Map, Enumerated, MapOf, Record
-
 __all__ = [
     # Definitions
     "DefinitionBase",
@@ -102,7 +102,7 @@ def make_def(data: list, formats: Dict[str, Callable] = None) -> Type[Definition
             for field in def_obj.fields:
                 field_obj = dict(def_field(*field)._asdict())
                 name = field_obj.pop("name")
-                field_obj["options"] = Options(field_obj["options"], name=f"{def_obj.name}.{name}", data_type=field_obj.get("type", "String"))
+                field_obj["options"] = Options(field_obj["options"], name=f"{def_obj.name}.{name}", data_type=field_obj.get("type", "String"), validation=formats)
                 if alias := FieldAlias.get(name):
                     field_obj["alias"] = name
                     name = alias

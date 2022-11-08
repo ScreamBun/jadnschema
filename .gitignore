@@ -195,8 +195,9 @@ fabric.properties
 .idea/caches/build_file_checksums.ser
 
 # Custom Ignore
-docs/*
 .idea/
-jadn-v1.0-wd01.md
-lint.html
+docs/
 tests/schema_gen/
+jadn-v1.0-wd01.md
+sizes.md
+lint.html

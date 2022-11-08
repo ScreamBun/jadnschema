@@ -2,6 +2,7 @@ from typing import Optional
 from jadnschema.schema import Schema
 from jadnschema.schema.info import Information
 from jadnschema.schema.definitions import *
+from pydantic import Extra
 
 
 # Primitive Types
@@ -54,9 +55,12 @@ class Hashes(Map):
     """
     Cryptographic hash values
     """
-    md5: Binary = Field(id=1, options=["/x", "{16", "}16"], description="MD5 hash as defined in [RFC1321]")
-    sha1: Binary = Field(id=2, options=["/x", "{20", "}20"], description="SHA1 hash as defined in [RFC6234]")
-    sha256: Binary = Field(id=3, options=["/x", "{32", "}32"], description="SHA256 hash as defined in [RFC6234]")
+    md5: Optional[Binary] = Field(id=1, options=["/x", "{16", "}16"], description="MD5 hash as defined in [RFC1321]")
+    sha1: Optional[Binary] = Field(id=2, options=["/x", "{20", "}20"], description="SHA1 hash as defined in [RFC6234]")
+    sha256: Optional[Binary] = Field(id=3, options=["/x", "{32", "}32"], description="SHA256 hash as defined in [RFC6234]")
+
+    class Options:
+        minv = 1
 
 
 class File(Map):
@@ -175,6 +179,9 @@ class Target(Choice):
     properties: Properties = Field(id=25, description="Data attribute associated with an Actuator")
     uri: URI = Field(id=19, description="A uniform resource identifier (URI)")
 
+    class Config:
+        extra = Extra.allow
+
 
 class Action(Enumerated):
     class Values:
@@ -259,7 +266,8 @@ class Args(Map):
 
 
 class Actuator(Choice):
-    actuator: String = Field(id=1)
+    class Config:
+        extra = Extra.allow
 
 
 class OpenC2Command(Record):

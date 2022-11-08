@@ -8,11 +8,11 @@ from typing import Any, Union
 from pydantic import ValidationError, root_validator
 from .definitionBase import DefinitionBase
 from .options import Options  # pylint: disable=unused-import
-__all__ = ["Primitive", "Binary", "Boolean", "Integer", "Number", "String"]
+__all__ = ["Primitive", "Binary", "Boolean", "Integer", "Number", "String", "validate_format"]
 Primitive = Union["Binary", "Boolean", "Integer", "Number", "String"]
 
 
-def validate_format(cls: Primitive, fmt: str, val: Any) -> Any:
+def validate_format(cls: DefinitionBase, fmt: str, val: Any) -> Any:
     """
     Attempt to validate the format of a given Primitive type
     :param cls: Primitive type to validate
@@ -28,7 +28,7 @@ def validate_format(cls: Primitive, fmt: str, val: Any) -> Any:
 
     if fun:
         return fun(val)
-    return val
+    raise ValidationError(f"`{fmt}` is not a valid format")
 
 
 class Binary(DefinitionBase):

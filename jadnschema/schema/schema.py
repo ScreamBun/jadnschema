@@ -13,7 +13,7 @@ from pydantic.main import ModelMetaclass, PrivateAttr  # pylint: disable=no-name
 from .baseModel import BaseModel
 from .consts import EXTENSIONS, OPTION_ID
 from .info import Information
-from .definitions import DefTypes, Definition, make_def
+from .definitions import DefTypes, Definition, DefinitionBase, make_def
 from .definitions.field import getFieldType
 from .extensions import unfold_extensions
 from .formats import ValidationFormats
@@ -24,20 +24,26 @@ __pdoc__ = {
 }
 
 
+def update_types(types: Union[dict, list], formats: Dict[str, Callable] = None) -> dict:
+    if isinstance(types, list):
+        def_types = {td[0]: make_def(td, formats) for td in types}
+        cls_defs = {d.__name__: d for d in def_types.values()}
+        cls_defs.update(DefTypes)
+        for def_cls in def_types.values():
+            def_cls.update_forward_refs(**cls_defs)
+        return def_types
+    return types
+
+
 class SchemaMeta(ModelMetaclass):
     def __new__(mcs, name, bases, attrs, **kwargs):  # pylint: disable=bad-classmethod-argument
-        types = attrs.get("types")
-
-        if isinstance(types, list):
-            # info = Information(**attrs.get("info", {}))
-            # types = unfold_extensions(types, info.config.Sys)
-            types = {td[0]: make_def(td) for td in types}
-
         new_namespace = {
             **attrs,
-            "_info": "info" in attrs,
-            "types": types
+            "_info": "info" in attrs
         }
+        if types := attrs.get("types", None):
+            new_namespace["types"] = update_types(types, attrs.get("validation"))
+
         return super().__new__(mcs, name, bases, new_namespace, **kwargs)  # pylint: disable=too-many-function-args
 
 
@@ -46,33 +52,15 @@ class Schema(BaseModel, metaclass=SchemaMeta):  # pylint: disable=invalid-metacl
     JADN Schema
     """
     info: Optional[Information] = Field(default_factory=Information)
-    types: dict  # Dict[str, Definition]
+    types: dict = Field(default_factory=dict)  # Dict[str, Definition]
     _info: bool = PrivateAttr(False)
     __formats__: Dict[str, Callable] = ValidationFormats
 
-    def __init__(self, *args, **kwargs):
-        arg_types = []
-        def_types = {}
-        if len(args) == 2:
-            arg_types.append(args[1])
-            args = tuple(*args[:-1])
-
-        if defs := kwargs.pop("types", None):
-            arg_types.append(defs)
-
-        for types in arg_types:
-            if isinstance(types, list):
-                def_types = {val[0]: make_def(val, self.__formats__) for val in types}
-            elif isinstance(types, dict):
-                def_types = types
-
-            cls_defs = {d.__name__: d for d in def_types.values()}
-            cls_defs.update(DefTypes)
-            for def_cls in def_types.values():
-                def_cls.update_forward_refs(**cls_defs)
-
-        kwargs["types"] = def_types
-        super().__init__(*args, **kwargs)
+    def __init__(self, **kwargs):
+        if "types" in kwargs:
+            kwargs["types"] = update_types(kwargs["types"], self.__formats__)
+        super().__init__(**kwargs)
+        DefinitionBase.__config__.types = self.types
 
     # Pydantic Overrides
     def schema(self) -> Dict[str, Any]:
@@ -110,6 +98,9 @@ class Schema(BaseModel, metaclass=SchemaMeta):  # pylint: disable=invalid-metacl
             if type_ not in self.info.exports.json():
                 print("Type is not a valid exported definition")
         if cls := self.types.get(type_):
+            if isinstance(value, dict) and all([str(k).isdigit() for k in value.keys()]):
+                value = cls.expandCompact(value)
+
             return cls.validate(value)
         raise SchemaException(f"{type_} is not a valid type within the schema")
 

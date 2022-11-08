@@ -164,7 +164,7 @@ class JADNtoIDL(BaseWriter):
             opts = info.extra["options"]
             field_type = info.extra["type"]
             if field_type == "ArrayOf":
-                field_type += f"({self._getType(self._getType(opts.get('vtype', 'String')))})"
+                field_type += f"({self._getType(opts.get('vtype', 'String'))})"
                 field_type += f"{{{opts.multiplicity(field=False)}}}"
             elif field_type == "MapOf":
                 field_type += f"({self._getType(opts.get('ktype', 'String'))}, {self._getType(opts.get('vtype', 'String'))})"

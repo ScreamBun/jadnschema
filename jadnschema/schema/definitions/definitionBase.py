@@ -4,7 +4,7 @@ Customized from `jadnschema.schema.baseModel.BaseModel`
 """
 from copy import deepcopy
 from enum import Enum
-from typing import ClassVar
+from typing import Any, ClassVar
 from pydantic import create_model  # pylint: disable=no-name-in-module
 from pydantic.main import ModelMetaclass  # pylint: disable=no-name-in-module
 from .options import Options
@@ -121,6 +121,17 @@ class DefinitionBase(BaseModel, metaclass=DefinitionMeta):  # pylint: disable=in
         return False
 
     # Helpers
+    @classmethod
+    def expandCompact(cls, value: Any) -> Any:
+        if isinstance(value, dict) and cls.__fields__:
+            rtn = {}
+            for field in cls.__fields__.values():
+                f_id = field.field_info.extra["id"]
+                if f_id in value:
+                    rtn[field.alias] = field.type_.expandCompact(value[f_id])
+            return rtn
+        return value
+
     @classproperty
     def name(cls) -> str:  # pylint: disable=no-self-argument
         """The definition's valid schema name"""
