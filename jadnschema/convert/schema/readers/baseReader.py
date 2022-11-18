@@ -4,6 +4,7 @@ Base Schema Reader
 from io import BytesIO, StringIO
 from pathlib import Path
 from typing import Union
+from ....schema import Schema
 __pdoc__ = {
     "BaseReader.format": "File extension of the given format"
 }
@@ -53,7 +54,7 @@ class BaseReader:
             raise TypeError("Unknown type given for `fname`")
         return inst
 
-    def parse_schema(self) -> None:
+    def parse_schema(self) -> Schema:
         """
         Parse the schema into JADN format
         """

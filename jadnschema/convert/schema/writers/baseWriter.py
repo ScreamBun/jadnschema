@@ -27,6 +27,7 @@ __pdoc__ = {
 class BaseWriter:
     format: str = None
     escape_chars: Tuple[str, ...] = (" ", )
+    replace_chars: Dict[str, str] = {}
     comment_multi: Tuple[str, str] = ("<!--", "-->")
     comment_single: str = ""
     # Helper Vars
@@ -196,15 +197,27 @@ class BaseWriter:
         inst.justify_columns = alignment
         return inst.table
 
+    def escapeStr(self, s: str) -> str:
+        """
+        escape a string for the given schema format
+        :param s: string to format
+        :return: formatted string
+        """
+        rtn = s
+        for orig, repl in self.replace_chars.items():
+            if orig in rtn:
+                rtn = re.sub(orig, repl, rtn)
+        return rtn
+
     def formatStr(self, s: str) -> str:
         """
         Format a string for the given schema format
         :param s: string to format
         :return: formatted string
         """
-        escape_chars = list(filter(None, self.escape_chars))
         if s == "*":
             return "unknown"
+        escape_chars = list(filter(None, self.escape_chars))
         if len(escape_chars) > 0:
             return re.compile(rf"[{''.join(escape_chars)}]").sub("_", s)
         return s

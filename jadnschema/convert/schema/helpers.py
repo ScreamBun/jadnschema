@@ -1,6 +1,7 @@
 """
 Converter helpers
 """
+from pathlib import Path
 from typing import Callable, Literal, Union
 from .enums import CommentLevels, SchemaFormats
 from ...schema import Schema
@@ -66,7 +67,7 @@ def register_writer(fmt: Union[str, Callable] = None, override: bool = False) ->
 
 
 # Dynamic
-def dump(schema: Union[dict, str, Schema], fname: str, source: str = "", comm: str = CommentLevels.ALL, fmt: SchemaFormats = SchemaFormats.JADN, **kwargs):
+def dump(schema: Union[dict, str, Schema], fname: str, source: str = "", comm: str = CommentLevels.ALL, fmt: SchemaFormats = SchemaFormats.JADN, **kwargs) -> None:
     """
     Produce formatted schema from JADN schema
     :param schema: JADN Schema to convert
@@ -84,7 +85,7 @@ def dump(schema: Union[dict, str, Schema], fname: str, source: str = "", comm: s
     raise ReferenceError(f"The format specified is not a known format - {fmt}")
 
 
-def dumps(schema: Union[dict, str, Schema], comm: str = CommentLevels.ALL, fmt: SchemaFormats = SchemaFormats.JADN, **kwargs):
+def dumps(schema: Union[dict, str, Schema], comm: str = CommentLevels.ALL, fmt: SchemaFormats = SchemaFormats.JADN, **kwargs) -> str:
     """
     Produce formatted schema from JADN schema
     :param schema: JADN Schema to convert
@@ -100,28 +101,27 @@ def dumps(schema: Union[dict, str, Schema], comm: str = CommentLevels.ALL, fmt: 
     raise ReferenceError(f"The format specified is not a known format - {fmt}")
 
 
-def load(schema: Union[str, dict], source: str = "", fmt: SchemaFormats = SchemaFormats.JADN, **kwargs):
+def load(schema: Union[str, Path], fmt: SchemaFormats = SchemaFormats.JADN, **kwargs) -> Schema:
     """
     Produce JADN schema from input schema
-    :param schema: Schema to convert
-    :param source: name of original schema file
+    :param schema: Schema file to convert
     :param fmt: format of the input schema
     :return: loaded JADN schema
     """
     if cls := registered["reader"].get(fmt, None):
-        return cls().load(schema, source, **kwargs)
+        return cls().load(schema).parse_schema(**kwargs)
 
     raise ReferenceError(f"The format specified is not a known format - {fmt}")
 
 
-def loads(schema: Union[str, dict], fmt: SchemaFormats = SchemaFormats.JADN, **kwargs):
+def loads(schema: Union[bytes, bytearray, str], fmt: SchemaFormats = SchemaFormats.JADN, **kwargs) -> Schema:
     """
     Produce JADN schema from input schema
-    :param schema: schema file to convert
+    :param schema: schema string to convert
     :param fmt: format of the input schema
     :return: loaded JADN schema
     """
     if cls := registered["reader"].get(fmt, None):
-        return cls().loads(schema, **kwargs)
+        return cls().loads(schema).parse_schema(**kwargs)
 
     raise ReferenceError(f"The format specified is not a known format - {fmt}")

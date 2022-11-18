@@ -3,7 +3,7 @@ JADN definition field helpers
 """
 from typing import Any, ForwardRef, Optional, Union, get_args, get_origin
 from pydantic import Field as pydanticField
-from pydantic.typing import NoArgAnyCallable
+from pydantic.typing import NoArgAnyCallable  # pylint: disable=no-name-in-module
 from pydantic.fields import ModelField, Undefined  # pylint: disable=no-name-in-module
 from .options import Options
 

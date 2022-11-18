@@ -98,7 +98,7 @@ class Schema(BaseModel, metaclass=SchemaMeta):  # pylint: disable=invalid-metacl
             if type_ not in self.info.exports.json():
                 print("Type is not a valid exported definition")
         if cls := self.types.get(type_):
-            if isinstance(value, dict) and all([str(k).isdigit() for k in value.keys()]):
+            if isinstance(value, dict) and all(str(k).isdigit() for k in value.keys()):
                 value = cls.expandCompact(value)
 
             return cls.validate(value)

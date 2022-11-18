@@ -26,7 +26,7 @@ __all__ = [
     # "xsd_dump", "xsd_dumps"
     # Load From ...
     # "cddl_load", "cddl_loads",
-    # "jadn_load", "jadn_loads",
+    "jadn_load", "jadn_loads",
     # "jas_load", "jas_loads",
     # "jidl_load", "jidl_loads",
     # "json_load", "json_loads",

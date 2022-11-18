@@ -129,4 +129,4 @@ def unfold_extensions(schema: dict, extensions: Set[str] = None) -> Schema:
         * Link:            Replace Key and Link fields with explicit types
     :return: simplified schema
     """
-    return Schema(schema).simplify(extensions)
+    return Schema.parse_obj(schema).simplify(extensions)

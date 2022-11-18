@@ -199,5 +199,6 @@ fabric.properties
 docs/
 tests/schema_gen/
 jadn-v1.0-wd01.md
-sizes.md
 lint.html
+sizes.md
+test.py

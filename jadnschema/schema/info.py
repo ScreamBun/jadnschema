@@ -76,6 +76,9 @@ class Config(BaseModel):
             raise ValueError from err
         return val
 
+    class Config:
+        allow_population_by_field_name = True
+
 
 class Information(BaseModel):
     package: Optional[str]            #: Unique name/version of this package

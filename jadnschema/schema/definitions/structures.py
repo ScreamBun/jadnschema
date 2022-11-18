@@ -101,7 +101,7 @@ class ArrayOf(DefinitionBase):
     # Helpers
     @classmethod
     def expandCompact(cls, value: Any) -> Any:
-        if all([str(v).isdigit() for v in value]):
+        if all(str(v).isdigit() for v in value):
             vtype = cls.__options__.vtype
             if val_cls := cls.__config__.types.get(vtype):
                 return [val_cls.expandCompact(v) for v in value]

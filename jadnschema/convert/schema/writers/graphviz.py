@@ -8,6 +8,7 @@ from typing import List, Union
 from graphviz import Digraph
 from pydantic.fields import FieldInfo, ModelField  # pylint: disable=no-name-in-module
 from .baseWriter import BaseWriter
+from ..constants import HTML_Escapes
 from ..enums import CommentLevels
 from ..helpers import register_writer
 from ....schema import Schema
@@ -78,6 +79,7 @@ class JADNtoGraphViz(BaseWriter):  # pylint: disable=abstract-method
     format = "gv"
     comment_single = "#"
     comment_multi = (comment_single, "")
+    replace_chars = HTML_Escapes
 
     def dumps(self, **kwargs) -> str:
         dot = Digraph(name="G", **GraphStyles.dotfile)
@@ -124,11 +126,11 @@ class JADNtoGraphViz(BaseWriter):  # pylint: disable=abstract-method
         if isinstance(field, ModelField):
             required = field.required
             opts = field.field_info.extra["options"]
-            desc = field.field_info.description
+            desc = self.escapeStr(field.field_info.description)
         else:
             required = True
             opts = field.__options__
-            desc = field.description
+            desc = self.escapeStr(field.description)
 
         attrs = {} if required else {"style": "dashed"}
         if GraphStyles.links:
@@ -199,15 +201,16 @@ class JADNtoGraphViz(BaseWriter):  # pylint: disable=abstract-method
         row = "<tr>"
         if isinstance(field, FieldInfo):
             row += f"<td>{field.extra['id']}</td>"
+            desc = self.escapeStr(field.description)
             if opt_id:
                 if self._comm == CommentLevels.ALL:
-                    row += f"<td>{field.default}::{field.description}</td>"
+                    row += f"<td>{field.default}::{desc}</td>"
                 else:
                     row += f"<td>{field.default}::...</td>"
             else:
                 row += f"<td>{field.default}</td>"
                 if self._comm == CommentLevels.ALL:
-                    row += f"<td>{field.description}</td>"
+                    row += f"<td>{desc}</td>"
         else:
             info = field.field_info
             opts = info.extra["options"]
@@ -218,7 +221,7 @@ class JADNtoGraphViz(BaseWriter):  # pylint: disable=abstract-method
                 row += f"<td>{info.extra['id']}</td>"
                 row += f"<td>{field_type}{self._makeOptions(field_type, opts)}</td>"
                 if self._comm == CommentLevels.ALL:
-                    row += f"<td>{name}::{info.description if info.description else ''}</td>"
+                    row += f"<td>{name}::{self.escapeStr(info.description) if info.description else ''}</td>"
                 else:
                     row += f"<td>{name}::...</td>"
             else:
@@ -226,7 +229,7 @@ class JADNtoGraphViz(BaseWriter):  # pylint: disable=abstract-method
                 row += f"<td>{name}</td>"
                 row += f"<td>{field_type}{self._makeOptions(field_type, opts)}</td>"
                 if self._comm == CommentLevels.ALL:
-                    row += f"<td>{info.description}</td>"
+                    row += f"<td>{self.escapeStr(info.description) }</td>"
         row += "</tr>"
         return row
 

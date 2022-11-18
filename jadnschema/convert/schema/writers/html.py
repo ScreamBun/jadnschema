@@ -8,6 +8,7 @@ from typing import List, Union
 from pydantic.fields import ModelField  # pylint: disable=no-name-in-module
 from .baseWriter import BaseWriter
 from .utils import DocHTML
+from ..constants import HTML_Escapes
 from ..enums import CommentLevels
 from ..helpers import register_writer
 from ....jadn import data_dir
@@ -26,6 +27,7 @@ __pdoc__ = {
 class JADNtoHTML(BaseWriter):
     format = "html"
     comment_multi = ("<!--", "-->")
+    replace_chars = HTML_Escapes
     _themeFile = os.path.join(data_dir(), "theme.css")  # Default theme
     _scriptFile = os.path.join(data_dir(), "scripts.js")  # Default scripts
 
