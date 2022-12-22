@@ -6,19 +6,19 @@ import os
 from binascii import a2b_hex
 from unittest import TestCase
 from jadnschema import jadn
-from jadnschema.codec import Codec
+from jadn import codec
 
 dir_path = os.path.abspath(os.path.dirname(__file__))
 
 
 class JADN(TestCase):
     def setUp(self):
-        fn = os.path.join(jadn.data_dir(), 'jadn_v1.0_schema.jadn')
+        fn = os.path.join(jadn.data_dir(), 'jadn-v1.0-examples.jadn')
         self.schema = jadn.load(fn)
         sa = jadn.analyze(self.schema)
         if sa['undefined']:
             print('Warning - undefined:', sa['undefined'])
-        self.tc = Codec(self.schema)
+        self.tc = codec(self.schema)
 
     def test_jadn_self(self):
         self.tc.set_mode(verbose_rec=True, verbose_str=True)
@@ -61,7 +61,7 @@ class SpecExamples(TestCase):
     """
     def setUp(self):
         self.schema = jadn.load(os.path.join(dir_path, 'schema/jadn-v1.0-examples.jadn'))
-        self.tc = Codec(self.schema, verbose_rec=True, verbose_str=True)
+        self.tc = codec(self.schema, verbose_rec=True, verbose_str=True)
 
     def test_choice_explicit(self):
         msg_intrinsic = {"quantity": 395, "product": {"software": "https://www.example.com/B902D1P0W37"}}
@@ -151,8 +151,8 @@ class SpecExamplesUniversity(TestCase):
 
     def test_university(self):
         self.schema = jadn.load(os.path.join(dir_path, 'schema/jadn-v1.0-examples-uni.jadn'))
-        self.tcv = Codec(self.schema, verbose_rec=True, verbose_str=True)
-        self.tcc = Codec(self.schema, verbose_rec=False, verbose_str=True)
+        self.tcv = codec(self.schema, verbose_rec=True, verbose_str=True)
+        self.tcc = codec(self.schema, verbose_rec=False, verbose_str=True)
         uni_1 = self.tcv.decode("University", self.uni_verbose)
         uni_2 = self.tcc.decode("University", self.uni_compact)
         self.assertEqual(uni_1, uni_2)

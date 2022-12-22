@@ -2,7 +2,12 @@
 
 This logic can be added to other projects via the python whl. 
 
-## TODO
+## Setup
+1) Setup your virtual environment, if you have not done so
+2) run setup.py to pulled down the dependencies and setup the jadnschema whl.
+   1) python ./setup.py
+3) If you are doing development, then also install the development dependencies.
+   1) pip install -r requirements_dev.txt
 
 ## How to create the whl
 1) Run: python setup.py bdist_wheel --universal
