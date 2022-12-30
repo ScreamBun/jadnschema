@@ -4,6 +4,7 @@ JADN Structure Types
 from enum import Enum, EnumMeta
 from typing import Any, ClassVar, Optional, Union
 from pydantic import Extra, ValidationError, root_validator
+from pydantic.utils import GetterDict
 from .definitionBase import DefinitionBase, DefinitionMeta
 from .options import Options  # pylint: disable=unused-import
 from .primitives import validate_format
@@ -65,11 +66,16 @@ class Array(DefinitionBase):
         :raise ValueError: invalid data given
         :return: original data
         """
+
+        orgValue = value
+        if isinstance(value, (GetterDict)):
+            value = value._obj
+
         if fmt := cls.__options__.format:
             print(f"Array format: {value}")
             validate_format(cls, fmt, value)
         # TODO: finish validation
-        return value
+        return orgValue
 
     class Options:
         data_type = "Array"

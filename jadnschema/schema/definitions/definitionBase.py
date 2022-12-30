@@ -176,3 +176,4 @@ class DefinitionBase(BaseModel, metaclass=DefinitionMeta):  # pylint: disable=in
 
     class Config:
         arbitrary_types_allowed = True
+        orm_mode = True
