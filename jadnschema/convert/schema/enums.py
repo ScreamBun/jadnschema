@@ -9,7 +9,7 @@ class SchemaFormats(str, EnumBase):
     # CDDL = "cddl"      #: Convert to [CDDL Format](https://www.rfc-editor.org/rfc/rfc8610)
     GraphViz = "gv"    #: Convert to [GraphViz Format](https://graphviz.org/doc/info/lang.html)
     HTML = "html"      #: Convert to HTML Format
-    JDIL = "jidl"      #: Convert to [JIDL Format]()
+    JIDL = "jidl"      #: Convert to [JIDL Format]()
     JADN = "jadn"      #: Convert to [JADN Format](https://docs.oasis-open.org/openc2/jadn/v1.0/csd01/jadn-v1.0-csd01.html)
     # JAS = "jas"        #: Convert to [JAS Format]()
     MarkDown = "md"    #: Convert to MarkDown Format

@@ -18,3 +18,22 @@ This logic can be added to other projects via the python whl.
 ## Creating the Docs
 1) Run: python mkdocs.py
 2) Open docs/index.html
+
+## Develop and Test JADN Schema on the Fly
+* When developing and testing JADN Schema, you can link it directly to your virtual environment to avoid recreating wheels.
+  * Within your virtual environment view the python dependencies 
+    * pip freeze
+  * Remove the jadnschema wheel
+    * pip uninstall jadnschema
+  * Add the jadnschema git repo source to the python dependencies
+    * cd to jadnschema
+    * python setup.py develop
+    * pip freeze
+    * You should see this something similar to this
+      * -e git+ssh://git@ccoe-gitlab.hii-tsd.com/screamingbunny/schema/jadnschema.git@16ac517baa1499014ba221b7d1b7ffb3cef20ebe#egg=jadnschema
+  * Go back to the Web Validator and start the server
+    * ./start.sh
+  * Remember when you are finished, make sure to 
+    * recreate the jadnschema wheel, which contains the updated code
+    * uninstall the direct link, simple pip uninstall jadnschema
+    * install the updated jadnschema wheel
