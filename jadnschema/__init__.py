@@ -13,5 +13,5 @@ __all__ = [
     "dump",
     "dumps",
     "load",
-    "loads"
+    "loads",
 ]

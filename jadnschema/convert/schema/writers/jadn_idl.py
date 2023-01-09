@@ -8,10 +8,17 @@ from pydantic.fields import ModelField  # pylint: disable=no-name-in-module
 from .baseWriter import BaseWriter
 from .utils import Alignment, TableFormat, TableStyle
 from ..enums import CommentLevels
+from ..helpers import register_writer
 from ....schema import Schema
 from ....schema.consts import OPTION_ID
 from ....schema.definitions import Array, ArrayOf, Choice, Enumerated, Map, MapOf, Record, Primitive
 from ....utils import FrozenDict
+__pdoc__ = {
+    "JADNtoIDL.format": "File extension of the given format",
+    "JADNtoIDL.escape_chars": "Characters that are not supported in the schema format and need to be removed/escaped",
+    "JADNtoIDL.comment_multi": "Multiline comment characters; Tuple[START_CHAR, END_CHAR]",
+    "JADNtoIDL.comment_single": "Single line comment character",
+}
 
 FormatStyles = FrozenDict(
     id=4,        # Width of Field ID column
@@ -19,6 +26,7 @@ FormatStyles = FrozenDict(
 
 
 # Conversion Class
+@register_writer
 class JADNtoIDL(BaseWriter):
     format = "jidl"
     comment_multi = ("/*", "*/")
