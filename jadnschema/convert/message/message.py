@@ -108,8 +108,14 @@ class Message:
         return encode_msg(msg, self.content_type, raw=True) if serialize else msg
 
     @classmethod
-    def oc2_loads(cls, m: Union[bytes, str], serial: SerialFormats = SerialFormats.JSON) -> "Message":
-        msg = decode_msg(m, serial)
+    def oc2_loads(cls, m: Union[bytes, dict, str], serial: SerialFormats) -> "Message":
+        msg = decode_msg(m, serial) #get human readable text
+            
+        #decoded msg into json, turn into pkt
+        #msg = Message('receiver---','origin---','crtd','msg_type','id---',serial,msg).oc2_message() 
+        #TODO: --- signifies info that may possibly come from the msg
+        
+        msg = Message(content_type=serial, content=msg).oc2_message() 
         headers = msg.get("headers", {})
         body = msg.get("body", None)
         if body is None:
