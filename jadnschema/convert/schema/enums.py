@@ -7,16 +7,17 @@ from ...utils import EnumBase
 class SchemaFormats(str, EnumBase):
     """Valid Schema Formats for conversion"""
     # CDDL = "cddl"      #: Convert to [CDDL Format](https://www.rfc-editor.org/rfc/rfc8610)
-    GraphViz = "gv"    #: Convert to [GraphViz Format](https://graphviz.org/doc/info/lang.html)
-    HTML = "html"      #: Convert to HTML Format
-    JIDL = "jidl"      #: Convert to [JIDL Format]()
-    JADN = "jadn"      #: Convert to [JADN Format](https://docs.oasis-open.org/openc2/jadn/v1.0/csd01/jadn-v1.0-csd01.html)
+    GraphViz = "gv"      #: Convert to [GraphViz Format](https://graphviz.org/doc/info/lang.html)
+    HTML = "html"        #: Convert to HTML Format
+    JIDL = "jidl"        #: Convert to [JIDL Format]()
+    JADN = "jadn"        #: Convert to [JADN Format](https://docs.oasis-open.org/openc2/jadn/v1.0/csd01/jadn-v1.0-csd01.html)
     # JAS = "jas"        #: Convert to [JAS Format]()
-    MarkDown = "md"    #: Convert to MarkDown Format
+    MarkDown = "md"      #: Convert to MarkDown Format
     # Proto = "proto"    #: Convert to [ProtoBuf Format](https://developers.google.com/protocol-buffers/docs/proto3)
-    Relax = "rng"      #: Convert to [RelaxNG Format](https://relaxng.org/spec-20011203.html)
+    Relax = "rng"        #: Convert to [RelaxNG Format](https://relaxng.org/spec-20011203.html)
     # Thrift = "thrift"  #: Convert to [Thrift Format](https://thrift.apache.org/)
-
+    JSON = "json"        #: Using JADN PyPkg, no logic in JADN Schema 
+    PlantUML = "puml"    #: Using JADN PyPkg, no logic in JADN Schema
 
 class CommentLevels(str, EnumBase):
     """Conversion Comment Level"""
